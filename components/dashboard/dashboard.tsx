@@ -1,5 +1,6 @@
 import Hero from "./hero";
 import Stats from "./stats";
+import QuickActions from "./quick-actions";
 import TopicsProgress from "./topics-progress";
 import WeeklyChart from "./weekly-chart";
 import TodayPlan from "./today-plan";
@@ -13,7 +14,10 @@ export default function Dashboard() {
 
       <Hero />
 
+      <QuickActions />
+
       <Stats />
+
 
       {/* پیشرفت مباحث + تحلیل هوش مصنوعی */}
       <div className="grid lg:grid-cols-2 gap-6">
@@ -23,6 +27,7 @@ export default function Dashboard() {
         <AIInsights />
 
       </div>
+
 
       {/* نمودار + آمادگی */}
       <div className="grid lg:grid-cols-3 gap-6">
@@ -35,6 +40,7 @@ export default function Dashboard() {
 
       </div>
 
+
       {/* برنامه امروز + فعالیت‌ها */}
       <div className="grid lg:grid-cols-2 gap-6">
 
@@ -43,6 +49,7 @@ export default function Dashboard() {
         <RecentActivity />
 
       </div>
+
 
     </div>
   );
