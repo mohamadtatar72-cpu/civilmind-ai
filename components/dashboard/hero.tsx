@@ -1,62 +1,60 @@
+import { dashboardData } from "@/lib/data/dashboard";
+
 export default function Hero() {
+  const { exam } = dashboardData;
+
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-900 to-blue-950 p-10">
+    <div className="rounded-2xl border bg-card p-6 shadow-sm">
+      <div className="space-y-4">
 
-      <div className="max-w-3xl">
+        <div>
+          <h1 className="text-3xl font-bold">
+            CivilMind AI
+          </h1>
 
-        <span className="rounded-full bg-blue-500/20 px-4 py-2 text-sm text-blue-300">
-          CivilMind AI • نسخه حرفه‌ای
-        </span>
+          <p className="text-muted-foreground mt-2">
+            {exam.title}
+          </p>
+        </div>
 
-        <h1 className="mt-6 text-5xl font-black leading-tight text-white">
-          داشبورد هوشمند آمادگی آزمون
-          <br />
-          نظام مهندسی عمران
-        </h1>
 
-        <p className="mt-6 text-lg leading-8 text-zinc-300">
-          یک پلتفرم مبتنی بر هوش مصنوعی برای مدیریت کامل فرآیند مطالعه،
-          تحلیل مباحث، پیش‌بینی سوالات آزمون، جستجوی هوشمند داخل مباحث
-          مقررات ملی ساختمان، مدیریت PDFها، بانک سوالات و برنامه‌ریزی
-          شخصی تا روز آزمون.
-        </p>
+        <div className="grid gap-4 md:grid-cols-3">
 
-        <div className="mt-10 flex flex-wrap gap-4">
-
-          <div className="rounded-2xl bg-zinc-900/70 px-6 py-4 backdrop-blur">
-            <p className="text-sm text-zinc-400">
+          <div className="rounded-xl bg-muted p-4">
+            <p className="text-sm text-muted-foreground">
               روز باقی‌مانده
             </p>
 
-            <h2 className="mt-2 text-4xl font-bold text-blue-400">
-              87
-            </h2>
+            <p className="text-3xl font-bold">
+              {exam.daysLeft}
+            </p>
           </div>
 
-          <div className="rounded-2xl bg-zinc-900/70 px-6 py-4 backdrop-blur">
-            <p className="text-sm text-zinc-400">
+
+          <div className="rounded-xl bg-muted p-4">
+            <p className="text-sm text-muted-foreground">
               درصد آمادگی
             </p>
 
-            <h2 className="mt-2 text-4xl font-bold text-green-400">
-              71%
-            </h2>
+            <p className="text-3xl font-bold">
+              {exam.readiness}%
+            </p>
           </div>
 
-          <div className="rounded-2xl bg-zinc-900/70 px-6 py-4 backdrop-blur">
-            <p className="text-sm text-zinc-400">
+
+          <div className="rounded-xl bg-muted p-4">
+            <p className="text-sm text-muted-foreground">
               رتبه پیش‌بینی
             </p>
 
-            <h2 className="mt-2 text-4xl font-bold text-yellow-400">
-              A+
-            </h2>
+            <p className="text-3xl font-bold">
+              {exam.predictedRank}
+            </p>
           </div>
 
         </div>
 
       </div>
-
-    </section>
+    </div>
   );
 }
