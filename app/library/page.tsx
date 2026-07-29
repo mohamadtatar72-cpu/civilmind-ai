@@ -1,3 +1,4 @@
+import Link from "next/link";
 import AppShell from "@/components/layout/app-shell";
 import { topics } from "@/lib/data/library";
 
@@ -27,7 +28,7 @@ export default function LibraryPage() {
               className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6"
             >
 
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between">
 
                 <h2 className="font-bold text-lg text-white">
                   {topic.title}
@@ -52,17 +53,25 @@ export default function LibraryPage() {
               </div>
 
 
-              <div className="mt-5 flex justify-between text-sm text-zinc-400">
+              <div className="mt-5 text-sm text-zinc-400 space-y-2">
 
-                <span>
-                  PDF {topic.pdf ? "✓" : "×"}
-                </span>
+                <p>
+                  PDF: {topic.pdf ? "موجود" : "ندارد"}
+                </p>
 
-                <span>
-                  {topic.questions} سوال
-                </span>
+                <p>
+                  سوالات: {topic.questions}
+                </p>
 
               </div>
+
+
+              <Link
+                href={`/library/${topic.id}`}
+                className="mt-5 block rounded-xl bg-blue-600 px-4 py-3 text-center text-white hover:bg-blue-700"
+              >
+                مشاهده مبحث
+              </Link>
 
 
             </div>
