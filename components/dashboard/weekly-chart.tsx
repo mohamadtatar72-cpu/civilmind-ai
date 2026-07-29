@@ -26,7 +26,7 @@ export default function WeeklyChart() {
 
       <div className="h-72">
 
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={280}>
 
           <LineChart data={data}>
 
