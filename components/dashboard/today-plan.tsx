@@ -1,22 +1,7 @@
+import { dashboardData } from "@/lib/data/dashboard";
+
 export default function TodayPlan() {
-  const tasks = [
-    {
-      title: "مطالعه مبحث ۹ (بتن)",
-      progress: 80,
-    },
-    {
-      title: "حل آزمون شماره ۱۲",
-      progress: 40,
-    },
-    {
-      title: "مرور مبحث ۷",
-      progress: 20,
-    },
-    {
-      title: "مرور اشتباهات آزمون",
-      progress: 65,
-    },
-  ];
+  const tasks = dashboardData.todayPlan;
 
   return (
     <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
@@ -24,6 +9,7 @@ export default function TodayPlan() {
       <h2 className="text-xl font-bold mb-6">
         برنامه امروز
       </h2>
+
 
       <div className="space-y-5">
 
@@ -33,13 +19,16 @@ export default function TodayPlan() {
 
             <div className="flex justify-between mb-2">
 
-              <span>{task.title}</span>
+              <span>
+                {task.title}
+              </span>
 
               <span className="text-zinc-400">
                 {task.progress}%
               </span>
 
             </div>
+
 
             <div className="h-2 rounded-full bg-zinc-800">
 
