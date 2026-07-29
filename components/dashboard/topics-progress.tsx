@@ -1,17 +1,12 @@
-const topics = [
-  { id: 1, name: "مبحث ۱", value: 100 },
-  { id: 2, name: "مبحث ۲", value: 90 },
-  { id: 3, name: "مبحث ۳", value: 75 },
-  { id: 4, name: "مبحث ۴", value: 60 },
-  { id: 5, name: "مبحث ۵", value: 40 },
-  { id: 6, name: "مبحث ۶", value: 55 },
-  { id: 7, name: "مبحث ۷", value: 20 },
-  { id: 8, name: "مبحث ۸", value: 30 },
-  { id: 9, name: "مبحث ۹", value: 95 },
-  { id: 10, name: "مبحث ۱۰", value: 80 },
-];
+import { dashboardData } from "@/lib/data/dashboard";
 
 export default function TopicsProgress() {
+  const topics = dashboardData.topicsProgress;
+
+  const studiedTopics = topics.filter(
+    (topic) => topic.progress > 0
+  ).length;
+
   return (
     <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
 
@@ -30,7 +25,7 @@ export default function TopicsProgress() {
         <div className="text-right">
 
           <div className="text-3xl font-bold text-blue-400">
-            9/22
+            {studiedTopics}/22
           </div>
 
           <div className="text-sm text-zinc-400">
@@ -41,26 +36,32 @@ export default function TopicsProgress() {
 
       </div>
 
+
       <div className="space-y-4">
 
-        {topics.map((topic) => (
+        {topics.map((topic, index) => (
 
-          <div key={topic.id}>
+          <div key={index}>
 
             <div className="flex justify-between mb-2 text-sm">
 
-              <span>{topic.name}</span>
+              <span>
+                {topic.name}
+              </span>
 
-              <span>{topic.value}%</span>
+              <span>
+                {topic.progress}%
+              </span>
 
             </div>
+
 
             <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
 
               <div
                 className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-600"
                 style={{
-                  width: `${topic.value}%`,
+                  width: `${topic.progress}%`,
                 }}
               />
 
