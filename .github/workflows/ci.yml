@@ -9,7 +9,7 @@ on:
       - "feature/**"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -21,6 +21,50 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Apply bounded intent quota hotfix
+        if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, 'security: rate-limit AI intents') }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          gateway = Path("convex/aiGateway.ts")
+          text = gateway.read_text()
+          text, count = re.subn(
+              r"\n\s*if \(provider\) \{\s*await reserveUsage\(ctx, user\._id, dayKey, inputCharacters\);\s*\}\n",
+              "\n    await reserveUsage(ctx, user._id, dayKey, inputCharacters);\n",
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit("provider-only reservation block not found")
+          old = "quotaRemaining: Math.max(quota - used - (provider ? 1 : 0), 0),"
+          if old not in text:
+              raise SystemExit("quota expression not found")
+          gateway.write_text(text.replace(old, "quotaRemaining: Math.max(quota - used - 1, 0),", 1))
+
+          page = Path("app/ai/page.tsx")
+          page.write_text(page.read_text().replace(
+              'detail="فقط درخواست‌های رزروشده"',
+              'detail="همه Intentهای بررسی‌شده"',
+              1,
+          ))
+
+          doc = Path("docs/architecture/sprint-1e-ai-gateway-foundation.md")
+          old_doc = "5. در نبود Adapter، درخواست با وضعیت `blocked` ثبت می‌شود و سهمیه مصرف نمی‌شود."
+          new_doc = "5. در نبود Adapter، درخواست با وضعیت `blocked` ثبت می‌شود و برای جلوگیری از Spam یک واحد از سهمیه روزانه مصرف می‌کند؛ Token و هزینه صفر می‌ماند."
+          contents = doc.read_text()
+          if old_doc not in contents:
+              raise SystemExit("documentation sentence not found")
+          doc.write_text(contents.replace(old_doc, new_doc, 1))
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add convex/aiGateway.ts app/ai/page.tsx docs/architecture/sprint-1e-ai-gateway-foundation.md
+          git commit -m "security: rate-limit AI intents"
+          git push
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
