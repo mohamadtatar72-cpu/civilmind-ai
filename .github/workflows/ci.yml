@@ -1,0 +1,64 @@
+name: CivilMind CI
+
+on:
+  pull_request:
+    branches:
+      - develop/civilmind-v2
+  push:
+    branches:
+      - "feature/**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CONVEX_AGENT_MODE: anonymous
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Prepare fail-closed CI authentication config
+        run: |
+          cat > convex/auth.config.ts <<'EOF'
+          import type { AuthConfig } from "convex/server";
+
+          export default {
+            providers: [
+              {
+                domain: "https://clerk-not-configured.invalid",
+                applicationID: "convex",
+              },
+            ],
+          } satisfies AuthConfig;
+          EOF
+
+      - name: Generate and validate Convex functions
+        run: npx convex dev --once
+
+      - name: Verify lockfile and generated API are current
+        run: |
+          git checkout -- convex/auth.config.ts
+          git diff --exit-code -- package-lock.json convex/_generated
+
+      - name: Lint
+        run: npm run lint
+
+      - name: TypeScript
+        run: npx tsc --noEmit
+
+      - name: Production build
+        run: npm run build
