@@ -1,0 +1,55 @@
+name: CivilMind CI
+
+on:
+  pull_request:
+    branches:
+      - develop/civilmind-v2
+  push:
+    branches:
+      - "feature/**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLERK_JWT_ISSUER_DOMAIN: https://clerk.invalid
+      CONVEX_AGENT_MODE: anonymous
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies and refresh lockfile
+        run: npm install --no-audit --no-fund
+
+      - name: Generate and validate Convex functions
+        run: npx convex dev --once
+
+      - name: Lint
+        run: npm run lint
+
+      - name: TypeScript
+        run: npx tsc --noEmit
+
+      - name: Production build
+        run: npm run build
+
+      - name: Upload generated dependency and Convex files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sprint-1c-generated-files
+          if-no-files-found: warn
+          path: |
+            package-lock.json
+            convex/_generated
