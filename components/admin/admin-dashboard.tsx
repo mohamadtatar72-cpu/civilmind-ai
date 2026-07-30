@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  Bot,
   ClipboardCheck,
   FileClock,
   ShieldCheck,
@@ -29,6 +30,12 @@ const sections = [
     href: "/admin/source-approvals",
     icon: ClipboardCheck,
   },
+  {
+    title: "درگاه هوش مصنوعی",
+    description: "مدیریت سهمیه، بودجه، Provider Registry و Circuit Breaker.",
+    href: "/admin/ai-gateway",
+    icon: Bot,
+  },
 ] as const;
 
 export default function AdminDashboard() {
@@ -41,7 +48,7 @@ export default function AdminDashboard() {
           description="ابزارهای حساس سامانه فقط پس از احراز هویت و تأیید نقش مدیر در Convex فعال می‌شوند."
           action={<StatusBadge tone="info">دسترسی مدیر تأیید شد</StatusBadge>}
         />
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {sections.map((section) => {
             const Icon = section.icon;
             return (
