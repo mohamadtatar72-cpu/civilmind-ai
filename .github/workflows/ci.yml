@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      CLERK_JWT_ISSUER_DOMAIN: https://clerk.invalid
       CONVEX_AGENT_MODE: anonymous
 
     steps:
@@ -31,6 +30,21 @@ jobs:
 
       - name: Install dependencies and refresh lockfile
         run: npm install --no-audit --no-fund
+
+      - name: Prepare fail-closed CI authentication config
+        run: |
+          cat > convex/auth.config.ts <<'EOF'
+          import type { AuthConfig } from "convex/server";
+
+          export default {
+            providers: [
+              {
+                domain: "https://clerk-not-configured.invalid",
+                applicationID: "convex",
+              },
+            ],
+          } satisfies AuthConfig;
+          EOF
 
       - name: Generate and validate Convex functions
         run: npx convex dev --once
