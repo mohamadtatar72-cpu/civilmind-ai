@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { writeAuditLog } from "./lib/audit";
 import { requireAdmin } from "./lib/auth";
@@ -33,21 +34,7 @@ const proposalValidator = v.object({
   reviewNote: v.optional(v.string()),
 });
 
-function toPublicProposal(proposal: {
-  _id: any;
-  sourceKey: string;
-  sourceUrl: string;
-  title: string;
-  summary: string;
-  riskLevel: "low" | "medium" | "high" | "critical";
-  securityReport: string;
-  contentHash: string;
-  status: "pending" | "approved" | "rejected" | "quarantined";
-  detectedAt: number;
-  reviewedAt?: number;
-  reviewedBy?: any;
-  reviewNote?: string;
-}) {
+function toPublicProposal(proposal: Doc<"sourceChangeProposals">) {
   return {
     id: proposal._id,
     sourceKey: proposal.sourceKey,
