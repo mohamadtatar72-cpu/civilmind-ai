@@ -1,0 +1,69 @@
+name: Hotfix AI intent rate limit
+
+on:
+  push:
+    branches:
+      - hotfix/sprint-1e-intent-rate-limit
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, 'security: rate-limit AI intents') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply abuse protection
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          gateway = Path("convex/aiGateway.ts")
+          text = gateway.read_text()
+          text, count = re.subn(
+              r"\n\s*if \(provider\) \{\s*await reserveUsage\(ctx, user\._id, dayKey, inputCharacters\);\s*\}\n",
+              "\n    await reserveUsage(ctx, user._id, dayKey, inputCharacters);\n",
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit("provider-only usage reservation block not found")
+
+          old_quota = "quotaRemaining: Math.max(quota - used - (provider ? 1 : 0), 0),"
+          if old_quota not in text:
+              raise SystemExit("quota expression not found")
+          text = text.replace(
+              old_quota,
+              "quotaRemaining: Math.max(quota - used - 1, 0),",
+              1,
+          )
+          gateway.write_text(text)
+
+          page = Path("app/ai/page.tsx")
+          page_text = page.read_text()
+          page_text = page_text.replace(
+              'detail="فقط درخواست‌های رزروشده"',
+              'detail="همه Intentهای بررسی‌شده"',
+              1,
+          )
+          page.write_text(page_text)
+
+          doc = Path("docs/architecture/sprint-1e-ai-gateway-foundation.md")
+          doc_text = doc.read_text()
+          old_doc = "5. در نبود Adapter، درخواست با وضعیت `blocked` ثبت می‌شود و سهمیه مصرف نمی‌شود."
+          new_doc = "5. در نبود Adapter، درخواست با وضعیت `blocked` ثبت می‌شود و برای جلوگیری از Spam یک واحد از سهمیه روزانه مصرف می‌کند؛ Token و هزینه صفر می‌ماند."
+          if old_doc not in doc_text:
+              raise SystemExit("documentation sentence not found")
+          doc.write_text(doc_text.replace(old_doc, new_doc, 1))
+          PY
+
+      - name: Commit hotfix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add convex/aiGateway.ts app/ai/page.tsx docs/architecture/sprint-1e-ai-gateway-foundation.md
+          git commit -m "security: rate-limit AI intents"
+          git push
