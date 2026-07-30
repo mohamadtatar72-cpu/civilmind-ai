@@ -9,7 +9,7 @@ on:
       - "feature/**"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   validate:
@@ -49,21 +49,10 @@ jobs:
       - name: Generate and validate Convex functions
         run: npx convex dev --once
 
-      - name: Commit tested generated Convex API
-        if: >-
-          github.event_name == 'push' &&
-          !contains(github.event.head_commit.message, 'chore: refresh Sprint 1E generated API')
+      - name: Verify lockfile and generated API are current
         run: |
           git checkout -- convex/auth.config.ts
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add convex/_generated
-          if git diff --cached --quiet; then
-            echo "Generated files are already current."
-          else
-            git commit -m "chore: refresh Sprint 1E generated API"
-            git push
-          fi
+          git diff --exit-code -- package-lock.json convex/_generated
 
       - name: Lint
         run: npm run lint
