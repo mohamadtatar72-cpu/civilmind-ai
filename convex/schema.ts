@@ -21,6 +21,36 @@ const subscriptionStatus = v.union(
   v.literal("expired"),
 );
 
+const aiProvider = v.union(
+  v.literal("openai"),
+  v.literal("gemini"),
+  v.literal("anthropic"),
+);
+
+const aiCapability = v.union(
+  v.literal("study-coach"),
+  v.literal("exam-analysis"),
+  v.literal("study-planner"),
+  v.literal("pdf-question"),
+);
+
+const aiRequestStatus = v.union(
+  v.literal("planned"),
+  v.literal("queued"),
+  v.literal("running"),
+  v.literal("completed"),
+  v.literal("failed"),
+  v.literal("blocked"),
+  v.literal("cancelled"),
+);
+
+const aiCircuitStatus = v.union(
+  v.literal("closed"),
+  v.literal("open"),
+  v.literal("half-open"),
+  v.literal("disabled"),
+);
+
 const sourceRisk = v.union(
   v.literal("low"),
   v.literal("medium"),
@@ -179,6 +209,96 @@ export default defineSchema({
     .index("by_action_and_createdAt", ["action", "createdAt"])
     .index("by_resourceType_and_createdAt", ["resourceType", "createdAt"])
     .index("by_createdAt", ["createdAt"]),
+
+  aiGatewayPolicies: defineTable({
+    key: v.literal("default"),
+    freeDailyRequests: v.number(),
+    premiumDailyRequests: v.number(),
+    adminDailyRequests: v.number(),
+    maxInputCharacters: v.number(),
+    maxOutputTokens: v.number(),
+    monthlyBudgetMicrousd: v.number(),
+    fallbackEnabled: v.boolean(),
+    updatedAt: v.number(),
+    updatedBy: v.optional(v.id("users")),
+  }).index("by_key", ["key"]),
+
+  aiProviderConfigs: defineTable({
+    provider: aiProvider,
+    displayName: v.string(),
+    enabled: v.boolean(),
+    adapterReady: v.boolean(),
+    routePriority: v.number(),
+    modelAlias: v.string(),
+    maxConcurrency: v.number(),
+    timeoutMs: v.number(),
+    monthlyBudgetMicrousd: v.number(),
+    spendMicrousd: v.number(),
+    circuitStatus: aiCircuitStatus,
+    consecutiveFailures: v.number(),
+    openedAt: v.optional(v.number()),
+    cooldownUntil: v.optional(v.number()),
+    lastSuccessAt: v.optional(v.number()),
+    lastFailureAt: v.optional(v.number()),
+    updatedAt: v.number(),
+    updatedBy: v.optional(v.id("users")),
+  })
+    .index("by_provider", ["provider"])
+    .index("by_enabled_and_routePriority", ["enabled", "routePriority"])
+    .index("by_circuitStatus", ["circuitStatus"]),
+
+  aiRequestLedger: defineTable({
+    userId: v.id("users"),
+    dayKey: v.string(),
+    idempotencyKey: v.string(),
+    capability: aiCapability,
+    status: aiRequestStatus,
+    provider: v.optional(aiProvider),
+    modelAlias: v.optional(v.string()),
+    inputCharacters: v.number(),
+    inputTokens: v.optional(v.number()),
+    outputTokens: v.optional(v.number()),
+    estimatedCostMicrousd: v.number(),
+    actualCostMicrousd: v.optional(v.number()),
+    failureCode: v.optional(v.string()),
+    createdAt: v.number(),
+    startedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_userId_and_createdAt", ["userId", "createdAt"])
+    .index("by_userId_and_dayKey", ["userId", "dayKey"])
+    .index("by_userId_and_idempotencyKey", ["userId", "idempotencyKey"])
+    .index("by_status_and_createdAt", ["status", "createdAt"])
+    .index("by_provider_and_createdAt", ["provider", "createdAt"]),
+
+  aiUsageBuckets: defineTable({
+    userId: v.id("users"),
+    dayKey: v.string(),
+    requestCount: v.number(),
+    reservedInputCharacters: v.number(),
+    inputTokens: v.number(),
+    outputTokens: v.number(),
+    costMicrousd: v.number(),
+    updatedAt: v.number(),
+  }).index("by_userId_and_dayKey", ["userId", "dayKey"]),
+
+  aiProviderEvents: defineTable({
+    provider: aiProvider,
+    event: v.union(
+      v.literal("request-success"),
+      v.literal("request-failure"),
+      v.literal("circuit-opened"),
+      v.literal("circuit-half-open"),
+      v.literal("circuit-closed"),
+      v.literal("provider-disabled"),
+    ),
+    requestId: v.optional(v.id("aiRequestLedger")),
+    code: v.optional(v.string()),
+    message: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_provider_and_createdAt", ["provider", "createdAt"])
+    .index("by_event_and_createdAt", ["event", "createdAt"]),
 
   sourceSyncRuns: defineTable({
     trigger: v.union(v.literal("manual"), v.literal("scheduled")),
