@@ -119,7 +119,7 @@ export default function AIPage() {
             <MetricCard
               label="مصرف امروز"
               value={gateway ? String(gateway.usedToday) : "…"}
-              detail="فقط درخواست‌های رزروشده"
+              detail="همه Intentهای بررسی‌شده"
               tone="amber"
             />
             <MetricCard
