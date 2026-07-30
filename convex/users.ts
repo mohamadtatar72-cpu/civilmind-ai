@@ -178,7 +178,9 @@ async function provisionCurrentUser(ctx: MutationCtx) {
     lastSeenAt: now,
   };
   if (email) patch.email = email;
-  if (displayName) patch.displayName = displayName;
+  if (displayName && (!user.onboardingCompleted || !user.displayName)) {
+    patch.displayName = displayName;
+  }
   if (imageUrl) patch.imageUrl = imageUrl;
   await ctx.db.patch(user._id, patch);
   await ensureSubscription(ctx, user._id, user.role);
@@ -237,13 +239,12 @@ export const claimInitialAdmin = mutation({
     const user = await provisionCurrentUser(ctx);
     const bootstrapEmail = normalizeEmail(process.env.ADMIN_BOOTSTRAP_EMAIL);
     const identityEmail = normalizeEmail(identity.email);
-    const claims = identity as typeof identity & { email_verified?: boolean };
 
     if (
       !bootstrapEmail ||
       !identityEmail ||
       identityEmail !== bootstrapEmail ||
-      claims.email_verified !== true ||
+      identity.emailVerified !== true ||
       user.status !== "active"
     ) {
       await writeAuditLog(ctx, {
