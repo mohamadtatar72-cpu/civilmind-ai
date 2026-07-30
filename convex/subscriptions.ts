@@ -22,14 +22,6 @@ const publicSubscriptionValidator = v.object({
   updatedAt: v.number(),
 });
 
-function toPublicSubscription(subscription: {
-  _id: Parameters<typeof publicSubscriptionValidator["json"]>[0] extends never
-    ? never
-    : never;
-}) {
-  return subscription;
-}
-
 export const current = query({
   args: {},
   returns: v.union(publicSubscriptionValidator, v.null()),
