@@ -238,7 +238,9 @@ export const adminReview = mutation({
       metadata: {
         sourceKey: proposal.sourceKey,
         riskLevel: proposal.riskLevel,
-        snapshotId: proposal.snapshotId,
+        ...(proposal.snapshotId === undefined
+          ? {}
+          : { snapshotId: proposal.snapshotId }),
         note,
       },
     });
@@ -296,6 +298,7 @@ export const adminRollbackResource = mutation({
       }
     }
 
+    const previousSnapshotId = resource.lastSnapshotId;
     const now = Date.now();
     await ctx.db.patch(snapshot._id, {
       isLastKnownGood: true,
@@ -322,7 +325,9 @@ export const adminRollbackResource = mutation({
       metadata: {
         sourceKey: args.sourceKey,
         snapshotId: snapshot._id,
-        previousSnapshotId: resource.lastSnapshotId,
+        ...(previousSnapshotId === undefined
+          ? {}
+          : { previousSnapshotId }),
         note,
       },
     });
