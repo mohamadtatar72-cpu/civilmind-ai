@@ -8,8 +8,14 @@
  * @module
  */
 
+import type * as auditLogs from "../auditLogs.js";
+import type * as lib_audit from "../lib/audit.js";
+import type * as lib_auth from "../lib/auth.js";
 import type * as officialResources from "../officialResources.js";
+import type * as sourceApprovals from "../sourceApprovals.js";
+import type * as subscriptions from "../subscriptions.js";
 import type * as topics from "../topics.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -18,8 +24,14 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  auditLogs: typeof auditLogs;
+  "lib/audit": typeof lib_audit;
+  "lib/auth": typeof lib_auth;
   officialResources: typeof officialResources;
+  sourceApprovals: typeof sourceApprovals;
+  subscriptions: typeof subscriptions;
   topics: typeof topics;
+  users: typeof users;
 }>;
 
 /**
