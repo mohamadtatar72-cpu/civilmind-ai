@@ -1,4 +1,5 @@
-import { v, type Id } from "convex/values";
+import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { action, internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { requireActiveUser } from "./lib/auth";
