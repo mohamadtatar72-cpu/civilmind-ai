@@ -70,7 +70,7 @@ export default function PlannerPage() {
             </p>
 
             <p className="mt-3 text-4xl font-bold text-white">
-              9/22
+              ۹ مبحث
             </p>
           </div>
 

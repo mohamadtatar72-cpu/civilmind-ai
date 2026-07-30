@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3, BookOpen, Bot, CalendarDays, ChevronLeft,
   FileQuestion, GraduationCap, LayoutDashboard, Menu, Network, Search,
-  Settings, Target, UserRound, Users, X,
+  Settings, Target, UserRound, Users, X, Landmark,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,7 @@ const navigation = [
 const utilities = [
   { label: "نقشه دانش", href: "/graph", icon: Network },
   { label: "کتابخانه PDF", href: "/pdf", icon: GraduationCap },
+  { label: "منابع رسمی", href: "/official-sources", icon: Landmark },
   { label: "جستجوی هوشمند", href: "/search", icon: Search },
   { label: "تنظیمات", href: "/settings", icon: Settings },
 ] as const;

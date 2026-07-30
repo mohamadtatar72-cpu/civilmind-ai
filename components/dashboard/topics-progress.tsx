@@ -25,11 +25,11 @@ export default function TopicsProgress() {
         <div className="text-right">
 
           <div className="text-3xl font-bold text-blue-400">
-            {studiedTopics}/22
+            {studiedTopics.toLocaleString("fa-IR")}
           </div>
 
           <div className="text-sm text-zinc-400">
-            مطالعه شده
+            مبحث ثبت‌شده در داده فعلی
           </div>
 
         </div>

@@ -28,8 +28,12 @@ const items = [
     title: "منابع",
     children: [
       {
-        title: "مباحث ۲۲ گانه",
+        title: "مباحث مقررات ملی ساختمان",
         href: "/library",
+      },
+      {
+        title: "منابع رسمی",
+        href: "/official-sources",
       },
       {
         title: "PDF ها",
