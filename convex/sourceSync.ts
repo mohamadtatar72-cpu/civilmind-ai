@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
 import {
   internalAction,
@@ -24,6 +24,14 @@ const runStatusValidator = v.union(
   v.literal("failed"),
 );
 
+const itemStatusValidator = v.union(
+  v.literal("baseline"),
+  v.literal("unchanged"),
+  v.literal("proposal"),
+  v.literal("quarantined"),
+  v.literal("failed"),
+);
+
 const runValidator = v.object({
   id: v.id("sourceSyncRuns"),
   trigger: v.union(v.literal("manual"), v.literal("scheduled")),
@@ -40,14 +48,6 @@ const runValidator = v.object({
   errorSummary: v.optional(v.string()),
 });
 
-const itemStatusValidator = v.union(
-  v.literal("baseline"),
-  v.literal("unchanged"),
-  v.literal("proposal"),
-  v.literal("quarantined"),
-  v.literal("failed"),
-);
-
 const itemValidator = v.object({
   id: v.id("sourceSyncItems"),
   runId: v.id("sourceSyncRuns"),
@@ -61,21 +61,7 @@ const itemValidator = v.object({
   processedAt: v.number(),
 });
 
-function toPublicRun(run: {
-  _id: Id<"sourceSyncRuns">;
-  trigger: "manual" | "scheduled";
-  status: "queued" | "running" | "completed" | "partial" | "failed";
-  requestedBy?: Id<"users">;
-  startedAt: number;
-  completedAt?: number;
-  sourceCount: number;
-  baselineCount: number;
-  unchangedCount: number;
-  changedCount: number;
-  quarantinedCount: number;
-  failedCount: number;
-  errorSummary?: string;
-}) {
+function toPublicRun(run: Doc<"sourceSyncRuns">) {
   return {
     id: run._id,
     trigger: run.trigger,
@@ -181,7 +167,6 @@ export const getRunContext = internalQuery({
   args: { runId: v.id("sourceSyncRuns") },
   returns: v.union(
     v.object({
-      runId: v.id("sourceSyncRuns"),
       resources: v.array(
         v.object({
           key: v.string(),
@@ -203,7 +188,6 @@ export const getRunContext = internalQuery({
       .take(50);
 
     return {
-      runId: run._id,
       resources: resources.map((resource) => ({
         key: resource.key,
         title: resource.title,
@@ -279,9 +263,9 @@ export const recordFetchResult = internalMutation({
       )
       .first();
 
-    let snapshotId = existingSnapshot?._id;
-    if (!snapshotId) {
-      snapshotId = await ctx.db.insert("sourceSnapshots", {
+    const snapshotId =
+      existingSnapshot?._id ??
+      (await ctx.db.insert("sourceSnapshots", {
         runId: args.runId,
         sourceKey: args.sourceKey,
         sourceUrl: args.sourceUrl,
@@ -298,8 +282,7 @@ export const recordFetchResult = internalMutation({
         findings: args.findings,
         isLastKnownGood: false,
         previousSnapshotId: resource.lastSnapshotId,
-      });
-    }
+      }));
 
     if (!resource.lastContentHash && args.securityStatus === "clean") {
       await ctx.db.patch(snapshotId, {
@@ -334,6 +317,11 @@ export const recordFetchResult = internalMutation({
         index.eq("sourceKey", args.sourceKey).eq("contentHash", args.contentHash),
       )
       .first();
+    const reusableProposal =
+      existingProposal !== null &&
+      ["pending", "quarantined"].includes(existingProposal.status)
+        ? existingProposal
+        : null;
 
     const previousSnapshot = resource.lastSnapshotId
       ? await ctx.db.get(resource.lastSnapshotId)
@@ -345,9 +333,9 @@ export const recordFetchResult = internalMutation({
     const proposalStatus =
       args.securityStatus === "quarantined" ? "quarantined" : "pending";
 
-    let proposalId = existingProposal?._id;
-    if (!proposalId || !["pending", "quarantined"].includes(existingProposal.status)) {
-      proposalId = await ctx.db.insert("sourceChangeProposals", {
+    const proposalId =
+      reusableProposal?._id ??
+      (await ctx.db.insert("sourceChangeProposals", {
         sourceKey: args.sourceKey,
         sourceUrl: args.sourceUrl,
         title: args.title || resource.title,
@@ -363,8 +351,7 @@ export const recordFetchResult = internalMutation({
         diffSummary: change.diffSummary,
         changeKinds: change.changeKinds,
         scanFindings: args.findings,
-      });
-    }
+      }));
 
     await ctx.db.patch(resource._id, {
       lastSyncAt: now,
@@ -489,8 +476,10 @@ export const executeRun = internalAction({
           byteLength: result.byteLength,
           contentType: result.contentType,
           httpStatus: result.httpStatus,
-          etag: result.etag,
-          lastModified: result.lastModified,
+          ...(result.etag === undefined ? {} : { etag: result.etag }),
+          ...(result.lastModified === undefined
+            ? {}
+            : { lastModified: result.lastModified }),
           riskLevel: result.riskLevel,
           securityStatus: result.securityStatus,
           findings: result.findings,
@@ -521,7 +510,7 @@ export const executeRun = internalAction({
       changedCount,
       quarantinedCount,
       failedCount,
-      errorSummary: errors.length > 0 ? errors.join("; ") : undefined,
+      ...(errors.length === 0 ? {} : { errorSummary: errors.join("; ") }),
     });
     return null;
   },
