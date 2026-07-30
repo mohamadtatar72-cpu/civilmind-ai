@@ -10,9 +10,12 @@
 
 import type * as aiAdmin from "../aiAdmin.js";
 import type * as aiGateway from "../aiGateway.js";
+import type * as aiRuntime from "../aiRuntime.js";
 import type * as auditLogs from "../auditLogs.js";
 import type * as crons from "../crons.js";
+import type * as lib_aiAdapterContract from "../lib/aiAdapterContract.js";
 import type * as lib_aiPolicy from "../lib/aiPolicy.js";
+import type * as lib_aiToolPolicy from "../lib/aiToolPolicy.js";
 import type * as lib_audit from "../lib/audit.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_sourceSyncSecurity from "../lib/sourceSyncSecurity.js";
@@ -32,9 +35,12 @@ import type {
 declare const fullApi: ApiFromModules<{
   aiAdmin: typeof aiAdmin;
   aiGateway: typeof aiGateway;
+  aiRuntime: typeof aiRuntime;
   auditLogs: typeof auditLogs;
   crons: typeof crons;
+  "lib/aiAdapterContract": typeof lib_aiAdapterContract;
   "lib/aiPolicy": typeof lib_aiPolicy;
+  "lib/aiToolPolicy": typeof lib_aiToolPolicy;
   "lib/audit": typeof lib_audit;
   "lib/auth": typeof lib_auth;
   "lib/sourceSyncSecurity": typeof lib_sourceSyncSecurity;
