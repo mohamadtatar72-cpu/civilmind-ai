@@ -1,12 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import {
   ConvexProviderWithAuth,
   ConvexReactClient,
 } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
+import { CurrentAccountProvider } from "@/features/auth/convex-repository";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
@@ -32,10 +33,20 @@ function useDisabledAuth() {
   };
 }
 
+function ClerkAccountBoundary({ children }: { children: ReactNode }) {
+  const { user, isLoaded } = useUser();
+
+  return (
+    <CurrentAccountProvider sessionKey={isLoaded ? user?.id : undefined}>
+      {children}
+    </CurrentAccountProvider>
+  );
+}
+
 function ClerkConvexProvider({ children }: { children: ReactNode }) {
   return (
     <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
-      {children}
+      <ClerkAccountBoundary>{children}</ClerkAccountBoundary>
     </ConvexProviderWithClerk>
   );
 }
@@ -50,7 +61,7 @@ export function ConvexClientProvider({
         client={convexClient}
         useAuth={useDisabledAuth}
       >
-        {children}
+        <CurrentAccountProvider>{children}</CurrentAccountProvider>
       </ConvexProviderWithAuth>
     );
   }
