@@ -1,7 +1,7 @@
 import { dashboardData } from "@/lib/data/dashboard";
 
 export default function Hero() {
-  const { exam } = dashboardData;
+  const { readiness: exam } = dashboardData;
 
   return (
     <div className="rounded-2xl border bg-card p-6 shadow-sm">
@@ -13,7 +13,7 @@ export default function Hero() {
           </h1>
 
           <p className="text-muted-foreground mt-2">
-            {exam.title}
+            {exam.examTitle}
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export default function Hero() {
             </p>
 
             <p className="text-3xl font-bold">
-              {exam.readiness}%
+              {exam.percentage}%
             </p>
           </div>
 
@@ -48,7 +48,7 @@ export default function Hero() {
             </p>
 
             <p className="text-3xl font-bold">
-              {exam.predictedRank}
+              {exam.predictedBand}
             </p>
           </div>
 

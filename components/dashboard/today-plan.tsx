@@ -1,7 +1,7 @@
 import { dashboardData } from "@/lib/data/dashboard";
 
 export default function TodayPlan() {
-  const tasks = dashboardData.todayPlan;
+  const tasks = dashboardData.tasks;
 
   return (
     <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">

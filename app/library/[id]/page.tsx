@@ -1,6 +1,8 @@
 import AppShell from "@/components/layout/app-shell";
 import { topics } from "@/lib/data/library";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { StatusBadge } from "@/components/ui/civilmind";
 
 export default async function TopicPage({
   params,
@@ -14,13 +16,7 @@ export default async function TopicPage({
   );
 
   if (!topic) {
-    return (
-      <AppShell>
-        <div className="p-8 text-white">
-          مبحث پیدا نشد
-        </div>
-      </AppShell>
-    );
+    notFound();
   }
 
 
@@ -88,24 +84,18 @@ export default async function TopicPage({
         <div className="grid gap-6 md:grid-cols-2">
 
 
-          <button className="rounded-2xl bg-blue-600 p-5 text-white font-bold hover:bg-blue-700">
+          <Link href="/pdf" className="rounded-2xl bg-blue-600 p-5 text-center text-white font-bold hover:bg-blue-700">
             📄 مشاهده PDF مبحث
-          </button>
+          </Link>
 
 
-          <button className="rounded-2xl bg-zinc-800 p-5 text-white font-bold hover:bg-zinc-700">
-            🧠 خلاصه‌سازی با هوش مصنوعی
-          </button>
+          <Link href="/ai" className="rounded-2xl bg-zinc-800 p-5 text-center text-white font-bold hover:bg-zinc-700">🧠 گفتگو با مربی هوشمند</Link>
 
 
-          <button className="rounded-2xl bg-zinc-800 p-5 text-white font-bold hover:bg-zinc-700">
-            📝 شروع آزمون این مبحث
-          </button>
+          <div className="rounded-2xl bg-zinc-800 p-5 text-center text-white font-bold">📝 آزمون مبحثی <StatusBadge tone="info">در حال توسعه</StatusBadge></div>
 
 
-          <button className="rounded-2xl bg-zinc-800 p-5 text-white font-bold hover:bg-zinc-700">
-            📊 تحلیل عملکرد من
-          </button>
+          <Link href="/analytics" className="rounded-2xl bg-zinc-800 p-5 text-center text-white font-bold hover:bg-zinc-700">📊 تحلیل عملکرد من</Link>
 
 
         </div>

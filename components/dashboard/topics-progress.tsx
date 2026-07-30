@@ -1,7 +1,7 @@
 import { dashboardData } from "@/lib/data/dashboard";
 
 export default function TopicsProgress() {
-  const topics = dashboardData.topicsProgress;
+  const topics = dashboardData.topics;
 
   const studiedTopics = topics.filter(
     (topic) => topic.progress > 0
@@ -46,7 +46,7 @@ export default function TopicsProgress() {
             <div className="flex justify-between mb-2 text-sm">
 
               <span>
-                {topic.name}
+                {topic.title}
               </span>
 
               <span>

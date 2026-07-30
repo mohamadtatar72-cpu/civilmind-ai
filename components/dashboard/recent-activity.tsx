@@ -16,7 +16,7 @@ export default function RecentActivity() {
         {items.map((item) => (
 
           <div
-            key={item.title}
+            key={item.id}
             className="flex items-center justify-between rounded-2xl bg-zinc-800/50 p-4"
           >
 
@@ -35,7 +35,7 @@ export default function RecentActivity() {
 
 
             <span className="text-sm text-zinc-500">
-              {item.time}
+              {item.relativeTime}
             </span>
 
           </div>

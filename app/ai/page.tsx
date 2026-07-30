@@ -1,134 +1,22 @@
+"use client";
+
+import { FormEvent, useState } from "react";
 import AppShell from "@/components/layout/app-shell";
+import { GlassPanel, PageHeader, SectionTitle, StatusBadge } from "@/components/ui/civilmind";
 
-const suggestions = [
-  {
-    title: "خلاصه مبحث ۹ بتن",
-    icon: "📘",
-  },
-  {
-    title: "تحلیل آزمون اخیر",
-    icon: "📊",
-  },
-  {
-    title: "برنامه مطالعه امروز",
-    icon: "📅",
-  },
-  {
-    title: "سوال از PDF ها",
-    icon: "❓",
-  },
-];
-
+const suggestions = ["خلاصه مبحث ۹ بتن", "تحلیل آزمون اخیر", "برنامه مطالعه امروز", "سؤال از منابع PDF"];
 
 export default function AIPage() {
-  return (
-    <AppShell>
-
-      <div className="p-8 space-y-8">
-
-
-        <div>
-          <h1 className="text-3xl font-bold text-white">
-            AI Assistant
-          </h1>
-
-          <p className="mt-2 text-zinc-400">
-            دستیار هوشمند CivilMind برای آمادگی آزمون نظام مهندسی عمران
-          </p>
-        </div>
-
-
-
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-
-          <h2 className="text-xl font-bold text-white">
-            سلام مهندس 👋
-          </h2>
-
-          <p className="mt-3 text-zinc-400">
-            من دستیار هوشمند CivilMind هستم. می‌توانم در مطالعه مباحث، تحلیل آزمون‌ها و آماده‌سازی آزمون نظام مهندسی به شما کمک کنم.
-          </p>
-
-
-          <div className="mt-6 flex gap-3">
-
-            <input
-              placeholder="سوال خود را درباره عمران و آزمون بنویسید..."
-              className="flex-1 rounded-xl bg-zinc-800 px-4 py-3 text-white outline-none"
-            />
-
-
-            <button
-              className="rounded-xl bg-blue-600 px-6 text-white font-bold hover:bg-blue-700"
-            >
-              ارسال
-            </button>
-
-          </div>
-
-        </div>
-
-
-
-
-
-        <div>
-
-          <h2 className="mb-5 text-xl font-bold text-white">
-            پیشنهادهای سریع
-          </h2>
-
-
-          <div className="grid gap-5 md:grid-cols-4">
-
-            {suggestions.map((item)=>(
-
-              <button
-                key={item.title}
-                className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 text-right hover:bg-zinc-800"
-              >
-
-                <div className="text-3xl">
-                  {item.icon}
-                </div>
-
-
-                <p className="mt-4 font-bold text-white">
-                  {item.title}
-                </p>
-
-
-              </button>
-
-            ))}
-
-          </div>
-
-        </div>
-
-
-
-
-
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-
-
-          <h2 className="text-xl font-bold text-white">
-            آخرین تحلیل هوش مصنوعی
-          </h2>
-
-
-          <p className="mt-4 text-zinc-400 leading-8">
-            بر اساس روند مطالعه شما، پیشنهاد می‌شود ابتدا مبحث ۷ و ۸ مرور شود. سپس آزمون‌های مرتبط حل شده و اشتباهات آزمون‌های قبلی بررسی گردد.
-          </p>
-
-
-        </div>
-
-
-
-      </div>
-
-    </AppShell>
-  );
+  const [question, setQuestion] = useState("");
+  const [message, setMessage] = useState<string>();
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    if (!question.trim()) { setMessage("لطفاً ابتدا سؤال خود را بنویسید."); return; }
+    setMessage("مربی هوشمند هنوز به سرویس پاسخ‌گویی متصل نیست. پرسش شما فقط در همین صفحه نگه‌داری شد و جایی ارسال نشد.");
+  }
+  return <AppShell><div className="space-y-6">
+    <PageHeader eyebrow="مربی هوشمند" title="همراه مطالعاتی CivilMind" description="برای مرور مباحث، تحلیل مسیر و برنامه‌ریزی آماده می‌شود؛ اتصال مدل هوش مصنوعی در فاز backend انجام خواهد شد." action={<StatusBadge tone="info">حالت نمایشی امن</StatusBadge>} />
+    <GlassPanel><form onSubmit={submit}><label htmlFor="coach-question" className="font-bold">سؤال شما</label><div className="mt-3 flex flex-col gap-3 sm:flex-row"><input id="coach-question" value={question} onChange={event => setQuestion(event.target.value)} placeholder="سؤال خود را درباره عمران و آزمون بنویسید…" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none focus:border-blue-400/50" /><button type="submit" className="rounded-xl bg-blue-500 px-6 py-3 font-bold hover:bg-blue-400">بررسی پرسش</button></div>{message && <p role="status" className="mt-4 rounded-xl border border-blue-400/15 bg-blue-400/5 p-3 text-sm leading-6 text-blue-200">{message}</p>}</form></GlassPanel>
+    <GlassPanel><SectionTitle title="پیشنهادهای سریع" description="انتخاب هر مورد، متن پیشنهادی را در کادر قرار می‌دهد." /><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{suggestions.map(item => <button type="button" key={item} onClick={() => { setQuestion(item); setMessage(undefined); }} className="rounded-xl border border-white/10 bg-white/4 p-4 text-right text-sm font-semibold hover:border-blue-400/30 hover:bg-blue-400/5">{item}</button>)}</div></GlassPanel>
+  </div></AppShell>;
 }

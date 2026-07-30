@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const books = [
   {
     title: "مبحث ۱",
@@ -49,9 +51,9 @@ return (
 
 </div>
 
-<button className="rounded-xl bg-blue-600 px-4 py-2 hover:bg-blue-500">
-بارگذاری PDF
-</button>
+<Link href="/pdf" className="rounded-xl bg-blue-600 px-4 py-2 hover:bg-blue-500">
+مشاهده کتابخانه PDF
+</Link>
 
 </div>
 

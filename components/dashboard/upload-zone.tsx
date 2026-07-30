@@ -19,9 +19,12 @@ export default function UploadZone() {
         </p>
 
         <button
+          type="button"
+          disabled
+          title="بارگذاری فایل در حال توسعه است"
           className="mt-6 rounded-xl bg-blue-600 px-6 py-3 font-semibold hover:bg-blue-500 transition"
         >
-          انتخاب فایل
+          بارگذاری فایل — در حال توسعه
         </button>
 
       </div>

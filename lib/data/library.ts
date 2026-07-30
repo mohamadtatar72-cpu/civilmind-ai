@@ -1,4 +1,11 @@
-export const topics = [
+import type { TopicProgress } from "@/features/dashboard/domain";
+
+type LibraryTopic = Omit<TopicProgress, "hasPdf" | "questionCount"> & {
+  pdf: boolean;
+  questions: number;
+};
+
+export const topics: LibraryTopic[] = [
   {
     id: 1,
     title: "مبحث ۱ - تعاریف",
