@@ -18,6 +18,14 @@ const categoryValidator = v.union(
   v.literal("exam-notice"),
 );
 
+const syncStatusValidator = v.union(
+  v.literal("baseline"),
+  v.literal("unchanged"),
+  v.literal("pending-review"),
+  v.literal("quarantined"),
+  v.literal("failed"),
+);
+
 export const publicOfficialResourceValidator = v.object({
   key: v.string(),
   title: v.string(),
@@ -34,6 +42,9 @@ export const publicOfficialResourceValidator = v.object({
   isActive: v.boolean(),
   order: v.number(),
   lastVerifiedAt: v.optional(v.number()),
+  lastSyncAt: v.optional(v.number()),
+  lastSyncStatus: v.optional(syncStatusValidator),
+  lastHttpStatus: v.optional(v.number()),
 });
 
 type OfficialResourcesDataModel = DataModelFromSchemaDefinition<typeof schema>;
@@ -61,6 +72,15 @@ function toPublicOfficialResource(resource: OfficialResourceDocument) {
     ...(resource.lastVerifiedAt === undefined
       ? {}
       : { lastVerifiedAt: resource.lastVerifiedAt }),
+    ...(resource.lastSyncAt === undefined
+      ? {}
+      : { lastSyncAt: resource.lastSyncAt }),
+    ...(resource.lastSyncStatus === undefined
+      ? {}
+      : { lastSyncStatus: resource.lastSyncStatus }),
+    ...(resource.lastHttpStatus === undefined
+      ? {}
+      : { lastHttpStatus: resource.lastHttpStatus }),
   };
 }
 
