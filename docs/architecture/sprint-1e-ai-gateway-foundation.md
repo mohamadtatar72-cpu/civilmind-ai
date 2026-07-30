@@ -47,7 +47,7 @@ Raw Prompt و پاسخ مدل عمداً در Ledger ذخیره نمی‌شون�
 2. Backend طول ورودی، Idempotency و سهمیه روزانه را بررسی می‌کند.
 3. Provider فقط از Registry داخلی انتخاب می‌شود.
 4. Provider باید Enabled، AdapterReady، داخل بودجه و با Circuit مجاز باشد.
-5. در نبود Adapter، درخواست با وضعیت `blocked` ثبت می‌شود و سهمیه مصرف نمی‌شود.
+5. در نبود Adapter، درخواست با وضعیت `blocked` ثبت می‌شود و برای جلوگیری از Spam یک واحد از سهمیه روزانه مصرف می‌کند؛ Token و هزینه صفر می‌ماند.
 6. Adapter آینده فقط از توابع Internal برای Claim، Complete و Fail استفاده می‌کند.
 7. Success مصرف Token و هزینه را ثبت و Circuit را Reset می‌کند.
 8. پنج Failure متوالی Circuit را برای پنج دقیقه باز می‌کند.
