@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
-import { internalMutation, mutation, query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { writeAuditLog } from "./lib/audit";
 import { requireAdmin } from "./lib/auth";
 
@@ -32,6 +32,34 @@ const proposalValidator = v.object({
   reviewedAt: v.optional(v.number()),
   reviewedBy: v.optional(v.id("users")),
   reviewNote: v.optional(v.string()),
+  snapshotId: v.optional(v.id("sourceSnapshots")),
+  previousSnapshotId: v.optional(v.id("sourceSnapshots")),
+  sourceSyncRunId: v.optional(v.id("sourceSyncRuns")),
+  diffSummary: v.optional(v.string()),
+  changeKinds: v.optional(v.array(v.string())),
+  scanFindings: v.optional(v.array(v.string())),
+});
+
+const snapshotValidator = v.object({
+  id: v.id("sourceSnapshots"),
+  sourceKey: v.string(),
+  sourceUrl: v.string(),
+  contentHash: v.string(),
+  byteLength: v.number(),
+  contentType: v.string(),
+  httpStatus: v.number(),
+  fetchedAt: v.number(),
+  securityStatus: v.union(
+    v.literal("clean"),
+    v.literal("suspicious"),
+    v.literal("quarantined"),
+  ),
+  riskLevel: riskValidator,
+  findings: v.array(v.string()),
+  isLastKnownGood: v.boolean(),
+  previousSnapshotId: v.optional(v.id("sourceSnapshots")),
+  promotedAt: v.optional(v.number()),
+  promotedBy: v.optional(v.id("users")),
 });
 
 function toPublicProposal(proposal: Doc<"sourceChangeProposals">) {
@@ -49,41 +77,44 @@ function toPublicProposal(proposal: Doc<"sourceChangeProposals">) {
     reviewedAt: proposal.reviewedAt,
     reviewedBy: proposal.reviewedBy,
     reviewNote: proposal.reviewNote,
+    snapshotId: proposal.snapshotId,
+    previousSnapshotId: proposal.previousSnapshotId,
+    sourceSyncRunId: proposal.sourceSyncRunId,
+    diffSummary: proposal.diffSummary,
+    changeKinds: proposal.changeKinds,
+    scanFindings: proposal.scanFindings,
   };
 }
 
-export const internalCreateProposal = internalMutation({
-  args: {
-    sourceKey: v.string(),
-    sourceUrl: v.string(),
-    title: v.string(),
-    summary: v.string(),
-    riskLevel: riskValidator,
-    securityReport: v.string(),
-    contentHash: v.string(),
-    quarantined: v.boolean(),
-  },
-  returns: v.id("sourceChangeProposals"),
-  handler: async (ctx, args) => {
-    if (!args.sourceUrl.startsWith("https://inbr.ir/")) {
-      throw new Error("SOURCE_DOMAIN_NOT_ALLOWED");
-    }
+function toPublicSnapshot(snapshot: Doc<"sourceSnapshots">) {
+  return {
+    id: snapshot._id,
+    sourceKey: snapshot.sourceKey,
+    sourceUrl: snapshot.sourceUrl,
+    contentHash: snapshot.contentHash,
+    byteLength: snapshot.byteLength,
+    contentType: snapshot.contentType,
+    httpStatus: snapshot.httpStatus,
+    fetchedAt: snapshot.fetchedAt,
+    securityStatus: snapshot.securityStatus,
+    riskLevel: snapshot.riskLevel,
+    findings: snapshot.findings,
+    isLastKnownGood: snapshot.isLastKnownGood,
+    previousSnapshotId: snapshot.previousSnapshotId,
+    promotedAt: snapshot.promotedAt,
+    promotedBy: snapshot.promotedBy,
+  };
+}
 
-    return await ctx.db.insert("sourceChangeProposals", {
-      sourceKey: args.sourceKey,
-      sourceUrl: args.sourceUrl,
-      title: args.title,
-      summary: args.summary,
-      riskLevel: args.riskLevel,
-      securityReport: args.securityReport,
-      contentHash: args.contentHash,
-      status: args.quarantined ? "quarantined" : "pending",
-      detectedAt: Date.now(),
-    });
-  },
-});
+function normalizeNote(value: string) {
+  const note = value.replace(/\s+/g, " ").trim();
+  if (note.length < 3 || note.length > 1000) {
+    throw new Error("INVALID_REVIEW_NOTE");
+  }
+  return note;
+}
 
-export const adminListPending = query({
+export const adminListReviewQueue = query({
   args: { limit: v.number() },
   returns: v.array(proposalValidator),
   handler: async (ctx, args) => {
@@ -92,15 +123,27 @@ export const adminListPending = query({
       throw new Error("INVALID_LIMIT");
     }
 
-    const proposals = await ctx.db
-      .query("sourceChangeProposals")
-      .withIndex("by_status_and_detectedAt", (index) =>
-        index.eq("status", "pending"),
-      )
-      .order("desc")
-      .take(args.limit);
+    const [pending, quarantined] = await Promise.all([
+      ctx.db
+        .query("sourceChangeProposals")
+        .withIndex("by_status_and_detectedAt", (index) =>
+          index.eq("status", "pending"),
+        )
+        .order("desc")
+        .take(args.limit),
+      ctx.db
+        .query("sourceChangeProposals")
+        .withIndex("by_status_and_detectedAt", (index) =>
+          index.eq("status", "quarantined"),
+        )
+        .order("desc")
+        .take(args.limit),
+    ]);
 
-    return proposals.map(toPublicProposal);
+    return [...pending, ...quarantined]
+      .sort((left, right) => right.detectedAt - left.detectedAt)
+      .slice(0, args.limit)
+      .map(toPublicProposal);
   },
 });
 
@@ -114,12 +157,68 @@ export const adminReview = mutation({
   handler: async (ctx, args) => {
     const admin = await requireAdmin(ctx);
     const proposal = await ctx.db.get(args.proposalId);
-    const note = args.note.replace(/\s+/g, " ").trim();
+    const note = normalizeNote(args.note);
 
     if (!proposal) throw new Error("PROPOSAL_NOT_FOUND");
-    if (proposal.status !== "pending") throw new Error("PROPOSAL_NOT_PENDING");
-    if (note.length < 3 || note.length > 1000) {
-      throw new Error("INVALID_REVIEW_NOTE");
+    if (!["pending", "quarantined"].includes(proposal.status)) {
+      throw new Error("PROPOSAL_NOT_REVIEWABLE");
+    }
+
+    const resource = await ctx.db
+      .query("officialResources")
+      .withIndex("by_key", (index) => index.eq("key", proposal.sourceKey))
+      .unique();
+    if (!resource) throw new Error("SOURCE_RESOURCE_NOT_FOUND");
+
+    if (args.decision === "approved") {
+      if (proposal.status === "quarantined") {
+        await writeAuditLog(ctx, {
+          actorUserId: admin._id,
+          actorAuthSubject: admin.authSubject,
+          action: "official_source.approval_denied",
+          resourceType: "sourceChangeProposal",
+          resourceId: proposal._id,
+          result: "denied",
+          metadata: { reason: "quarantined_snapshot" },
+        });
+        throw new Error("QUARANTINED_PROPOSAL_CANNOT_BE_APPROVED");
+      }
+      if (!proposal.snapshotId) throw new Error("PROPOSAL_SNAPSHOT_MISSING");
+      const snapshot = await ctx.db.get(proposal.snapshotId);
+      if (!snapshot || snapshot.sourceKey !== proposal.sourceKey) {
+        throw new Error("PROPOSAL_SNAPSHOT_INVALID");
+      }
+      if (snapshot.securityStatus === "quarantined") {
+        throw new Error("QUARANTINED_SNAPSHOT_CANNOT_BE_PROMOTED");
+      }
+
+      if (resource.lastSnapshotId && resource.lastSnapshotId !== snapshot._id) {
+        const currentSnapshot = await ctx.db.get(resource.lastSnapshotId);
+        if (currentSnapshot) {
+          await ctx.db.patch(currentSnapshot._id, { isLastKnownGood: false });
+        }
+      }
+
+      const now = Date.now();
+      await ctx.db.patch(snapshot._id, {
+        isLastKnownGood: true,
+        promotedAt: now,
+        promotedBy: admin._id,
+      });
+      await ctx.db.patch(resource._id, {
+        lastContentHash: snapshot.contentHash,
+        lastSnapshotId: snapshot._id,
+        lastVerifiedAt: now,
+        lastSyncAt: now,
+        lastSyncStatus: "unchanged",
+        lastHttpStatus: snapshot.httpStatus,
+        status: "verified",
+      });
+    } else {
+      await ctx.db.patch(resource._id, {
+        status: resource.lastContentHash ? "verified" : "outdated",
+        lastSyncStatus: resource.lastContentHash ? "unchanged" : "failed",
+      });
     }
 
     await ctx.db.patch(proposal._id, {
@@ -139,9 +238,95 @@ export const adminReview = mutation({
       metadata: {
         sourceKey: proposal.sourceKey,
         riskLevel: proposal.riskLevel,
+        snapshotId: proposal.snapshotId,
+        note,
       },
     });
 
     return toPublicProposal((await ctx.db.get(proposal._id))!);
+  },
+});
+
+export const adminListSnapshots = query({
+  args: { sourceKey: v.string(), limit: v.number() },
+  returns: v.array(snapshotValidator),
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    if (!Number.isInteger(args.limit) || args.limit < 1 || args.limit > 50) {
+      throw new Error("INVALID_LIMIT");
+    }
+    const snapshots = await ctx.db
+      .query("sourceSnapshots")
+      .withIndex("by_sourceKey_and_fetchedAt", (index) =>
+        index.eq("sourceKey", args.sourceKey),
+      )
+      .order("desc")
+      .take(args.limit);
+    return snapshots.map(toPublicSnapshot);
+  },
+});
+
+export const adminRollbackResource = mutation({
+  args: {
+    sourceKey: v.string(),
+    snapshotId: v.id("sourceSnapshots"),
+    note: v.string(),
+  },
+  returns: snapshotValidator,
+  handler: async (ctx, args) => {
+    const admin = await requireAdmin(ctx);
+    const note = normalizeNote(args.note);
+    const resource = await ctx.db
+      .query("officialResources")
+      .withIndex("by_key", (index) => index.eq("key", args.sourceKey))
+      .unique();
+    const snapshot = await ctx.db.get(args.snapshotId);
+
+    if (!resource || !snapshot || snapshot.sourceKey !== args.sourceKey) {
+      throw new Error("ROLLBACK_SNAPSHOT_INVALID");
+    }
+    if (snapshot.securityStatus !== "clean") {
+      throw new Error("ROLLBACK_REQUIRES_CLEAN_SNAPSHOT");
+    }
+
+    if (resource.lastSnapshotId && resource.lastSnapshotId !== snapshot._id) {
+      const currentSnapshot = await ctx.db.get(resource.lastSnapshotId);
+      if (currentSnapshot) {
+        await ctx.db.patch(currentSnapshot._id, { isLastKnownGood: false });
+      }
+    }
+
+    const now = Date.now();
+    await ctx.db.patch(snapshot._id, {
+      isLastKnownGood: true,
+      promotedAt: now,
+      promotedBy: admin._id,
+    });
+    await ctx.db.patch(resource._id, {
+      lastContentHash: snapshot.contentHash,
+      lastSnapshotId: snapshot._id,
+      lastVerifiedAt: now,
+      lastSyncAt: now,
+      lastSyncStatus: "unchanged",
+      lastHttpStatus: snapshot.httpStatus,
+      status: "verified",
+    });
+
+    await writeAuditLog(ctx, {
+      actorUserId: admin._id,
+      actorAuthSubject: admin.authSubject,
+      action: "official_source.rollback",
+      resourceType: "officialResource",
+      resourceId: resource._id,
+      result: "success",
+      metadata: {
+        sourceKey: args.sourceKey,
+        snapshotId: snapshot._id,
+        previousSnapshotId: resource.lastSnapshotId,
+        note,
+      },
+    });
+
+    return toPublicSnapshot((await ctx.db.get(snapshot._id))!);
   },
 });
