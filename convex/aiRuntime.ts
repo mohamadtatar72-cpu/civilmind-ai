@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { v, type Id } from "convex/values";
 import { action, internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { requireActiveUser } from "./lib/auth";
@@ -36,6 +36,43 @@ const statusValidator = v.union(
   v.literal("blocked"),
   v.literal("cancelled"),
 );
+
+type AiRuntimeStatus =
+  | "planned"
+  | "queued"
+  | "running"
+  | "completed"
+  | "failed"
+  | "blocked"
+  | "cancelled";
+
+type SubmitAndExecuteResult = {
+  requestId: Id<"aiRequestLedger">;
+  status: AiRuntimeStatus;
+  responseText?: string;
+  failureCode?: string;
+  quotaRemaining: number;
+};
+
+type GatewayStatus = { maxOutputTokens: number };
+type RequestIntentResult = {
+  request: {
+    id: Id<"aiRequestLedger">;
+    status: AiRuntimeStatus;
+    failureCode?: string;
+  };
+  quotaRemaining: number;
+};
+type ExecutionContext = {
+  requestId: Id<"aiRequestLedger">;
+  capability: AiCapability;
+  status: AiRuntimeStatus;
+  provider: AiProvider;
+  modelAlias: string;
+  timeoutMs: number;
+  maxOutputTokens: number;
+  fallbackEnabled: boolean;
+};
 
 function errorCode(error: unknown) {
   if (error instanceof AiAdapterError) return error.code;
@@ -219,8 +256,11 @@ export const submitAndExecute = action({
     failureCode: v.optional(v.string()),
     quotaRemaining: v.number(),
   }),
-  handler: async (ctx, args) => {
-    const status = await ctx.runQuery(api.aiGateway.currentStatus, {});
+  handler: async (ctx, args): Promise<SubmitAndExecuteResult> => {
+    const status = await ctx.runQuery(
+      api.aiGateway.currentStatus,
+      {},
+    ) as GatewayStatus;
     const tools = validateRequestedTools(
       args.capability as AiCapability,
       args.requestedTools,
@@ -232,12 +272,15 @@ export const submitAndExecute = action({
       maxOutputTokens: status.maxOutputTokens,
     });
 
-    const intent = await ctx.runMutation(api.aiGateway.createRequestIntent, {
-      capability: args.capability,
-      idempotencyKey: args.idempotencyKey,
-      inputCharacters: prompt.userText.length,
-    });
-    const requestId = intent.request.id;
+    const intent = await ctx.runMutation(
+      api.aiGateway.createRequestIntent,
+      {
+        capability: args.capability,
+        idempotencyKey: args.idempotencyKey,
+        inputCharacters: prompt.userText.length,
+      },
+    ) as RequestIntentResult;
+    const requestId: Id<"aiRequestLedger"> = intent.request.id;
 
     if (intent.request.status !== "planned") {
       return {
@@ -254,7 +297,7 @@ export const submitAndExecute = action({
       const execution = await ctx.runQuery(
         internal.aiRuntime.getExecutionContext,
         { requestId },
-      );
+      ) as ExecutionContext | null;
       if (!execution || execution.status !== "planned") {
         return {
           requestId,
@@ -273,7 +316,7 @@ export const submitAndExecute = action({
         const response = await withTimeout(
           executeProviderAdapter({
             requestId,
-            provider: execution.provider as AiProvider,
+            provider: execution.provider,
             modelAlias: execution.modelAlias,
             prompt,
             timeoutMs: execution.timeoutMs,
@@ -343,7 +386,7 @@ export const submitAndExecute = action({
 export const cancelOwnRequest = mutation({
   args: { requestId: v.id("aiRequestLedger") },
   returns: statusValidator,
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<AiRuntimeStatus> => {
     const user = await requireActiveUser(ctx);
     const request = await ctx.db.get(args.requestId);
     if (!request || request.userId !== user._id) {
