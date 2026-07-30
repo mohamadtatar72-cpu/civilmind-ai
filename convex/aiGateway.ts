@@ -1,11 +1,7 @@
 import { v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
-import {
-  internalMutation,
-  mutation,
-  query,
-} from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { writeAuditLog } from "./lib/audit";
 import { requireActiveUser, requireAdmin } from "./lib/auth";
 import {
@@ -314,9 +310,10 @@ export const createRequestIntent = mutation({
       completedAt: provider ? undefined : now,
     });
 
-    if (provider) {
-      await reserveUsage(ctx, user._id, dayKey, inputCharacters);
-    }
+    // Every accepted intent is bounded by the daily quota, including blocked
+    // intents. This prevents authenticated users from creating unbounded ledger
+    // and audit records while no provider adapter is available.
+    await reserveUsage(ctx, user._id, dayKey, inputCharacters);
 
     await writeAuditLog(ctx, {
       actorUserId: user._id,
@@ -335,7 +332,7 @@ export const createRequestIntent = mutation({
     return {
       request: toPublicRequest((await ctx.db.get(requestId))!),
       reused: false,
-      quotaRemaining: Math.max(quota - used - (provider ? 1 : 0), 0),
+      quotaRemaining: Math.max(quota - used - 1, 0),
     };
   },
 });
@@ -618,11 +615,10 @@ export const internalCompleteRequest = internalMutation({
 
     const usage = await getUsage(ctx, request.userId, request.dayKey);
     if (!usage) throw new Error("AI_USAGE_BUCKET_MISSING");
+    const providerName = request.provider;
     const provider = await ctx.db
       .query("aiProviderConfigs")
-      .withIndex("by_provider", (index) =>
-        index.eq("provider", request.provider!),
-      )
+      .withIndex("by_provider", (index) => index.eq("provider", providerName))
       .unique();
     if (!provider) throw new Error("AI_PROVIDER_NOT_INITIALIZED");
     const now = Date.now();
@@ -649,7 +645,7 @@ export const internalCompleteRequest = internalMutation({
       updatedAt: now,
     });
     await ctx.db.insert("aiProviderEvents", {
-      provider: request.provider,
+      provider: providerName,
       event: "request-success",
       requestId: request._id,
       createdAt: now,
@@ -677,9 +673,7 @@ export const internalFailRequest = internalMutation({
     const providerName = request.provider;
     const provider = await ctx.db
       .query("aiProviderConfigs")
-      .withIndex("by_provider", (index) =>
-        index.eq("provider", providerName),
-      )
+      .withIndex("by_provider", (index) => index.eq("provider", providerName))
       .unique();
     if (!provider) throw new Error("AI_PROVIDER_NOT_INITIALIZED");
 
