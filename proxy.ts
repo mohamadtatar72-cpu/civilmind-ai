@@ -1,5 +1,5 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 const protectedPrefixes = [
   "/profile",
@@ -18,7 +18,7 @@ const clerkConfigured = Boolean(
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,
 );
 
-const unauthenticatedPassThrough = (_request: NextRequest) => NextResponse.next();
+const unauthenticatedPassThrough = () => NextResponse.next();
 
 const authenticatedProxy = clerkMiddleware(async (auth, request) => {
   if (isProtectedPath(request.nextUrl.pathname)) {
