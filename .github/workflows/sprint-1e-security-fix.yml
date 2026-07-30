@@ -1,0 +1,105 @@
+name: Sprint 1E security fix
+
+on:
+  push:
+    branches:
+      - feature/sprint-1e-ai-gateway-foundation
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, 'security: rate-limit AI intents') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply bounded intent quota fix
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          gateway = Path("convex/aiGateway.ts")
+          text = gateway.read_text()
+          old = '''    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }
+          '''
+          # Formatter may use six spaces rather than sixteen; support the committed form exactly.
+          exact = '''    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }'''
+          committed = '''    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }'''
+          normal = '''    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }'''
+          target = '''    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }'''
+          actual = '''    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }'''
+          # Use a whitespace-tolerant direct replacement for the real source block.
+          source_block = """    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }"""
+          if source_block not in text:
+              source_block = """    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }"""
+          if source_block not in text:
+              source_block = """    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }"""
+          # The repository is formatted with 6 spaces inside this block.
+          canonical = """    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }"""
+          if canonical not in text:
+              canonical = """    if (provider) {
+                await reserveUsage(ctx, user._id, dayKey, inputCharacters);
+              }"""
+          # Fall back to structural replacement to avoid relying on indentation.
+          import re
+          text, count = re.subn(
+              r"\n\s*if \(provider\) \{\s*await reserveUsage\(ctx, user\._id, dayKey, inputCharacters\);\s*\}\n",
+              "\n    await reserveUsage(ctx, user._id, dayKey, inputCharacters);\n",
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit("reserveUsage provider-only block not found")
+          old_quota = "quotaRemaining: Math.max(quota - used - (provider ? 1 : 0), 0),"
+          new_quota = "quotaRemaining: Math.max(quota - used - 1, 0),"
+          if old_quota not in text:
+              raise SystemExit("quotaRemaining expression not found")
+          text = text.replace(old_quota, new_quota, 1)
+          gateway.write_text(text)
+
+          page = Path("app/ai/page.tsx")
+          page_text = page.read_text().replace(
+              'detail="فقط درخواست‌های رزروشده"',
+              'detail="همه Intentهای بررسی‌شده"',
+              1,
+          )
+          page.write_text(page_text)
+
+          doc = Path("docs/architecture/sprint-1e-ai-gateway-foundation.md")
+          doc_text = doc.read_text().replace(
+              "5. در نبود Adapter، درخواست با وضعیت `blocked` ثبت می‌شود و سهمیه مصرف نمی‌شود.",
+              "5. در نبود Adapter، درخواست با وضعیت `blocked` ثبت می‌شود و برای جلوگیری از Spam یک واحد از سهمیه روزانه مصرف می‌کند؛ Token و هزینه صفر می‌ماند.",
+              1,
+          )
+          doc.write_text(doc_text)
+          PY
+
+      - name: Commit security fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add convex/aiGateway.ts app/ai/page.tsx docs/architecture/sprint-1e-ai-gateway-foundation.md
+          git commit -m "security: rate-limit AI intents"
+          git push
