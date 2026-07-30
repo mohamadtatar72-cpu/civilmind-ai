@@ -136,7 +136,9 @@ function bytesToHex(bytes: ArrayBuffer) {
 }
 
 async function sha256(value: Uint8Array) {
-  const digest = await crypto.subtle.digest("SHA-256", value);
+  const copy = new Uint8Array(value.byteLength);
+  copy.set(value);
+  const digest = await crypto.subtle.digest("SHA-256", copy.buffer);
   return bytesToHex(digest);
 }
 
