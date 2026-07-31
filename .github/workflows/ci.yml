@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate application
+    name: Validate application and Phase 1 contracts
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -38,14 +38,5 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Validate Convex TypeScript
-        run: npx tsc -p convex/tsconfig.json --noEmit --pretty false
-
-      - name: TypeScript
-        run: npx tsc --noEmit --pretty false
-
-      - name: ESLint
-        run: npm run lint
-
-      - name: Production build
-        run: npm run build
+      - name: Phase 1 validation
+        run: npm run test:phase1
