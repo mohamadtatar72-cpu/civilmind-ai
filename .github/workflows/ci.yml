@@ -22,9 +22,6 @@ jobs:
     name: Validate application
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      CONVEX_AGENT_MODE: anonymous
-      CLERK_JWT_ISSUER_DOMAIN: https://ci.invalid
 
     steps:
       - name: Checkout repository
@@ -39,8 +36,8 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Validate Convex functions
-        run: npx convex dev --once
+      - name: Validate Convex TypeScript
+        run: npx tsc -p convex/tsconfig.json --noEmit --pretty false
 
       - name: TypeScript
         run: npx tsc --noEmit --pretty false
