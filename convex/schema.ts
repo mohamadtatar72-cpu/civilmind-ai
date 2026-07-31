@@ -591,4 +591,59 @@ export default defineSchema({
   })
     .index("by_userId_and_dayKey", ["userId", "dayKey"])
     .index("by_userId_and_status_and_dayKey", ["userId", "status", "dayKey"]),
+
+  examSessions: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    status: v.union(
+      v.literal("in_progress"),
+      v.literal("completed"),
+      v.literal("abandoned"),
+    ),
+    totalQuestions: v.number(),
+    durationSeconds: v.number(),
+    correctAnswers: v.optional(v.number()),
+    incorrectAnswers: v.optional(v.number()),
+    unanswered: v.optional(v.number()),
+    scorePercent: v.optional(v.number()),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_userId_and_startedAt", ["userId", "startedAt"])
+    .index("by_userId_and_status_and_startedAt", [
+      "userId",
+      "status",
+      "startedAt",
+    ]),
+
+  examSessionItems: defineTable({
+    sessionId: v.id("examSessions"),
+    questionKey: v.string(),
+    topicKey: v.string(),
+    topicTitle: v.string(),
+    stem: v.string(),
+    options: v.array(v.string()),
+    correctIndex: v.number(),
+    explanation: v.string(),
+    position: v.number(),
+    selectedIndex: v.optional(v.number()),
+    isCorrect: v.optional(v.boolean()),
+  })
+    .index("by_sessionId_and_position", ["sessionId", "position"])
+    .index("by_sessionId_and_topicKey", ["sessionId", "topicKey"]),
+
+  examTopicStats: defineTable({
+    userId: v.id("users"),
+    topicKey: v.string(),
+    topicTitle: v.string(),
+    attemptsCount: v.number(),
+    answeredCount: v.number(),
+    correctCount: v.number(),
+    incorrectCount: v.number(),
+    accuracyPercent: v.number(),
+    lastAttemptAt: v.number(),
+  })
+    .index("by_userId_and_topicKey", ["userId", "topicKey"])
+    .index("by_userId_and_accuracyPercent", ["userId", "accuracyPercent"]),
 });
