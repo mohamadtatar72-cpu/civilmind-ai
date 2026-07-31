@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { SignOutButton, useAuth as useClerkAuth } from "@clerk/nextjs";
+import { SignOutButton } from "@clerk/nextjs";
 import { useMutation } from "convex/react";
 import {
   BadgeCheck,
@@ -28,7 +28,6 @@ import {
 
 export default function ProfileDashboard() {
   const account = useCurrentAccount();
-  const { isLoaded: clerkLoaded, isSignedIn: clerkSignedIn } = useClerkAuth();
   const completeOnboarding = useMutation(api.users.completeOnboarding);
   const claimInitialAdmin = useMutation(api.users.claimInitialAdmin);
   const [displayName, setDisplayName] = useState("");
@@ -100,7 +99,7 @@ export default function ProfileDashboard() {
             CivilMind هیچ داده هویتی ساختگی نمایش نمی‌دهد. برای ساخت یا مشاهده حساب
             وارد سامانه شوید.
           </p>
-          {clerkLoaded && clerkSignedIn ? (
+          {account.hasIdentitySession ? (
             <SignOutButton redirectUrl="/sign-in">
               <button
                 type="button"
