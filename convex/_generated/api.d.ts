@@ -22,6 +22,7 @@ import type * as lib_auth from "../lib/auth.js";
 import type * as lib_pdfIngestionPolicy from "../lib/pdfIngestionPolicy.js";
 import type * as lib_sourceSyncSecurity from "../lib/sourceSyncSecurity.js";
 import type * as officialResources from "../officialResources.js";
+import type * as pdfLibrary from "../pdfLibrary.js";
 import type * as sourceApprovals from "../sourceApprovals.js";
 import type * as sourceSync from "../sourceSync.js";
 import type * as subscriptions from "../subscriptions.js";
@@ -49,6 +50,7 @@ declare const fullApi: ApiFromModules<{
   "lib/pdfIngestionPolicy": typeof lib_pdfIngestionPolicy;
   "lib/sourceSyncSecurity": typeof lib_sourceSyncSecurity;
   officialResources: typeof officialResources;
+  pdfLibrary: typeof pdfLibrary;
   sourceApprovals: typeof sourceApprovals;
   sourceSync: typeof sourceSync;
   subscriptions: typeof subscriptions;

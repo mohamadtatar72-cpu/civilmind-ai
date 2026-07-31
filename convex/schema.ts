@@ -393,4 +393,113 @@ export default defineSchema({
     .index("by_status_and_detectedAt", ["status", "detectedAt"])
     .index("by_sourceKey_and_detectedAt", ["sourceKey", "detectedAt"])
     .index("by_sourceKey_and_contentHash", ["sourceKey", "contentHash"]),
+
+  pdfDocuments: defineTable({
+    ownerUserId: v.optional(v.id("users")),
+    title: v.string(),
+    fileName: v.string(),
+    mimeType: v.literal("application/pdf"),
+    byteLength: v.number(),
+    checksumSha256: v.string(),
+    visibility: v.union(
+      v.literal("private"),
+      v.literal("premium"),
+      v.literal("public"),
+    ),
+    lifecycle: v.union(
+      v.literal("registered"),
+      v.literal("processing"),
+      v.literal("ready"),
+      v.literal("failed"),
+      v.literal("quarantined"),
+      v.literal("archived"),
+    ),
+    sourceUrl: v.optional(v.string()),
+    pageCount: v.optional(v.number()),
+    activeVersion: v.number(),
+    parentDocumentId: v.optional(v.id("pdfDocuments")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    processedAt: v.optional(v.number()),
+    quarantineReason: v.optional(v.string()),
+  })
+    .index("by_visibility_and_lifecycle", ["visibility", "lifecycle"])
+    .index("by_ownerUserId_and_createdAt", ["ownerUserId", "createdAt"])
+    .index("by_checksumSha256", ["checksumSha256"])
+    .index("by_lifecycle_and_updatedAt", ["lifecycle", "updatedAt"]),
+
+  pdfProcessingJobs: defineTable({
+    documentId: v.id("pdfDocuments"),
+    requestedBy: v.optional(v.id("users")),
+    attempt: v.number(),
+    status: v.union(
+      v.literal("queued"),
+      v.literal("running"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("quarantined"),
+      v.literal("cancelled"),
+    ),
+    stage: v.union(
+      v.literal("register"),
+      v.literal("extract"),
+      v.literal("chunk"),
+      v.literal("index"),
+    ),
+    errorCode: v.optional(v.string()),
+    errorMessage: v.optional(v.string()),
+    createdAt: v.number(),
+    startedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_documentId_and_createdAt", ["documentId", "createdAt"])
+    .index("by_createdAt", ["createdAt"])
+    .index("by_status_and_createdAt", ["status", "createdAt"]),
+
+  pdfPages: defineTable({
+    documentId: v.id("pdfDocuments"),
+    pageNumber: v.number(),
+    text: v.string(),
+    textHash: v.string(),
+    charCount: v.number(),
+    createdAt: v.number(),
+  }).index("by_documentId_and_pageNumber", ["documentId", "pageNumber"]),
+
+  pdfChunks: defineTable({
+    documentId: v.id("pdfDocuments"),
+    pageId: v.id("pdfPages"),
+    ownerUserId: v.optional(v.id("users")),
+    visibility: v.union(
+      v.literal("private"),
+      v.literal("premium"),
+      v.literal("public"),
+    ),
+    documentLifecycle: v.union(
+      v.literal("processing"),
+      v.literal("ready"),
+      v.literal("archived"),
+    ),
+    pageNumber: v.number(),
+    chunkIndex: v.number(),
+    text: v.string(),
+    textHash: v.string(),
+    charStart: v.number(),
+    charEnd: v.number(),
+    citationLabel: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_documentId_and_chunkIndex", ["documentId", "chunkIndex"])
+    .searchIndex("search_text", {
+      searchField: "text",
+      filterFields: ["visibility", "ownerUserId", "documentLifecycle"],
+    }),
+
+  pdfRetrievalLogs: defineTable({
+    userId: v.optional(v.id("users")),
+    queryHash: v.string(),
+    resultCount: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_userId_and_createdAt", ["userId", "createdAt"])
+    .index("by_createdAt", ["createdAt"]),
 });
