@@ -1,12 +1,10 @@
 import AppShell from "@/components/layout/app-shell";
-import Dashboard from "@/components/dashboard/dashboard";
-import { mockDashboardRepository } from "@/features/dashboard/mock-repository";
+import LiveDashboard from "@/components/dashboard/live-dashboard";
 
-export default async function DashboardPage() {
-  const dashboard = await mockDashboardRepository.getDashboard();
+export default function DashboardPage() {
   return (
     <AppShell>
-      <Dashboard data={dashboard} />
+      <LiveDashboard />
     </AppShell>
   );
 }
