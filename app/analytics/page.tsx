@@ -4,7 +4,7 @@ import ExamCenter from "@/components/exam/exam-center";
 export default function AnalyticsPage() {
   return (
     <AppShell>
-      <ExamCenter />
+      <ExamCenter mode="analytics" />
     </AppShell>
   );
 }
