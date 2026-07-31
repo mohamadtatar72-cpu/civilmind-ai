@@ -502,4 +502,62 @@ export default defineSchema({
   })
     .index("by_userId_and_createdAt", ["userId", "createdAt"])
     .index("by_createdAt", ["createdAt"]),
+
+  studySessions: defineTable({
+    userId: v.id("users"),
+    topicId: v.optional(v.id("topics")),
+    topicKey: v.string(),
+    topicTitle: v.string(),
+    durationMinutes: v.number(),
+    source: v.union(
+      v.literal("manual"),
+      v.literal("planner"),
+      v.literal("pdf"),
+    ),
+    notes: v.optional(v.string()),
+    studiedAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_userId_and_studiedAt", ["userId", "studiedAt"])
+    .index("by_userId_and_topicKey_and_studiedAt", [
+      "userId",
+      "topicKey",
+      "studiedAt",
+    ]),
+
+  practiceAttempts: defineTable({
+    userId: v.id("users"),
+    topicId: v.optional(v.id("topics")),
+    topicKey: v.string(),
+    topicTitle: v.string(),
+    totalQuestions: v.number(),
+    correctAnswers: v.number(),
+    incorrectAnswers: v.number(),
+    unanswered: v.number(),
+    durationSeconds: v.number(),
+    scorePercent: v.number(),
+    completedAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_userId_and_completedAt", ["userId", "completedAt"])
+    .index("by_userId_and_topicKey_and_completedAt", [
+      "userId",
+      "topicKey",
+      "completedAt",
+    ]),
+
+  userTopicProgress: defineTable({
+    userId: v.id("users"),
+    topicKey: v.string(),
+    topicTitle: v.string(),
+    studyMinutes: v.number(),
+    sessionsCount: v.number(),
+    testsCount: v.number(),
+    questionsAnswered: v.number(),
+    correctAnswers: v.number(),
+    masteryPercent: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId_and_topicKey", ["userId", "topicKey"])
+    .index("by_userId_and_updatedAt", ["userId", "updatedAt"]),
 });
