@@ -33,7 +33,7 @@ const publicNavigation = [
   { label: "مرکز مأموریت", description: "Mission Control", href: "/dashboard", icon: LayoutDashboard },
   { label: "مربی هوشمند", description: "AI Coach", href: "/ai", icon: Bot },
   { label: "مرکز مطالعه", description: "Study Center", href: "/planner", icon: CalendarDays },
-  { label: "مرکز آزمون", description: "Exam Center", href: "/analytics", icon: FileQuestion },
+  { label: "مرکز آزمون", description: "Exam Center", href: "/exam", icon: FileQuestion },
   { label: "مرکز پیش‌بینی", description: "Prediction Center", href: "/prediction", icon: Target },
   { label: "مرکز دانش", description: "Knowledge Hub", href: "/library", icon: BookOpen },
   { label: "جامعه مهندسان", description: "Community", href: "/community", icon: Users },
