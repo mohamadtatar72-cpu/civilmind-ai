@@ -1,10 +1,10 @@
 import AppShell from "@/components/layout/app-shell";
-import StudyProgressDashboard from "@/components/study/study-progress-dashboard";
+import StudyCenter from "@/components/study/study-center";
 
 export default function PlannerPage() {
   return (
     <AppShell>
-      <StudyProgressDashboard />
+      <StudyCenter />
     </AppShell>
   );
 }
