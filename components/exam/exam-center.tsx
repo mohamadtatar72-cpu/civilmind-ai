@@ -6,7 +6,9 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
-type ExamCenterProps = { mode: "exam" | "analytics" };\n\nexport default function ExamCenter({ mode }: ExamCenterProps) {
+type ExamCenterProps = { mode: "exam" | "analytics" };
+
+export default function ExamCenter({ mode }: ExamCenterProps) {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const analytics = useQuery(api.examEngine.getMyAnalytics, isAuthenticated ? {} : "skip");
   const startExam = useMutation(api.examEngine.startSampleExam);
