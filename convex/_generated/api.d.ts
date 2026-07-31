@@ -13,6 +13,7 @@ import type * as aiGateway from "../aiGateway.js";
 import type * as aiRuntime from "../aiRuntime.js";
 import type * as auditLogs from "../auditLogs.js";
 import type * as crons from "../crons.js";
+import type * as dashboard from "../dashboard.js";
 import type * as lib_aiAdapterContract from "../lib/aiAdapterContract.js";
 import type * as lib_aiPolicy from "../lib/aiPolicy.js";
 import type * as lib_aiToolPolicy from "../lib/aiToolPolicy.js";
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   aiRuntime: typeof aiRuntime;
   auditLogs: typeof auditLogs;
   crons: typeof crons;
+  dashboard: typeof dashboard;
   "lib/aiAdapterContract": typeof lib_aiAdapterContract;
   "lib/aiPolicy": typeof lib_aiPolicy;
   "lib/aiToolPolicy": typeof lib_aiToolPolicy;
