@@ -1,4 +1,6 @@
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
+import type { MutationCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
 import { requireActiveUser } from "./lib/auth";
 
@@ -73,9 +75,9 @@ function calculateMastery(
 }
 
 async function upsertProgress(
-  ctx: Parameters<(typeof mutation)["handler"]>[0],
+  ctx: MutationCtx,
   args: {
-    userId: any;
+    userId: Id<"users">;
     topicKey: string;
     topicTitle: string;
     studyMinutesDelta: number;
