@@ -27,3 +27,7 @@ Implement the persistent, authorization-aware PDF knowledge layer on top of the 
 ## Quality gate
 
 The sprint is mergeable only after Convex validation/codegen, generated API consistency, ESLint, TypeScript, and production build all pass.
+
+## Active implementation note
+
+The CI failure on run 119 was traced to PDF tables missing from `convex/schema.ts`. The current remediation persists the five PDF tables and regenerated Convex types before rerunning the complete quality gate.
