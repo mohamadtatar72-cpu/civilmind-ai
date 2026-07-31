@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { SignOutButton } from "@clerk/nextjs";
+import { SignOutButton, useAuth as useClerkAuth } from "@clerk/nextjs";
 import { useMutation } from "convex/react";
 import {
   BadgeCheck,
@@ -28,6 +28,7 @@ import {
 
 export default function ProfileDashboard() {
   const account = useCurrentAccount();
+  const { isLoaded: clerkLoaded, isSignedIn: clerkSignedIn } = useClerkAuth();
   const completeOnboarding = useMutation(api.users.completeOnboarding);
   const claimInitialAdmin = useMutation(api.users.claimInitialAdmin);
   const [displayName, setDisplayName] = useState("");
@@ -99,12 +100,24 @@ export default function ProfileDashboard() {
             CivilMind هیچ داده هویتی ساختگی نمایش نمی‌دهد. برای ساخت یا مشاهده حساب
             وارد سامانه شوید.
           </p>
-          <Link
-            href="/sign-in"
-            className="mt-6 inline-flex rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400"
-          >
-            ورود امن
-          </Link>
+          {clerkLoaded && clerkSignedIn ? (
+            <SignOutButton redirectUrl="/sign-in">
+              <button
+                type="button"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400"
+              >
+                <LogOut className="size-4" />
+                بازنشانی نشست و ورود دوباره
+              </button>
+            </SignOutButton>
+          ) : (
+            <Link
+              href="/sign-in"
+              className="mt-6 inline-flex rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400"
+            >
+              ورود امن
+            </Link>
+          )}
         </GlassPanel>
       </div>
     );
@@ -115,9 +128,18 @@ export default function ProfileDashboard() {
       <GlassPanel className="border-red-400/20 bg-red-400/5 py-12 text-center">
         <h2 className="font-bold text-red-200">پروفایل در دسترس نیست</h2>
         <p className="mt-2 text-sm text-red-100/70">
-          اتصال هویت برقرار است، اما ایجاد پروفایل Backend کامل نشد. تنظیمات Clerk و
-          Convex باید بررسی شوند.
+          اتصال هویت برقرار است، اما ایجاد پروفایل Backend کامل نشد. نشست را بازنشانی
+          کنید و دوباره وارد شوید.
         </p>
+        <SignOutButton redirectUrl="/sign-in">
+          <button
+            type="button"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-red-500 px-5 py-3 text-sm font-bold text-white hover:bg-red-400"
+          >
+            <LogOut className="size-4" />
+            بازنشانی نشست و ورود دوباره
+          </button>
+        </SignOutButton>
       </GlassPanel>
     );
   }
