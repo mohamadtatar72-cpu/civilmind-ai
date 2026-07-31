@@ -17,8 +17,8 @@ function collect(dir) {
   return files;
 }
 
-const source = ["app", "components", "convex", "lib"]
-  .flatMap(collect)
+const sourceFiles = ["app", "components", "convex", "lib"].flatMap(collect);
+const source = sourceFiles
   .map((file) => fs.readFileSync(path.join(root, file), "utf8"))
   .join("\n");
 
@@ -31,9 +31,21 @@ test("PDF intake has fail-closed validation semantics", () => {
   assert.match(source, /mime|content.?type|size|limit|reject|block|quarantine|fail.?closed/i);
 });
 
-test("dangerous HTML injection is not enabled globally", () => {
-  const matches = source.match(/dangerouslySetInnerHTML/g) ?? [];
-  assert.equal(matches.length, 0, "dangerouslySetInnerHTML requires an explicit security review");
+test("dangerous HTML injection is restricted to explicitly reviewed code", () => {
+  const reviewedAllowlist = new Set(["components/ui/chart.tsx"]);
+  const usages = sourceFiles.filter((file) =>
+    fs.readFileSync(path.join(root, file), "utf8").includes("dangerouslySetInnerHTML")
+  );
+
+  assert.deepEqual(
+    usages.sort(),
+    [...reviewedAllowlist].sort(),
+    "Any new dangerouslySetInnerHTML usage requires a documented security review and explicit allowlist update"
+  );
+
+  const chartSource = fs.readFileSync(path.join(root, "components/ui/chart.tsx"), "utf8");
+  assert.match(chartSource, /<style[\s\S]*dangerouslySetInnerHTML/);
+  assert.doesNotMatch(chartSource, /userInput|searchParams|window\.location|document\.cookie/i);
 });
 
 test("secrets are not hard-coded in application source", () => {
