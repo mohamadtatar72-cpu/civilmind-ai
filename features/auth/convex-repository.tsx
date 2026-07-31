@@ -13,6 +13,7 @@ import type { CivilMindUser } from "./domain";
 
 interface CurrentAccountState {
   isAuthenticated: boolean;
+  hasIdentitySession: boolean;
   loading: boolean;
   provisionError: string | null;
   user: CivilMindUser | undefined;
@@ -74,6 +75,7 @@ function useCurrentAccountSource(sessionKey?: string): CurrentAccountState {
 
   return {
     isAuthenticated,
+    hasIdentitySession: Boolean(sessionKey),
     loading,
     provisionError: provisioningFailed ? "PROFILE_PROVISION_FAILED" : null,
     user: currentUser,
