@@ -393,7 +393,6 @@ export default defineSchema({
     .index("by_status_and_detectedAt", ["status", "detectedAt"])
     .index("by_sourceKey_and_detectedAt", ["sourceKey", "detectedAt"])
     .index("by_sourceKey_and_contentHash", ["sourceKey", "contentHash"]),
-,
 
   pdfDocuments: defineTable({
     ownerUserId: v.optional(v.id("users")),
