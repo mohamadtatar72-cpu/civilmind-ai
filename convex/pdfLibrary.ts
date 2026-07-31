@@ -525,13 +525,15 @@ export const internalRegisterVerifiedDocument = internalMutation({
       throw new Error("PDF_SIZE_INVALID");
     }
 
-    const duplicate = await ctx.db
+    const checksumMatches = await ctx.db
       .query("pdfDocuments")
       .withIndex("by_checksumSha256", (index) =>
         index.eq("checksumSha256", checksumSha256),
       )
-      .filter((filter) => filter.neq(filter.field("lifecycle"), "archived"))
-      .first();
+      .take(10);
+    const duplicate = checksumMatches.find(
+      (document) => document.lifecycle !== "archived",
+    );
     if (duplicate) {
       return { documentId: duplicate._id, deduplicated: true };
     }
