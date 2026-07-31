@@ -5,6 +5,7 @@ import {
   Bot,
   ClipboardCheck,
   FileClock,
+  FileSearch,
   ShieldCheck,
   Users,
 } from "lucide-react";
@@ -31,6 +32,12 @@ const sections = [
     icon: ClipboardCheck,
   },
   {
+    title: "حاکمیت PDF",
+    description: "کنترل صف قرنطینه، Processing Ledger و تصمیم‌های مدیریتی اسناد.",
+    href: "/admin/pdfs",
+    icon: FileSearch,
+  },
+  {
     title: "درگاه هوش مصنوعی",
     description: "مدیریت سهمیه، بودجه، Provider Registry و Circuit Breaker.",
     href: "/admin/ai-gateway",
@@ -48,7 +55,7 @@ export default function AdminDashboard() {
           description="ابزارهای حساس سامانه فقط پس از احراز هویت و تأیید نقش مدیر در Convex فعال می‌شوند."
           action={<StatusBadge tone="info">دسترسی مدیر تأیید شد</StatusBadge>}
         />
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
           {sections.map((section) => {
             const Icon = section.icon;
             return (
