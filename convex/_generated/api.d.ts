@@ -18,6 +18,7 @@ import type * as lib_aiPolicy from "../lib/aiPolicy.js";
 import type * as lib_aiToolPolicy from "../lib/aiToolPolicy.js";
 import type * as lib_audit from "../lib/audit.js";
 import type * as lib_auth from "../lib/auth.js";
+import type * as lib_pdfIngestionPolicy from "../lib/pdfIngestionPolicy.js";
 import type * as lib_sourceSyncSecurity from "../lib/sourceSyncSecurity.js";
 import type * as officialResources from "../officialResources.js";
 import type * as sourceApprovals from "../sourceApprovals.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   "lib/aiToolPolicy": typeof lib_aiToolPolicy;
   "lib/audit": typeof lib_audit;
   "lib/auth": typeof lib_auth;
+  "lib/pdfIngestionPolicy": typeof lib_pdfIngestionPolicy;
   "lib/sourceSyncSecurity": typeof lib_sourceSyncSecurity;
   officialResources: typeof officialResources;
   sourceApprovals: typeof sourceApprovals;
