@@ -560,4 +560,35 @@ export default defineSchema({
   })
     .index("by_userId_and_topicKey", ["userId", "topicKey"])
     .index("by_userId_and_updatedAt", ["userId", "updatedAt"]),
+
+  plannerTasks: defineTable({
+    userId: v.id("users"),
+    dayKey: v.string(),
+    title: v.string(),
+    taskType: v.union(
+      v.literal("study"),
+      v.literal("test"),
+      v.literal("review"),
+      v.literal("other"),
+    ),
+    topicKey: v.optional(v.string()),
+    plannedMinutes: v.number(),
+    priority: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+    ),
+    status: v.union(
+      v.literal("planned"),
+      v.literal("in_progress"),
+      v.literal("completed"),
+      v.literal("cancelled"),
+    ),
+    position: v.number(),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId_and_dayKey", ["userId", "dayKey"])
+    .index("by_userId_and_status_and_dayKey", ["userId", "status", "dayKey"]),
 });
