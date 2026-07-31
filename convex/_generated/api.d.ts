@@ -25,6 +25,7 @@ import type * as officialResources from "../officialResources.js";
 import type * as pdfLibrary from "../pdfLibrary.js";
 import type * as sourceApprovals from "../sourceApprovals.js";
 import type * as sourceSync from "../sourceSync.js";
+import type * as studyProgress from "../studyProgress.js";
 import type * as subscriptions from "../subscriptions.js";
 import type * as topics from "../topics.js";
 import type * as users from "../users.js";
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   pdfLibrary: typeof pdfLibrary;
   sourceApprovals: typeof sourceApprovals;
   sourceSync: typeof sourceSync;
+  studyProgress: typeof studyProgress;
   subscriptions: typeof subscriptions;
   topics: typeof topics;
   users: typeof users;
