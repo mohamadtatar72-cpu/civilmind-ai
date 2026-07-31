@@ -1,14 +1,19 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 
 const inputClass =
   "w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-400";
 
 export default function StudyProgressDashboard() {
-  const progress = useQuery(api.studyProgress.getMyProgress, {});
+  const { isAuthenticated, isLoading } = useConvexAuth();
+  const progress = useQuery(
+    api.studyProgress.getMyProgress,
+    isAuthenticated ? {} : "skip",
+  );
   const logStudy = useMutation(api.studyProgress.logStudySession);
   const logAttempt = useMutation(api.studyProgress.logPracticeAttempt);
   const [topicTitle, setTopicTitle] = useState("");
@@ -81,6 +86,22 @@ export default function StudyProgressDashboard() {
     correctAnswers: 0,
     accuracyPercent: 0,
   };
+
+  if (isLoading) {
+    return <div className="p-8 text-slate-400">در حال بررسی ورود امن…</div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="p-5 md:p-8" dir="rtl">
+        <div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center">
+          <h1 className="text-2xl font-black text-white">ثبت پیشرفت شخصی</h1>
+          <p className="mt-3 text-slate-400">برای ثبت و مشاهده مطالعه و تست‌های خود، ابتدا وارد حساب شوید.</p>
+          <Link href="/sign-in" className="mt-6 inline-flex rounded-xl bg-cyan-500 px-5 py-2.5 font-bold text-slate-950">ورود امن</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 p-5 md:p-8" dir="rtl">
