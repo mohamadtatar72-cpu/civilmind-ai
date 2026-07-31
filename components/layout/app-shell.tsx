@@ -89,7 +89,7 @@ function Navigation({
       <div className="border-b border-white/10 p-6">
         <Link href="/dashboard" onClick={onNavigate} className="block">
           <span className="text-xl font-black tracking-tight text-white">CivilMind AI</span>
-          <span className="mt-1 block text-xs text-slate-400">سیستم هوشمند آمادگی مهندسان عمران</span>
+          <span className="mt-1 block text-xs text-slate-400">سیستم هوشمند آمادگی آزمون‌های مهندسی</span>
         </Link>
         {account.user && (
           <div className="mt-4 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs">
