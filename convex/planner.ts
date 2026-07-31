@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { requireActiveUser } from "./lib/auth";
 
@@ -71,20 +72,7 @@ function validateMinutes(value: number) {
   }
 }
 
-function toPublicTask(task: {
-  _id: any;
-  dayKey: string;
-  title: string;
-  taskType: "study" | "test" | "review" | "other";
-  topicKey?: string;
-  plannedMinutes: number;
-  priority: "low" | "medium" | "high";
-  status: "planned" | "in_progress" | "completed" | "cancelled";
-  position: number;
-  completedAt?: number;
-  createdAt: number;
-  updatedAt: number;
-}) {
+function toPublicTask(task: Doc<"plannerTasks">) {
   return {
     id: task._id,
     dayKey: task.dayKey,
