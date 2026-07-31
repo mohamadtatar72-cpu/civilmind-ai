@@ -24,6 +24,7 @@ jobs:
     timeout-minutes: 20
     env:
       CONVEX_AGENT_MODE: anonymous
+      CLERK_JWT_ISSUER_DOMAIN: https://ci.invalid
 
     steps:
       - name: Checkout repository
