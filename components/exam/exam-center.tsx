@@ -6,7 +6,7 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
-export default function ExamCenter() {
+type ExamCenterProps = { mode: "exam" | "analytics" };\n\nexport default function ExamCenter({ mode }: ExamCenterProps) {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const analytics = useQuery(api.examEngine.getMyAnalytics, isAuthenticated ? {} : "skip");
   const startExam = useMutation(api.examEngine.startSampleExam);
@@ -55,8 +55,8 @@ export default function ExamCenter() {
     return (
       <div className="p-8" dir="rtl">
         <div className="mx-auto max-w-xl rounded-2xl border border-slate-600 bg-slate-900 p-8 text-center">
-          <h1 className="text-2xl font-black text-white">مرکز آزمون و تحلیل</h1>
-          <p className="mt-3 text-slate-300">برای ذخیره نتیجه و تحلیل شخصی وارد حساب شوید.</p>
+          <h1 className="text-2xl font-black text-white">{mode === "exam" ? "مرکز آزمون" : "تحلیل عملکرد"}</h1>
+          <p className="mt-3 text-slate-300">{mode === "exam" ? "برای شروع آزمون و ذخیره نتیجه وارد حساب شوید." : "برای مشاهده آمار و تحلیل شخصی وارد حساب شوید."}</p>
           <Link href="/sign-in" className="mt-6 inline-flex rounded-xl bg-violet-400 px-5 py-3 font-black text-slate-950">ورود امن</Link>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function ExamCenter() {
           </button>
         ) : (
           <button onClick={() => setSessionId(null)} className="rounded-xl bg-cyan-500 px-6 py-3 font-black text-slate-950">
-            بازگشت به تحلیل
+            بازگشت به مرکز آزمون
           </button>
         )}
       </div>
