@@ -323,7 +323,7 @@ export const searchWithCitations = mutation({
       throw new Error("INVALID_LIMIT");
     }
 
-    const user = await getCurrentUser(ctx);
+    const user = await requireActiveUser(ctx);
     const perBucket = Math.min(limit, 10);
     const searches: Array<Promise<Doc<"pdfChunks">[]>> = [
       ctx.db
