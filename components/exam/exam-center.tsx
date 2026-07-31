@@ -141,42 +141,54 @@ type ExamCenterProps = { mode: "exam" | "analytics" };\n\nexport default functio
   return (
     <div className="space-y-8 p-5 md:p-8" dir="rtl">
       <header>
-        <p className="text-sm font-bold text-violet-300">Sprint 2D • Weakness Analysis</p>
-        <h1 className="mt-2 text-3xl font-black text-white">مرکز آزمون و تحلیل نقاط ضعف</h1>
-        <p className="mt-2 text-slate-300">همه اعداد از آزمون‌های ثبت‌شده حساب شما محاسبه می‌شوند.</p>
+        <p className="text-sm font-bold text-violet-300">{mode === "exam" ? "Sprint 2D • Exam Center" : "Sprint 2D • Performance Analytics"}</p>
+        <h1 className="mt-2 text-3xl font-black text-white">{mode === "exam" ? "مرکز آزمون" : "تحلیل عملکرد"}</h1>
+        <p className="mt-2 text-slate-300">
+          {mode === "exam"
+            ? "یک آزمون نمونه را شروع کنید و نتیجه را برای تحلیل ثبت کنید."
+            : "آمار، نقاط قوت و ضعف و تاریخچه آزمون‌های ثبت‌شده حساب شما."}
+        </p>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-4">
-        <Stat label="تعداد آزمون" value={summary.examsCount.toLocaleString("fa-IR")} />
-        <Stat label="میانگین" value={summary.averageScore.toLocaleString("fa-IR") + "٪"} />
-        <Stat label="بهترین نتیجه" value={summary.bestScore.toLocaleString("fa-IR") + "٪"} />
-        <Stat label="روند آخر" value={(summary.trendPoints >= 0 ? "+" : "") + summary.trendPoints.toLocaleString("fa-IR")} />
-      </section>
-
-      <button disabled={saving} onClick={begin} className="rounded-xl bg-violet-400 px-6 py-3 font-black text-slate-950 disabled:opacity-50">شروع آزمون نمونه</button>
-      {message && <p className="rounded-xl bg-rose-400/10 px-4 py-3 text-rose-100">{message}</p>}
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        <TopicList title="نقاط نیازمند تمرکز" empty="پس از آزمون، نقاط ضعف اینجا نمایش داده می‌شوند." topics={weak} tone="rose" />
-        <TopicList title="نقاط قوت" empty="هنوز داده کافی ثبت نشده است." topics={strong} tone="emerald" />
-      </section>
-
-      <section className="rounded-2xl border border-slate-600 bg-slate-900 p-5">
-        <h2 className="text-xl font-black text-white">تاریخچه آزمون‌ها</h2>
-        <div className="mt-4 space-y-3">
-          {(analytics?.recentExams ?? []).length === 0 ? (
-            <p className="text-slate-300">هنوز آزمونی تکمیل نشده است.</p>
-          ) : analytics?.recentExams.map((exam) => (
-            <div key={exam.id} className="flex justify-between rounded-xl border border-slate-600 bg-slate-950 p-4">
-              <div>
-                <p className="font-bold text-white">{exam.title}</p>
-                <p className="mt-1 text-xs text-slate-400">{new Date(exam.completedAt).toLocaleDateString("fa-IR")}</p>
-              </div>
-              <p className="text-2xl font-black text-cyan-300">{exam.scorePercent.toLocaleString("fa-IR")}٪</p>
+      {mode === "exam" ? (
+        <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6">
+          <h2 className="text-xl font-black text-white">آماده شروع هستید؟</h2>
+          <p className="mt-2 text-slate-300">پس از پایان آزمون، نتیجه به‌صورت خودکار در بخش تحلیل عملکرد ثبت می‌شود.</p>
+          <button disabled={saving} onClick={begin} className="mt-5 rounded-xl bg-violet-400 px-6 py-3 font-black text-slate-950 disabled:opacity-50">
+            شروع آزمون نمونه
+          </button>
+        </section>
+      ) : (
+        <>
+          <section className="grid gap-4 sm:grid-cols-4">
+            <Stat label="تعداد آزمون" value={summary.examsCount.toLocaleString("fa-IR")} />
+            <Stat label="میانگین" value={summary.averageScore.toLocaleString("fa-IR") + "٪"} />
+            <Stat label="بهترین نتیجه" value={summary.bestScore.toLocaleString("fa-IR") + "٪"} />
+            <Stat label="روند آخر" value={(summary.trendPoints >= 0 ? "+" : "") + summary.trendPoints.toLocaleString("fa-IR")} />
+          </section>
+          <section className="grid gap-6 lg:grid-cols-2">
+            <TopicList title="نقاط نیازمند تمرکز" empty="پس از آزمون، نقاط ضعف اینجا نمایش داده می‌شوند." topics={weak} tone="rose" />
+            <TopicList title="نقاط قوت" empty="هنوز داده کافی ثبت نشده است." topics={strong} tone="emerald" />
+          </section>
+          <section className="rounded-2xl border border-slate-600 bg-slate-900 p-5">
+            <h2 className="text-xl font-black text-white">تاریخچه آزمون‌ها</h2>
+            <div className="mt-4 space-y-3">
+              {(analytics?.recentExams ?? []).length === 0 ? (
+                <p className="text-slate-300">هنوز آزمونی تکمیل نشده است.</p>
+              ) : analytics?.recentExams.map((exam) => (
+                <div key={exam.id} className="flex justify-between rounded-xl border border-slate-600 bg-slate-950 p-4">
+                  <div>
+                    <p className="font-bold text-white">{exam.title}</p>
+                    <p className="mt-1 text-xs text-slate-400">{new Date(exam.completedAt).toLocaleDateString("fa-IR")}</p>
+                  </div>
+                  <p className="text-2xl font-black text-cyan-300">{exam.scorePercent.toLocaleString("fa-IR")}٪</p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+        </>
+      )}
+      {message && <p className="rounded-xl bg-rose-400/10 px-4 py-3 text-rose-100">{message}</p>}
     </div>
   );
 }
