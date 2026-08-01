@@ -190,10 +190,11 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
             شروع آزمون نمونه
           </button>
         </section>
-          {!officialArchiveAccess?.hasPremiumAccess ? (
-            <section className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-5 text-amber-100">برای مشاهده آرشیو تفکیک‌شدهٔ دفترچه و پاسخنامه، اشتراک حرفه‌ای فعال کنید.</section>
-          ) : !officialArchiveAccess.preference ? (
-            <section className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-5 text-cyan-100">ابتدا در پروفایل، رشته و صلاحیت آزمون خود را انتخاب کنید.</section>
+          {!officialArchiveAccess?.preference ? (
+            <section className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-5 text-cyan-100">
+              آرشیو رسمی برای همهٔ کاربران رایگان است. ابتدا در پروفایل، رشته و صلاحیت آزمون خود را انتخاب کنید تا منابع مرتبط نمایش داده شود.
+              <Link href="/profile" className="mr-3 inline-flex rounded-lg border border-cyan-300/60 px-3 py-1.5 text-sm font-bold text-cyan-100">انتخاب رشته و صلاحیت</Link>
+            </section>
           ) : (
             <OfficialExamArchive archives={officialArchiveAccess.archives} onSeed={seedOfficialArchive} onSeedHistory={seedHistoricalArchive} disabled={saving} />
           )}
