@@ -53,6 +53,16 @@
 
 Phase 1.7 — verified knowledge ingestion, provenance, editions and page/clause extraction.
 
+## 2026-08-01 — Phase 1.7: Source provenance visibility
+
+- Exposed verified-source provenance in the public source center: verification status, last verified date and version-tracking state when available.
+- Preserved direct official-source navigation and made no claim when a timestamp or sync record is absent.
+- Added a provenance contract test against the public source data contract.
+
+### Next continuation point
+
+Phase 2.1 — source-grounded AI chat with document/page/clause citations.
+
 ## 2026-08-01 — Phase 1: Free official archive access
 
 - Removed the Premium gate from the official archive UI and backend scoped archive query.
