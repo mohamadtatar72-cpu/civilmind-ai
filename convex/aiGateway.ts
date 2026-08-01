@@ -5,6 +5,10 @@ import { internalMutation, mutation, query } from "./_generated/server";
 import { writeAuditLog } from "./lib/audit";
 import { requireActiveUser, requireAdmin } from "./lib/auth";
 import {
+  gatewayCapabilityToEntitlement,
+  requireCapability,
+} from "./lib/entitlements";
+import {
   DEFAULT_AI_POLICY,
   DEFAULT_PROVIDER_CONFIGS,
   normalizeFailureCode,
@@ -251,7 +255,10 @@ export const createRequestIntent = mutation({
     quotaRemaining: v.number(),
   }),
   handler: async (ctx, args) => {
-    const user = await requireActiveUser(ctx);
+    const { user } = await requireCapability(
+      ctx,
+      gatewayCapabilityToEntitlement(args.capability),
+    );
     const policy = await getPolicy(ctx);
     const idempotencyKey = normalizeIdempotencyKey(args.idempotencyKey);
     const inputCharacters = validateInputCharacters(
