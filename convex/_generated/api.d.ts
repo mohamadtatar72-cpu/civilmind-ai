@@ -10,6 +10,7 @@
 
 import type * as aiAdmin from "../aiAdmin.js";
 import type * as aiGateway from "../aiGateway.js";
+import type * as access from "../access.js";
 import type * as aiRuntime from "../aiRuntime.js";
 import type * as auditLogs from "../auditLogs.js";
 import type * as crons from "../crons.js";
@@ -22,6 +23,7 @@ import type * as lib_aiPolicy from "../lib/aiPolicy.js";
 import type * as lib_aiToolPolicy from "../lib/aiToolPolicy.js";
 import type * as lib_audit from "../lib/audit.js";
 import type * as lib_auth from "../lib/auth.js";
+import type * as lib_entitlements from "../lib/entitlements.js";
 import type * as lib_pdfIngestionPolicy from "../lib/pdfIngestionPolicy.js";
 import type * as lib_sourceSyncSecurity from "../lib/sourceSyncSecurity.js";
 import type * as officialResources from "../officialResources.js";
@@ -41,6 +43,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  access: typeof access;
   aiAdmin: typeof aiAdmin;
   aiGateway: typeof aiGateway;
   aiRuntime: typeof aiRuntime;
@@ -55,6 +58,7 @@ declare const fullApi: ApiFromModules<{
   "lib/aiToolPolicy": typeof lib_aiToolPolicy;
   "lib/audit": typeof lib_audit;
   "lib/auth": typeof lib_auth;
+  "lib/entitlements": typeof lib_entitlements;
   "lib/pdfIngestionPolicy": typeof lib_pdfIngestionPolicy;
   "lib/sourceSyncSecurity": typeof lib_sourceSyncSecurity;
   officialResources: typeof officialResources;
