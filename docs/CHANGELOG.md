@@ -150,6 +150,24 @@ Continue Phase 1 by adding guest-side temporary discipline/qualification selecti
 
 All notable product, access, AI and UX decisions must be recorded here. This file tracks specification changes, not every code commit.
 
+## 2026-08-01 — Phase 2.2: First verified official question ingestion
+
+- Transcribed and registered question ۱ from the official Civil execution exam booklet 215A, Khordad 1404: the window-shading question for a building in Khorramshahr.
+- Verified all four options on PDF page 2 and official answer option ۲ on the official key at PDF page 13; the record retains the exact INBR booklet and key anchors.
+- Added an idempotent admin ingestion mutation that creates missing archive/booklet metadata and creates or updates this reviewed `examQuestionReferences` record without duplicating it.
+- Tightened analysis readiness so a record must be reviewed, have a non-empty stem and options, and contain an in-range official key before CivilMind AI can analyze it.
+- Updated the public topic UI to show the official question, all options, free official key, verified source metadata and exact source actions separately from the non-official Premium AI analysis.
+- Added shared contract coverage proving the complete reviewed record is analysis-ready while pending, option-incomplete and key-incomplete records are blocked.
+- TypeScript, ESLint, all 29 automated tests and the production build pass locally.
+
+### Release state
+
+**Code Complete / Deployment Pending:** deploy `examArchives.seedVerifiedKhordad1404Question` and the updated `examAccess.recentQuestionsForTopic` contract to Convex, execute the idempotent admin ingestion once, then publish the matching frontend build and verify topic 19 in the browser. Vercel and Convex publication remain the only queued provider-dependent tasks; no production deployment is claimed here.
+
+### Next continuation point
+
+Phase 2.2 continues with the next manager-assigned verified official-question ingestion or, when the provider queue clears, deployment and live verification of this exact record.
+
 ## 2026-08-01 — Phase 2.2: Verified official-question analysis readiness
 
 - Extended official-question provenance with backward-compatible optional fields for stem, options, official key, clause, edition and official answer source URL.

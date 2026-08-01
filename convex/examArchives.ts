@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { VERIFIED_KHORDAD_1404_QUESTION } from "./data/verifiedOfficialQuestions.mjs";
 import { requireAdmin } from "./lib/auth";
 
 const kindV = v.union(v.literal("question-booklet"), v.literal("answer-key"), v.literal("descriptive-guide"));
@@ -214,5 +215,92 @@ export const seedVerifiedHistoricalSessions = mutation({
     await seedDocuments("inbr-mehr-1402", MEHR_1402_DOCUMENTS);
 
     return { created, existing };
+  },
+});
+
+export const seedVerifiedKhordad1404Question = mutation({
+  args: {},
+  returns: v.object({
+    questionId: v.id("examQuestionReferences"),
+    operation: v.union(v.literal("created"), v.literal("updated")),
+    analysisReady: v.literal(true),
+  }),
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const now = Date.now();
+    const verified = VERIFIED_KHORDAD_1404_QUESTION;
+    let archive = await ctx.db
+      .query("examArchives")
+      .withIndex("by_key", (index) => index.eq("key", verified.archiveKey))
+      .unique();
+
+    if (!archive) {
+      const archiveId = await ctx.db.insert("examArchives", {
+        key: verified.archiveKey,
+        title: "نمونه سؤالات آزمون مهندسی خردادماه ۱۴۰۴",
+        yearLabel: "۱۴۰۴",
+        sessionLabel: "خردادماه",
+        officialPageUrl: "https://inbr.ir/نمونه-سوالات-آزمون-مهندسی-خرداد-1404/",
+        sourcePublisher: "دفتر مقررات ملی و کنترل ساختمان",
+        sourceDomain: "inbr.ir",
+        status: "verified",
+        discoveredAt: now,
+        lastVerifiedAt: now,
+      });
+      archive = (await ctx.db.get(archiveId))!;
+    }
+
+    let booklet = await ctx.db
+      .query("examArchiveDocuments")
+      .withIndex("by_archiveId_and_sourceUrl", (index) =>
+        index.eq("archiveId", archive._id).eq("sourceUrl", verified.sourceUrl),
+      )
+      .unique();
+    if (!booklet) {
+      const bookletId = await ctx.db.insert("examArchiveDocuments", {
+        archiveId: archive._id,
+        kind: "question-booklet",
+        title: verified.bookletTitle,
+        discipline: verified.discipline,
+        qualification: verified.qualification,
+        sourceUrl: verified.sourceUrl,
+        sourcePublisher: "دفتر مقررات ملی و کنترل ساختمان",
+        status: "verified",
+        discoveredAt: now,
+        lastVerifiedAt: now,
+      });
+      booklet = (await ctx.db.get(bookletId))!;
+    }
+
+    const existing = await ctx.db
+      .query("examQuestionReferences")
+      .withIndex("by_archiveDocumentId_and_questionNumber", (index) =>
+        index.eq("archiveDocumentId", booklet._id).eq("questionNumber", verified.questionNumber),
+      )
+      .unique();
+    const record = {
+      archiveDocumentId: booklet._id,
+      questionNumber: verified.questionNumber,
+      discipline: verified.discipline,
+      qualification: verified.qualification,
+      topicCode: verified.topicCode,
+      topicTitle: verified.topicTitle,
+      sourcePage: verified.sourcePage,
+      sourceExcerpt: verified.stem,
+      stem: verified.stem,
+      options: [...verified.options],
+      officialCorrectIndex: verified.officialCorrectIndex,
+      sourceEdition: verified.sourceEdition,
+      officialAnswerSourceUrl: verified.officialAnswerSourceUrl,
+      analysisStatus: verified.analysisStatus,
+      createdAt: existing?.createdAt ?? now,
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, record);
+      return { questionId: existing._id, operation: "updated" as const, analysisReady: true as const };
+    }
+    const questionId = await ctx.db.insert("examQuestionReferences", record);
+    return { questionId, operation: "created" as const, analysisReady: true as const };
   },
 });

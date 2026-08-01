@@ -39,6 +39,8 @@ type RecentTopicQuestion = {
   officialClause?: string;
   sourceEdition?: string;
   officialAnswerSourceUrl?: string;
+  analysisStatus?: "pending" | "reviewed";
+  sourceVerified?: boolean;
   analysisReady?: boolean;
   documentTitle?: string;
   sourceUrl?: string;
@@ -326,7 +328,19 @@ export function TopicDetail({ routeId }: { routeId: string }) {
                       ) : null}
                     </div>
                     {question.discipline ? <p className="mt-2 text-xs text-slate-400">{question.discipline}{question.qualification ? ` · ${question.qualification}` : ""}</p> : null}
-                    {question.sourceExcerpt ? <p className="mt-2 leading-7 text-slate-300">{question.sourceExcerpt}</p> : null}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-emerald-300/25 px-2 py-1 text-[11px] font-bold text-emerald-200">سؤال رسمی · رایگان</span>
+                      {question.sourceVerified ? <span className="rounded-full border border-cyan-300/25 px-2 py-1 text-[11px] font-bold text-cyan-200">متادیتای منبع تأییدشده</span> : null}
+                      {question.sourceEdition ? <span className="rounded-full border border-white/15 px-2 py-1 text-[11px] font-bold text-slate-300">{question.sourceEdition}</span> : null}
+                    </div>
+                    {question.stem ? <p className="mt-3 font-bold leading-8 text-white">{question.stem}</p> : question.sourceExcerpt ? <p className="mt-3 leading-7 text-slate-300">{question.sourceExcerpt}</p> : null}
+                    {question.options ? <ol className="mt-2 space-y-1 pr-5 text-slate-300">{question.options.map((option, index) => <li key={`${question.id}-option-${index}`} className="list-decimal leading-7">{option}</li>)}</ol> : null}
+                    {question.officialCorrectIndex !== undefined ? (
+                      <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-emerald-300/20 bg-emerald-400/5 p-3">
+                        <span className="text-xs font-black text-emerald-100">کلید رسمی: گزینه {(question.officialCorrectIndex + 1).toLocaleString("fa-IR")}</span>
+                        {question.officialAnswerSourceUrl ? <a href={question.officialAnswerSourceUrl} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-emerald-300/30 px-3 py-1.5 text-xs font-bold text-emerald-200 hover:bg-emerald-400/10">مشاهده کلید رسمی</a> : null}
+                      </div>
+                    ) : null}
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       {question.analysisReady ? (
                         <button type="button" disabled={analysis?.status === "loading"} onClick={() => void analyzeOfficialQuestion(question)} className="rounded-lg border border-violet-300/35 bg-violet-400/10 px-3 py-2 text-xs font-black text-violet-100 hover:bg-violet-400/20 disabled:opacity-50">
@@ -335,7 +349,7 @@ export function TopicDetail({ routeId }: { routeId: string }) {
                       ) : (
                         <span className="rounded-lg border border-amber-300/25 bg-amber-300/10 px-3 py-2 text-xs font-bold text-amber-100">تحلیل AI پس از استخراج متن، گزینه‌ها و کلید رسمی فعال می‌شود</span>
                       )}
-                      <span className="rounded-full border border-emerald-300/25 px-2 py-1 text-[11px] font-bold text-emerald-200">سؤال رسمی</span>
+                      <span className="rounded-full border border-violet-300/25 px-2 py-1 text-[11px] font-bold text-violet-200">تحلیل CivilMind AI · غیررسمی و Premium</span>
                     </div>
                     {analysis?.status === "ready" && analysis.text ? (
                       <div className="mt-3 rounded-lg border border-violet-300/30 bg-violet-400/10 p-3">

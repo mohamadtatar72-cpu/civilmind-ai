@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import type { QueryCtx } from "./_generated/server";
+import { isVerifiedOfficialQuestionReady } from "./data/verifiedOfficialQuestions.mjs";
 import { requireActiveUser } from "./lib/auth";
 import {
   assertPublicCapability,
@@ -160,6 +161,8 @@ export const recentQuestionsForTopic = query({
       officialClause: v.optional(v.string()),
       sourceEdition: v.optional(v.string()),
       officialAnswerSourceUrl: v.optional(v.string()),
+      analysisStatus: v.union(v.literal("pending"), v.literal("reviewed")),
+      sourceVerified: v.boolean(),
       analysisReady: v.boolean(),
       documentTitle: v.string(),
       sourceUrl: v.string(),
@@ -194,14 +197,9 @@ export const recentQuestionsForTopic = query({
           officialClause: row.officialClause,
           sourceEdition: row.sourceEdition,
           officialAnswerSourceUrl: row.officialAnswerSourceUrl,
-          analysisReady: Boolean(
-            row.stem &&
-            row.options &&
-            row.options.length >= 2 &&
-            row.officialCorrectIndex !== undefined &&
-            row.officialCorrectIndex >= 0 &&
-            row.officialCorrectIndex < row.options.length,
-          ),
+          analysisStatus: row.analysisStatus,
+          sourceVerified: row.analysisStatus === "reviewed",
+          analysisReady: isVerifiedOfficialQuestionReady(row),
           documentTitle: document.title,
           sourceUrl: document.sourceUrl,
         };
