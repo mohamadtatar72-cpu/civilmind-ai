@@ -81,9 +81,11 @@ const citationValidator = v.object({
   chunkId: v.id("pdfChunks"),
   documentId: v.id("pdfDocuments"),
   documentTitle: v.string(),
+  documentVersion: v.number(),
   pageNumber: v.number(),
   citationLabel: v.string(),
   excerpt: v.string(),
+  officialSourceUrl: v.optional(v.string()),
 });
 
 const MAX_FILE_BYTES = 50_000_000;
@@ -375,9 +377,11 @@ export const searchWithCitations = mutation({
       chunkId: Id<"pdfChunks">;
       documentId: Id<"pdfDocuments">;
       documentTitle: string;
+      documentVersion: number;
       pageNumber: number;
       citationLabel: string;
       excerpt: string;
+      officialSourceUrl?: string;
     }> = [];
 
     for (const chunk of [...uniqueChunks.values()].slice(0, limit * 2)) {
@@ -387,9 +391,12 @@ export const searchWithCitations = mutation({
         chunkId: chunk._id,
         documentId: document._id,
         documentTitle: document.title,
+        documentVersion: document.activeVersion,
         pageNumber: chunk.pageNumber,
         citationLabel: chunk.citationLabel,
         excerpt: chunk.text.slice(0, 700),
+        officialSourceUrl:
+          document.visibility === "public" ? document.sourceUrl : undefined,
       });
       if (citations.length >= limit) break;
     }
