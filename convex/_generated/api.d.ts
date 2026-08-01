@@ -16,6 +16,7 @@ import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
 import type * as examEngine from "../examEngine.js";
 import type * as examArchives from "../examArchives.js";
+import type * as examAccess from "../examAccess.js";
 import type * as lib_aiAdapterContract from "../lib/aiAdapterContract.js";
 import type * as lib_aiPolicy from "../lib/aiPolicy.js";
 import type * as lib_aiToolPolicy from "../lib/aiToolPolicy.js";
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   dashboard: typeof dashboard;
   examEngine: typeof examEngine;
   examArchives: typeof examArchives;
+  examAccess: typeof examAccess;
   "lib/aiAdapterContract": typeof lib_aiAdapterContract;
   "lib/aiPolicy": typeof lib_aiPolicy;
   "lib/aiToolPolicy": typeof lib_aiToolPolicy;
