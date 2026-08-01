@@ -2,6 +2,18 @@
 
 ## 2026-08-01 — Exact-page official citation links
 
+## 2026-08-01 — Functional topic study actions
+
+- Replaced the four inert «در حال توسعه» topic cards with keyboard-accessible links to the real official PDF, CivilMind AI, topic exam and performance-analysis routes.
+- Made the «سؤال‌های آزمون‌های اخیر» control a real expandable interaction with close behavior, loading/empty states and direct exact-page links to verified official question booklets.
+- Removed the login and Premium restriction from viewing official recent questions; official-question retrieval is now explicitly enforced as a public capability in Convex.
+- Added contract coverage for every route, the public-access rule and exact-source navigation.
+- TypeScript, ESLint, all 24 automated tests and the production build pass locally.
+
+### Release status
+
+**Code complete / deployment pending:** the updated `examAccess.recentQuestionsForTopic` function must be deployed to Convex before the new expandable question list can work in production. Vercel is still not creating a deployment from the connected Git branch, so browser verification of this pushed build remains queued.
+
 - Updated public PDF citations so the official-source action opens the retrieved PDF at its exact page anchor instead of only opening the document root.
 - Added an explicit UI trust label separating extracted official text from any future CivilMind AI explanation.
 - Preserved guest access to public citations and kept private/Premium document URLs hidden from guests.

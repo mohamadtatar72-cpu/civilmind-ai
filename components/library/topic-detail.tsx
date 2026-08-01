@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useConvexAuth, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import {
   ArrowRight,
   BookOpen,
@@ -63,8 +63,13 @@ function TopicNotFound({ invalidRoute = false }: { invalidRoute?: boolean }) {
   );
 }
 
+function sourcePageUrl(sourceUrl: string, page?: number) {
+  if (!page) return sourceUrl;
+  const separator = sourceUrl.includes("#") ? "&" : "#";
+  return `${sourceUrl}${separator}page=${page}`;
+}
+
 export function TopicDetail({ routeId }: { routeId: string }) {
-  const { isAuthenticated } = useConvexAuth();
   const [showQuestionAnalysis, setShowQuestionAnalysis] = useState(false);
   const code = Number(routeId);
   const isValidCode =
@@ -78,7 +83,7 @@ export function TopicDetail({ routeId }: { routeId: string }) {
 
   const recentQuestionSignals = useQuery(
     api.examAccess.recentQuestionsForTopic,
-    isValidCode && isAuthenticated ? { topicCode: code } : "skip",
+    isValidCode ? { topicCode: code } : "skip",
   );
 
   if (!isValidCode) {
@@ -99,6 +104,36 @@ export function TopicDetail({ routeId }: { routeId: string }) {
     topic.officialDocumentUrl,
     topic.officialPageUrl,
   );
+  const studyActions = [
+    {
+      label: "مشاهده PDF مبحث",
+      detail: "بازکردن متن رسمی مبحث",
+      icon: FileText,
+      href: officialTopicLink ?? `/pdf?query=${encodeURIComponent(topic.title)}`,
+      external: Boolean(officialTopicLink),
+    },
+    {
+      label: "خلاصه هوشمند",
+      detail: "پرسش مستند از CivilMind AI",
+      icon: Sparkles,
+      href: `/ai?topic=${topic.code}`,
+      external: false,
+    },
+    {
+      label: "آزمون مبحثی",
+      detail: "رفتن به مرکز آزمون",
+      icon: FileQuestion,
+      href: `/exam?topic=${topic.code}`,
+      external: false,
+    },
+    {
+      label: "فلش‌کارت و تحلیل عملکرد",
+      detail: "مشاهده ابزارهای مرور و تحلیل",
+      icon: BookOpen,
+      href: `/analytics?topic=${topic.code}`,
+      external: false,
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -171,35 +206,70 @@ export function TopicDetail({ routeId }: { routeId: string }) {
       <GlassPanel>
         <h2 className="text-lg font-bold text-white">ابزارهای مطالعه</h2>
         <p className="mt-1 text-sm leading-6 text-slate-400">
-          زیرساخت محتوایی مبحث آماده است؛ ابزارهای شخصی پس از احراز هویت و
-          تکمیل Sprint 1C فعال می‌شوند.
+          هر گزینه اکنون به مسیر واقعی خودش متصل است. منابع و سؤال‌های رسمی بدون
+          ورود و بدون Premium در دسترس می‌مانند.
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          {[
-            { label: "مشاهده PDF مبحث", icon: FileText },
-            { label: "خلاصه هوشمند", icon: Sparkles },
-            { label: "آزمون مبحثی", icon: FileQuestion },
-            { label: "فلش‌کارت و تحلیل عملکرد", icon: BookOpen },
-          ].map((action) => {
+          {studyActions.map((action) => {
             const Icon = action.icon;
-            return (
-              <div
-                key={action.label}
-                className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/15 p-4"
-              >
-                <span className="flex items-center gap-3 font-semibold text-slate-200">
+            const content = (
+              <>
+                <span className="flex items-center gap-3">
                   <Icon className="size-5 text-slate-500" />
-                  {action.label}
+                  <span>
+                    <span className="block font-semibold text-slate-100">{action.label}</span>
+                    <span className="mt-1 block text-xs text-slate-500">{action.detail}</span>
+                  </span>
                 </span>
-                <StatusBadge tone="info">در حال توسعه</StatusBadge>
-              </div>
+                <span className="text-sm font-bold text-blue-300">باز کردن</span>
+              </>
+            );
+            const className = "flex min-h-20 items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/15 p-4 transition hover:border-blue-400/35 hover:bg-blue-400/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400";
+            return action.external ? (
+              <a key={action.label} href={action.href} target="_blank" rel="noopener noreferrer" className={className}>
+                {content}
+              </a>
+            ) : (
+              <Link key={action.label} href={action.href} className={className}>
+                {content}
+              </Link>
             );
           })}
         </div>
         <div className="mt-5 rounded-xl border border-cyan-400/25 bg-cyan-400/5 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-bold text-white">سؤال‌های آزمون‌های اخیر از این مبحث</h3><p className="mt-1 text-sm text-slate-400">فقط سؤال‌های استخراج و تأییدشده از PDFهای رسمی، همراه با ارجاع.</p></div><button type="button" onClick={() => setShowQuestionAnalysis(true)} className="rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400">از این مبحث چه سؤال‌هایی آمده؟</button></div>
-          {!isAuthenticated ? <p className="mt-3 text-sm text-amber-200">برای دیدن تحلیل وارد حساب شوید.</p> : recentQuestionSignals === undefined ? <p className="mt-3 text-sm text-slate-400">در حال بررسی آرشیو رسمی…</p> : !recentQuestionSignals.hasPremiumAccess ? <p className="mt-3 text-sm text-amber-200">این ابزار پس از اشتراک حرفه‌ای فعال می‌شود.</p> : !recentQuestionSignals.preference ? <p className="mt-3 text-sm text-amber-200">ابتدا رشته و صلاحیت آزمون را در پروفایل انتخاب کنید.</p> : recentQuestionSignals.questions.length === 0 ? <p className="mt-3 text-sm text-slate-400">برای این مبحث هنوز سؤال رسمیِ دسته‌بندی‌شده ثبت نشده است.</p> : <ul className="mt-3 space-y-2 text-sm text-slate-200">{recentQuestionSignals.questions.map((q) => <li key={q.id} className="rounded-lg bg-black/20 p-3">سؤال {q.questionNumber.toLocaleString("fa-IR")}{q.sourcePage ? ` · صفحه ${q.sourcePage.toLocaleString("fa-IR")}` : ""}{q.sourceExcerpt ? ` · ${q.sourceExcerpt}` : ""}</li>)}</ul>}
-          {showQuestionAnalysis && recentQuestionSignals?.hasPremiumAccess && recentQuestionSignals.preference && recentQuestionSignals.questions.length === 0 && <p className="mt-3 rounded-lg bg-slate-950/60 p-3 text-sm text-slate-300">هنوز دادهٔ قابل‌استناد برای تحلیل ثبت نشده است. پس از استخراج PDF رسمی، تحلیل فقط با استناد به همان منبع نمایش داده می‌شود.</p>}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="font-bold text-white">سؤال‌های آزمون‌های اخیر از این مبحث</h3>
+              <p className="mt-1 text-sm text-slate-400">فقط سؤال‌های استخراج و تأییدشده از PDFهای رسمی، همراه با ارجاع.</p>
+            </div>
+            <button type="button" aria-expanded={showQuestionAnalysis} onClick={() => setShowQuestionAnalysis((visible) => !visible)} className="rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400">
+              {showQuestionAnalysis ? "بستن فهرست" : "از این مبحث چه سؤال‌هایی آمده؟"}
+            </button>
+          </div>
+          {showQuestionAnalysis ? (
+            recentQuestionSignals === undefined ? (
+              <p role="status" className="mt-3 text-sm text-slate-400">در حال بررسی آرشیو رسمی…</p>
+            ) : recentQuestionSignals.length === 0 ? (
+              <p className="mt-3 rounded-lg bg-slate-950/60 p-3 text-sm text-slate-300">برای این مبحث هنوز سؤال رسمیِ دسته‌بندی‌شده ثبت نشده است.</p>
+            ) : (
+              <ul className="mt-3 space-y-3 text-sm text-slate-200">
+                {recentQuestionSignals.map((question) => (
+                  <li key={question.id} className="rounded-lg border border-white/8 bg-black/20 p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-bold">سؤال {question.questionNumber.toLocaleString("fa-IR")} · {question.documentTitle}</span>
+                      <a href={sourcePageUrl(question.sourceUrl, question.sourcePage)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-emerald-400/25 px-3 py-1.5 text-xs font-bold text-emerald-200 hover:bg-emerald-400/10">
+                        مشاهده سؤال رسمی{question.sourcePage ? ` در صفحه ${question.sourcePage.toLocaleString("fa-IR")}` : ""}
+                      </a>
+                    </div>
+                    <p className="mt-2 text-xs text-slate-400">{question.discipline}{question.qualification ? ` · ${question.qualification}` : ""}</p>
+                    {question.sourceExcerpt ? <p className="mt-2 leading-7 text-slate-300">{question.sourceExcerpt}</p> : null}
+                  </li>
+                ))}
+              </ul>
+            )
+          ) : (
+            <p className="mt-3 text-sm text-cyan-100/70">برای نمایش فهرست مستند سؤال‌ها، دکمه بالا را بزنید.</p>
+          )}
         </div>
       </GlassPanel>
 
