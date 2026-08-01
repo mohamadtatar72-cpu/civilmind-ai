@@ -13,6 +13,8 @@ test("AI flow retrieves and renders source citations without fabricating an answ
   assert.match(page, /منابع بازیابی‌شده/);
   assert.match(page, /بدون منبع، پاسخی به‌عنوان پاسخ/);
   assert.match(page, /href=\{`\/library\/\$\{citation\.documentId\}`\}/);
+  assert.match(page, /نسخه \{citation\.documentVersion\}/);
+  assert.match(page, /منبع رسمی/);
 });
 
 test("citation retrieval preserves guest access to public documents only", async () => {
@@ -21,4 +23,6 @@ test("citation retrieval preserves guest access to public documents only", async
   assert.match(library, /const user = await getCurrentUser\(ctx\);/);
   assert.match(library, /eq\("visibility", "public"\)/);
   assert.match(library, /user && \(user\.role === "premium"/);
+  assert.match(library, /documentVersion: document\.activeVersion/);
+  assert.match(library, /officialSourceUrl:/);
 });
