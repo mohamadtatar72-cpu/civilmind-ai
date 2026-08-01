@@ -13,6 +13,7 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
   const analytics = useQuery(api.examEngine.getMyAnalytics, isAuthenticated ? {} : "skip");
   const officialArchiveAccess = useQuery(api.examAccess.listMyEligibleArchive, isAuthenticated ? {} : "skip");
   const seedArchive = useMutation(api.examArchives.seedDey1404OfficialBooklets);
+  const seedHistoricalSessions = useMutation(api.examArchives.seedVerifiedHistoricalSessions);
   const startExam = useMutation(api.examEngine.startSampleExam);
   const submitExam = useMutation(api.examEngine.submitExam);
   const [sessionId, setSessionId] = useState<Id<"examSessions"> | null>(null);
@@ -29,6 +30,19 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
       setMessage(result.createdDocuments === 0 ? "این آرشیو از قبل ثبت شده است." : `${result.createdDocuments.toLocaleString("fa-IR")} دفترچهٔ رسمی به آرشیو افزوده شد.`);
     } catch {
       setMessage("ثبت آرشیو رسمی فقط برای مدیر سامانه ممکن است.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function seedHistoricalArchive() {
+    setSaving(true);
+    setMessage("");
+    try {
+      const result = await seedHistoricalSessions({});
+      setMessage(result.created === 0 ? "دوره‌های تاریخی از قبل ثبت شده‌اند." : `${result.created.toLocaleString("fa-IR")} دورهٔ تاریخی رسمی به آرشیو افزوده شد.`);
+    } catch {
+      setMessage("ثبت دوره‌های تاریخی فقط برای مدیر سامانه ممکن است.");
     } finally {
       setSaving(false);
     }
@@ -181,7 +195,7 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
           ) : !officialArchiveAccess.preference ? (
             <section className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-5 text-cyan-100">ابتدا در پروفایل، رشته و صلاحیت آزمون خود را انتخاب کنید.</section>
           ) : (
-            <OfficialExamArchive archives={officialArchiveAccess.archives} onSeed={seedOfficialArchive} disabled={saving} />
+            <OfficialExamArchive archives={officialArchiveAccess.archives} onSeed={seedOfficialArchive} onSeedHistory={seedHistoricalArchive} disabled={saving} />
           )}
         </>
       ) : (
@@ -220,13 +234,14 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
 }
 
 
-function OfficialExamArchive({ archives, onSeed, disabled }: {
+function OfficialExamArchive({ archives, onSeed, onSeedHistory, disabled }: {
   archives: Array<{ id: string; title: string; yearLabel?: string; sessionLabel?: string; officialPageUrl: string; documents: Array<{ id: string; kind: "question-booklet" | "answer-key" | "descriptive-guide"; title: string; discipline: string; qualification?: string; sourceUrl: string }> }> | undefined;
   onSeed: () => Promise<void>;
+  onSeedHistory: () => Promise<void>;
   disabled: boolean;
 }) {
   if (archives === undefined) return <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6 text-slate-300">در حال دریافت آرشیو رسمی…</section>;
-  return <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-bold text-cyan-300">آرشیو رسمی آزمون‌ها</p><h2 className="mt-1 text-xl font-black text-white">دفترچه و پاسخنامه، تفکیک‌شده بر اساس دوره و گرایش</h2></div><div className="flex gap-2"><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200">فقط منبع رسمی INBR</span>{archives.length === 0 && <button disabled={disabled} onClick={() => void onSeed()} className="rounded-lg bg-cyan-400 px-3 py-1 text-xs font-black text-slate-950 disabled:opacity-50">دریافت آرشیو رسمی</button>}</div></div>{archives.length === 0 ? <p className="mt-4 text-slate-300">آرشیو رسمی در حال ورود است.</p> : archives.map((archive) => <article key={archive.id} className="mt-5 rounded-xl border border-slate-600 bg-slate-950 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-black text-white">{archive.title}</h3><p className="mt-1 text-sm text-slate-300">{archive.sessionLabel && archive.yearLabel ? `${archive.sessionLabel} ${archive.yearLabel} · ` : ""}{archive.documents.length.toLocaleString("fa-IR")} دفترچه ثبت‌شده</p></div><a href={archive.officialPageUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-cyan-300 px-3 py-2 text-sm font-bold text-cyan-200">صفحه رسمی دوره</a></div><div className="mt-4 grid gap-3 md:grid-cols-2">{archive.documents.map((document) => <a key={document.id} href={document.sourceUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-600 bg-slate-900 p-3 transition hover:border-cyan-300"><p className="font-bold text-white">{document.title}</p><p className="mt-1 text-xs text-slate-300">{document.discipline}{document.qualification ? ` · ${document.qualification}` : ""}</p><p className="mt-2 text-xs font-bold text-cyan-300">{document.kind === "question-booklet" ? "دفترچه سؤال رسمی ↗" : document.kind === "answer-key" ? "کلید پاسخ رسمی ↗" : "راهنمای تشریحی رسمی ↗"}</p></a>)}</div><p className="mt-4 text-xs text-amber-200">پاسخنامه یا راهنمای تشریحی فقط پس از یافتن و تأیید نسخهٔ رسمیِ همان دوره به این بخش افزوده می‌شود.</p></article>)}</section>;
+  return <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-bold text-cyan-300">آرشیو رسمی آزمون‌ها</p><h2 className="mt-1 text-xl font-black text-white">دفترچه و پاسخنامه، تفکیک‌شده بر اساس دوره و گرایش</h2></div><div className="flex gap-2"><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200">فقط منبع رسمی INBR</span>{archives.length === 0 && <button disabled={disabled} onClick={() => void onSeed()} className="rounded-lg bg-cyan-400 px-3 py-1 text-xs font-black text-slate-950 disabled:opacity-50">دریافت آرشیو رسمی</button>}<button disabled={disabled} onClick={() => void onSeedHistory()} className="rounded-lg border border-violet-300/50 px-3 py-1 text-xs font-black text-violet-100 disabled:opacity-50">افزودن دوره‌های گذشته</button></div></div>{archives.length === 0 ? <p className="mt-4 text-slate-300">آرشیو رسمی در حال ورود است.</p> : archives.map((archive) => <article key={archive.id} className="mt-5 rounded-xl border border-slate-600 bg-slate-950 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-black text-white">{archive.title}</h3><p className="mt-1 text-sm text-slate-300">{archive.sessionLabel && archive.yearLabel ? `${archive.sessionLabel} ${archive.yearLabel} · ` : ""}{archive.documents.length.toLocaleString("fa-IR")} دفترچه ثبت‌شده</p></div><a href={archive.officialPageUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-cyan-300 px-3 py-2 text-sm font-bold text-cyan-200">صفحه رسمی دوره</a></div><div className="mt-4 grid gap-3 md:grid-cols-2">{archive.documents.map((document) => <a key={document.id} href={document.sourceUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-600 bg-slate-900 p-3 transition hover:border-cyan-300"><p className="font-bold text-white">{document.title}</p><p className="mt-1 text-xs text-slate-300">{document.discipline}{document.qualification ? ` · ${document.qualification}` : ""}</p><p className="mt-2 text-xs font-bold text-cyan-300">{document.kind === "question-booklet" ? "دفترچه سؤال رسمی ↗" : document.kind === "answer-key" ? "کلید پاسخ رسمی ↗" : "راهنمای تشریحی رسمی ↗"}</p></a>)}</div><p className="mt-4 text-xs text-amber-200">پاسخنامه یا راهنمای تشریحی فقط پس از یافتن و تأیید نسخهٔ رسمیِ همان دوره به این بخش افزوده می‌شود.</p></article>)}</section>;
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
