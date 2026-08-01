@@ -221,7 +221,7 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
 
 
 function OfficialExamArchive({ archives, onSeed, disabled }: {
-  archives: Array<{ id: string; title: string; yearLabel: string; sessionLabel: string; officialPageUrl: string; documents: Array<{ id: string; title: string; discipline: string; qualification?: string; sourceUrl: string }> }> | undefined;
+  archives: Array<{ id: string; title: string; yearLabel?: string; sessionLabel?: string; officialPageUrl: string; documents: Array<{ id: string; title: string; discipline: string; qualification?: string; sourceUrl: string }> }> | undefined;
   onSeed: () => Promise<void>;
   disabled: boolean;
 }) {
