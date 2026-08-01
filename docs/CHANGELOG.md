@@ -20,6 +20,18 @@
 
 **Sprint status: implementation complete, release verification pending.** Convex production deployment succeeded. Vercel production deployment is currently blocked by the account limit `api-deployments-free-per-day` (try again in 24 hours), so this sprint must not yet be marked fully released or browser-verified. Once the deployment limit resets, deploy the current `develop/civilmind-v2`, open `/ai` in Cloud Browser, verify the access query and Free chat flow, then continue to Phase 1.3 and Phase 1.4.
 
+## 2026-08-01 — Phase 1.4: Guest exam preference and public archive
+
+- Added a guest-side discipline and qualification picker directly in the public exam archive flow.
+- Stored the guest selection locally in the browser; it does not require an account, subscription or Premium entitlement.
+- Connected the selected preference to the server-enforced `examAccess.listPublicArchive` query, keeping official archive reading and filtering explicitly public.
+- Kept the sign-in path only for personal exam attempts, saved history and performance analytics; official booklets and official answer materials remain accessible without it.
+- Added a focused automated contract test for local persistence and public entitlement enforcement.
+
+### Next continuation point
+
+**Deployment pending:** Vercel publication/Cloud Browser verification for Phase 1.2 remains queued because of the recorded daily deployment limit. **Next implementation sprint:** Phase 1.5 — public official regulation library search and filtering, starting with the existing library data model and guest filter flow.
+
 ## 2026-08-01 — Phase 1: Free official archive access
 
 - Removed the Premium gate from the official archive UI and backend scoped archive query.
