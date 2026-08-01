@@ -629,6 +629,26 @@ export default defineSchema({
     discoveredAt: v.number(), lastVerifiedAt: v.number(),
   }).index("by_archiveId_and_kind", ["archiveId", "kind"]).index("by_archiveId_and_discipline", ["archiveId", "discipline"]).index("by_archiveId_and_sourceUrl", ["archiveId", "sourceUrl"]),
 
+  userExamPreferences: defineTable({
+    userId: v.id("users"),
+    discipline: v.string(),
+    qualification: v.string(),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  examQuestionReferences: defineTable({
+    archiveDocumentId: v.id("examArchiveDocuments"),
+    questionNumber: v.number(),
+    discipline: v.string(),
+    qualification: v.optional(v.string()),
+    topicCode: v.number(),
+    topicTitle: v.string(),
+    sourcePage: v.optional(v.number()),
+    sourceExcerpt: v.optional(v.string()),
+    analysisStatus: v.union(v.literal("pending"), v.literal("reviewed")),
+    createdAt: v.number(),
+  }).index("by_topicCode_and_discipline", ["topicCode", "discipline"]).index("by_archiveDocumentId_and_questionNumber", ["archiveDocumentId", "questionNumber"]),
+
   examSessions: defineTable({
     userId: v.id("users"),
     title: v.string(),
