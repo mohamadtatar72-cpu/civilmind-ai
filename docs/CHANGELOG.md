@@ -1,3 +1,10 @@
+## 2026-08-01 — Guest source citation lookup
+
+- Enabled guest retrieval of citations from public, ready official PDFs in the CivilMind AI entry point.
+- Kept Premium and private PDFs behind their existing visibility rules; only public source excerpts can be returned to guests.
+- Added guest-mode messaging that distinguishes cited source lookup from authenticated AI chat.
+- TypeScript, ESLint and all 19 automated tests pass locally.
+
 ## 2026-08-01 — AI citation retrieval flow
 
 - Connected the CivilMind AI question flow to the existing secure PDF retrieval endpoint.
