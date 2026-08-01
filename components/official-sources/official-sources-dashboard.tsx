@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { useQuery } from "convex/react";
+import { useMemo, useState } from "react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { ExternalLink, Landmark, ShieldCheck } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import {
@@ -36,6 +36,10 @@ function OfficialSourcesLoading() {
 }
 
 export default function OfficialSourcesDashboard() {
+  const { isAuthenticated } = useConvexAuth();
+  const seedCatalog = useMutation(api.officialResources.seedVerifiedOfficialCatalog);
+  const [catalogMessage, setCatalogMessage] = useState("");
+  const [seeding, setSeeding] = useState(false);
   const result = useQuery(
     asOfficialResourcesApi(api).officialResources.listActive,
     {},
@@ -52,8 +56,43 @@ export default function OfficialSourcesDashboard() {
         eyebrow="ثبت دستی و تأییدشده"
         title="مرکز منابع رسمی"
         description="دسترسی مستقیم به مراجع منتشرشده توسط دفتر مقررات ملی و کنترل ساختمان"
-        action={<StatusBadge tone="success">پیوندهای تأییدشده</StatusBadge>}
+        action={
+          <div className="flex items-center gap-2">
+            <StatusBadge tone="success">پیوندهای تأییدشده</StatusBadge>
+            {isAuthenticated && (
+              <button
+                type="button"
+                disabled={seeding}
+                onClick={async () => {
+                  setSeeding(true);
+                  setCatalogMessage("");
+                  try {
+                    const outcome = await seedCatalog({});
+                    setCatalogMessage(
+                      outcome.created > 0
+                        ? `${outcome.created.toLocaleString("fa-IR")} منبع رسمی به کاتالوگ افزوده شد.`
+                        : "همهٔ منابع پایه از قبل ثبت شده‌اند.",
+                    );
+                  } catch {
+                    setCatalogMessage("ثبت کاتالوگ فقط برای مدیر سامانه مجاز است.");
+                  } finally {
+                    setSeeding(false);
+                  }
+                }}
+                className="rounded-lg border border-emerald-400/40 px-3 py-1.5 text-xs font-bold text-emerald-200 disabled:opacity-50"
+              >
+                {seeding ? "در حال ثبت…" : "ثبت منابع پایه"}
+              </button>
+            )}
+          </div>
+        }
       />
+
+      {catalogMessage && (
+        <p className="rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+          {catalogMessage}
+        </p>
+      )}
 
       <GlassPanel className="border-blue-400/20 bg-blue-400/[0.055]">
         <div className="flex gap-3">
