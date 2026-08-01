@@ -54,6 +54,9 @@ export function mapPublicOfficialResource(
     ...(resource.lastVerifiedAt === undefined
       ? {}
       : { lastVerifiedAt: resource.lastVerifiedAt }),
+    ...(resource.lastSyncStatus === undefined
+      ? {}
+      : { lastSyncStatus: resource.lastSyncStatus }),
   };
 }
 
