@@ -4,7 +4,8 @@ import type {
   DocumentByName,
   QueryBuilder,
 } from "convex/server";
-import { query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
+import { requireAdmin } from "./lib/auth";
 import schema from "./schema";
 
 const categoryValidator = v.union(
@@ -120,5 +121,108 @@ export const getByKey = officialResourceQuery({
       .withIndex("by_key", (q) => q.eq("key", args.key))
       .first();
     return resource === null ? null : toPublicOfficialResource(resource);
+  },
+});
+
+
+const officialCatalog = [
+  {
+    key: "inbr-home",
+    title: "پایگاه رسمی دفتر مقررات ملی و کنترل ساختمان",
+    description: "مرجع اصلی انتشار مقررات، اطلاعیه‌ها و خدمات آزمون‌های ورود به حرفه.",
+    category: "official-home" as const,
+    sourceUrl: "https://inbr.ir/",
+    order: 10,
+  },
+  {
+    key: "inbr-exam-portal",
+    title: "سامانه آزمون‌های ورود به حرفه مهندسان",
+    description: "درگاه رسمی مواد آزمون، نمونه‌سؤال‌ها، پاسخنامه‌ها و راهنمای شرکت در آزمون.",
+    category: "exam-center" as const,
+    sourceUrl: "https://inbr.ir/سامانه-آزمون-های-ورود-به-حرفه-مهندسان/",
+    order: 20,
+  },
+  {
+    key: "inbr-exam-materials",
+    title: "مواد آزمون و نمونه‌سؤال‌های رسمی",
+    description: "مسیر رسمی دسترسی به مواد آزمون و دفترچه‌های منتشرشده برای رشته‌ها و صلاحیت‌های مختلف.",
+    category: "exam-materials" as const,
+    sourceUrl: "https://inbr.ir/سامانه-آزمون-های-ورود-به-حرفه-مهندسان/",
+    order: 30,
+  },
+  {
+    key: "inbr-past-exams",
+    title: "آرشیو نمونه‌سؤال‌های آزمون مهندسی",
+    description: "آرشیو رسمی دوره‌های آزمون؛ هر دوره پس از تأیید، به‌تفکیک دفترچه و صلاحیت در CivilMind ثبت می‌شود.",
+    category: "past-exams" as const,
+    sourceUrl: "https://inbr.ir/category/سایرموارد/",
+    order: 40,
+  },
+  {
+    key: "inbr-answer-guides",
+    title: "پاسخنامه و راهنمای تشریحی رسمی",
+    description: "دسترسی به پاسخنامه‌ها و راهنماهای تشریحی منتشرشده توسط دفتر مقررات ملی.",
+    category: "answer-guides" as const,
+    sourceUrl: "https://inbr.ir/سامانه-آزمون-های-ورود-به-حرفه-مهندسان/",
+    order: 50,
+  },
+  {
+    key: "inbr-regulations",
+    title: "مباحث مقررات ملی ساختمان",
+    description: "فهرست رسمی مباحث و پیوندهای انتشار‌یافته توسط دفتر مقررات ملی و کنترل ساختمان.",
+    category: "regulations" as const,
+    sourceUrl: "https://inbr.ir/مباحث-مقررات-ملی/",
+    order: 60,
+  },
+  {
+    key: "inbr-corrections",
+    title: "اصلاحیه‌ها و الحاقیه‌های رسمی",
+    description: "منبع رسمی اصلاحیه‌ها؛ CivilMind متن اصلی را جایگزین نمی‌کند و تغییرات تأییدشده را به‌صورت پیوست نمایش می‌دهد.",
+    category: "corrections" as const,
+    sourceUrl: "https://inbr.ir/مباحث-مقررات-ملی/",
+    order: 70,
+  },
+  {
+    key: "inbr-dey-1404-notice",
+    title: "اطلاعیه درج سؤال‌ها و پاسخنامه‌های دی‌ماه ۱۴۰۴",
+    description: "اطلاعیه رسمی انتشار سؤال‌ها و پاسخنامه‌های آزمون ورود به حرفه دی‌ماه ۱۴۰۴.",
+    category: "exam-notice" as const,
+    sourceUrl: "https://inbr.ir/اطلاعیه-درج-سوالات-و-پاسخنامه-دی-ماه-1404/",
+    order: 80,
+  },
+];
+
+export const seedVerifiedOfficialCatalog = mutation({
+  args: {},
+  returns: v.object({ created: v.number(), existing: v.number() }),
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const now = Date.now();
+    let created = 0;
+    let existing = 0;
+
+    for (const resource of officialCatalog) {
+      const current = await ctx.db
+        .query("officialResources")
+        .withIndex("by_key", (index) => index.eq("key", resource.key))
+        .unique();
+
+      if (current) {
+        existing += 1;
+        continue;
+      }
+
+      await ctx.db.insert("officialResources", {
+        ...resource,
+        sourcePublisher: "دفتر مقررات ملی و کنترل ساختمان",
+        sourceDomain: "inbr.ir",
+        status: "verified",
+        isActive: true,
+        lastVerifiedAt: now,
+      });
+      created += 1;
+    }
+
+    return { created, existing };
   },
 });
