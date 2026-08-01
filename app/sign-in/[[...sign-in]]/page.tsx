@@ -5,10 +5,10 @@ import {
 } from "@/components/auth/auth-page-shell";
 
 export default function SignInPage() {
-  const configured = Boolean(
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
-      process.env.CLERK_SECRET_KEY,
-  );
+  // Clerk's hosted SignIn UI runs in the browser. Rendering it only needs the
+  // public key; requiring a server-only secret here falsely disabled sign-in
+  // in deployments where that secret is intentionally not exposed to Next.
+  const configured = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
   return (
     <AuthPageShell
