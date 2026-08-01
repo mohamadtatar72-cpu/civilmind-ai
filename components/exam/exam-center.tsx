@@ -135,9 +135,23 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
     }
   }
 
-  if (isLoading) return <div className="p-8 text-slate-300">در حال بررسی ورود امن…</div>;
-
   if (!isAuthenticated) {
+    if (mode === "analytics") {
+      return (
+        <div className="space-y-6 p-5 md:p-8" dir="rtl">
+          <header>
+            <p className="text-sm font-bold text-violet-300">تحلیل عملکرد شخصی</p>
+            <h1 className="mt-2 text-3xl font-black text-white">برای تحلیل عملکرد وارد شوید</h1>
+            <p className="mt-2 max-w-3xl leading-8 text-slate-300">تحلیل نقاط ضعف، روند آزمون و پیشنهاد مطالعه به داده‌های شخصی شما وابسته است. منابع، دفترچه‌ها و پاسخ‌نامه‌های رسمی همچنان بدون ورود در دسترس‌اند.</p>
+          </header>
+          {isLoading && <p className="rounded-xl border border-amber-300/25 bg-amber-300/10 p-4 text-sm text-amber-100">اتصال ورود در حال بررسی است؛ برای دیدن آرشیو رسمی لازم نیست منتظر بمانید.</p>}
+          <div className="flex flex-wrap gap-3">
+            <Link href="/sign-in" className="rounded-xl bg-violet-400 px-5 py-3 font-black text-slate-950">ورود امن</Link>
+            <Link href="/exam" className="rounded-xl border border-cyan-300/50 px-5 py-3 font-black text-cyan-100">مشاهده آرشیو رسمی آزمون‌ها</Link>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="space-y-6 p-5 md:p-8" dir="rtl">
         <header className="mx-auto max-w-5xl">
