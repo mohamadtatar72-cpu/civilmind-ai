@@ -150,6 +150,19 @@ Continue Phase 1 by adding guest-side temporary discipline/qualification selecti
 
 All notable product, access, AI and UX decisions must be recorded here. This file tracks specification changes, not every code commit.
 
+## 2026-08-01 — Phase 2.2: Verified official-question analysis readiness
+
+- Extended official-question provenance with backward-compatible optional fields for stem, options, official key, clause, edition and official answer source URL.
+- Added a server-derived `analysisReady` flag; AI analysis cannot start until the verified stem, options and official key are all present and internally consistent.
+- Connected ready official questions in each topic to the real Premium `exam-analysis` runtime.
+- Added explicit states for extraction-incomplete, AI loading, provider/Premium blocked, successful non-official analysis and retryable failure.
+- Kept the official question and key free while clearly labeling CivilMind output as non-official analysis.
+- Added contract coverage preventing invented citations and accidental analysis of incomplete official records.
+
+### Next continuation point
+
+Ingest verified stems, options and official keys into `examQuestionReferences` from the official booklets/key documents, then deploy the widened schema/functions to Convex. Provider-backed generation remains dependent on a configured server-side API key and adapter; Vercel verification remains subject to the account build limit.
+
 ## 2026-08-01 — Phase 2.2: Structured question-analysis flow
 
 - Connected completed sample-exam questions to the real `aiRuntime.submitAndExecute` action with the `exam-analysis` capability.
