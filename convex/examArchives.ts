@@ -1,0 +1,35 @@
+import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
+import { requireAdmin } from "./lib/auth";
+
+const kindV = v.union(v.literal("question-booklet"), v.literal("answer-key"), v.literal("descriptive-guide"));
+const documentV = v.object({ id: v.id("examArchiveDocuments"), kind: kindV, title: v.string(), discipline: v.string(), qualification: v.optional(v.string()), sourceUrl: v.string() });
+
+export const listVerified = query({
+  args: {},
+  returns: v.array(v.object({ id: v.id("examArchives"), title: v.string(), yearLabel: v.string(), sessionLabel: v.string(), officialPageUrl: v.string(), documents: v.array(documentV) })),
+  handler: async (ctx) => {
+    const archives = await ctx.db.query("examArchives").withIndex("by_status_and_lastVerifiedAt", (q) => q.eq("status", "verified")).order("desc").take(24);
+    return await Promise.all(archives.map(async (archive) => ({
+      id: archive._id, title: archive.title, yearLabel: archive.yearLabel, sessionLabel: archive.sessionLabel, officialPageUrl: archive.officialPageUrl,
+      documents: (await ctx.db.query("examArchiveDocuments").withIndex("by_archiveId_and_kind", (q) => q.eq("archiveId", archive._id)).take(100)).map((d) => ({ id: d._id, kind: d.kind, title: d.title, discipline: d.discipline, qualification: d.qualification, sourceUrl: d.sourceUrl })),
+    })));
+  },
+});
+
+const DOCS = [
+  ["دفترچه معماری (اجرا)","معماری","اجرا","معماری-اجرا2.pdf"],["دفترچه معماری (نظارت)","معماری","نظارت","معماری-نظارت2.pdf"],["دفترچه عمران (محاسبات)","عمران","محاسبات","عمران-محاسبات2.pdf"],["دفترچه عمران (اجرا)","عمران","اجرا","عمران-اجرا2.pdf"],["دفترچه عمران (نظارت)","عمران","نظارت","عمران-نظارت2.pdf"],["دفترچه عمران (ارزیابی، طرح و اجرای بهسازی)","عمران","بهسازی","عمران-بهسازی1.pdf"],["دفترچه عمران (طرح و اجرای گود، پی و سازه نگهبان)","عمران","گود، پی و سازه نگهبان","گودبرداری1.pdf"],["دفترچه تاسیسات مکانیکی (طراحی)","تأسیسات مکانیکی","طراحی","مکانیک-طراحی1.pdf"],["دفترچه تاسیسات مکانیکی (اجرا)","تأسیسات مکانیکی","اجرا","مکانیک-اجرا1.pdf"],["دفترچه تاسیسات مکانیکی (نظارت)","تأسیسات مکانیکی","نظارت","مکانیک-نظارت1.pdf"],["دفترچه تاسیسات برقی (طراحی)","تأسیسات برقی","طراحی","برق-طراحی1.pdf"],["دفترچه تاسیسات برقی (اجرا)","تأسیسات برقی","اجرا","برق-اجرا1.pdf"],["دفترچه تاسیسات برقی (نظارت)","تأسیسات برقی","نظارت","برق-نظارت1.pdf"],["دفترچه شهرسازی","شهرسازی",null,"شهرسازی1.pdf"],["دفترچه نقشه‌برداری","نقشه‌برداری",null,"نقشه-برداری1.pdf"],["دفترچه ترافیک","ترافیک",null,"ترافیک1.pdf"],
+] as const;
+const BASE = "https://inbr.ir/wp-content/uploads/2026/01/";
+
+export const seedDey1404OfficialBooklets = mutation({
+  args: {}, returns: v.object({ archiveId: v.id("examArchives"), createdDocuments: v.number() }),
+  handler: async (ctx) => {
+    await requireAdmin(ctx); const now = Date.now();
+    let archive = await ctx.db.query("examArchives").withIndex("by_key", (q) => q.eq("key", "inbr-dey-1404")).unique();
+    if (!archive) { const id = await ctx.db.insert("examArchives", { key: "inbr-dey-1404", title: "نمونه سؤالات آزمون مهندسی دی‌ماه ۱۴۰۴", yearLabel: "۱۴۰۴", sessionLabel: "دی‌ماه", officialPageUrl: "https://inbr.ir/نمونه-سوالات-آزمون-مهندسی-دی-ماه-1404/", sourcePublisher: "دفتر مقررات ملی و کنترل ساختمان", sourceDomain: "inbr.ir", status: "verified", discoveredAt: now, lastVerifiedAt: now }); archive = (await ctx.db.get(id))!; }
+    let createdDocuments = 0;
+    for (const [title, discipline, qualification, file] of DOCS) { const sourceUrl = BASE + encodeURIComponent(file); const found = await ctx.db.query("examArchiveDocuments").withIndex("by_archiveId_and_sourceUrl", (q) => q.eq("archiveId", archive._id).eq("sourceUrl", sourceUrl)).take(1); if (found[0]) continue; await ctx.db.insert("examArchiveDocuments", { archiveId: archive._id, kind: "question-booklet", title, discipline, ...(qualification ? { qualification } : {}), sourceUrl, sourcePublisher: "دفتر مقررات ملی و کنترل ساختمان", status: "verified", discoveredAt: now, lastVerifiedAt: now }); createdDocuments += 1; }
+    return { archiveId: archive._id, createdDocuments };
+  },
+});
