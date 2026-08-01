@@ -3,7 +3,7 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import Link from "next/link";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import AppShell from "@/components/layout/app-shell";
 import {
   GlassPanel,
@@ -67,10 +67,11 @@ export default function AIPage() {
     api.aiGateway.currentStatus,
     account.isAuthenticated && !account.loading ? {} : "skip",
   ) as GatewayStatus | undefined;
-  const createIntent = useMutation(api.aiGateway.createRequestIntent);
+  const submitAndExecute = useAction(api.aiRuntime.submitAndExecute);
   const searchWithCitations = useMutation(api.pdfLibrary.searchWithCitations);
   const [question, setQuestion] = useState("");
   const [message, setMessage] = useState<string>();
+  const [answer, setAnswer] = useState<string>();
   const [citations, setCitations] = useState<Citation[]>([]);
   const [citationState, setCitationState] = useState<"idle" | "loading" | "empty" | "ready" | "error">("idle");
   const [submitting, setSubmitting] = useState(false);
@@ -84,6 +85,7 @@ export default function AIPage() {
     }
     setSubmitting(true);
     setMessage(undefined);
+    setAnswer(undefined);
     setCitations([]);
     setCitationState("loading");
     try {
@@ -108,20 +110,37 @@ export default function AIPage() {
         return;
       }
 
-      const [result, retrieval] = await Promise.all([
-        createIntent({
-        capability: "study-coach",
-        idempotencyKey: crypto.randomUUID(),
-        inputCharacters: normalized.length,
-        }),
-        searchWithCitations({ query: normalized, limit: 5 }),
-      ]);
+      const retrieval = await searchWithCitations({ query: normalized, limit: 5 });
       setCitations(retrieval.citations as Citation[]);
       setCitationState(retrieval.citations.length ? "ready" : "empty");
+      if (retrieval.citations.length === 0) {
+        setMessage("منبع رسمی مرتبطی پیدا نشد؛ برای جلوگیری از پاسخ بدون استناد، تولید پاسخ متوقف شد.");
+        return;
+      }
+
+      const sourceContext = (retrieval.citations as Citation[])
+        .map((citation, index) =>
+          `[منبع ${index + 1}] ${citation.documentTitle}، نسخه ${citation.documentVersion}، ${citation.citationLabel || `صفحه ${citation.pageNumber}`}\n${citation.excerpt}`,
+        )
+        .join("\n\n");
+      const result = await submitAndExecute({
+        capability: "study-coach",
+        idempotencyKey: crypto.randomUUID(),
+        userText: [
+          "فقط بر اساس منابع رسمی زیر پاسخ بده. اگر شواهد کافی نیست، صریحاً عدم قطعیت را اعلام کن.",
+          "متن رسمی را با توضیح CivilMind AI مخلوط نکن و در پاسخ به شماره منبع ارجاع بده.",
+          `پرسش کاربر: ${normalized}`,
+          sourceContext,
+        ].join("\n\n"),
+        requestedTools: ["official-sources-search"],
+      });
+      setAnswer(result.status === "completed" ? result.responseText : undefined);
       setMessage(
-        result.request.status === "blocked"
-          ? "پرسش با منابع جست‌وجو شد، اما Adapter مدل هنوز فعال نیست؛ بنابراین پاسخ تولیدشده‌ای نمایش داده نمی‌شود."
-          : "منابع مرتبط بازیابی شد و درخواست برای پاسخِ مستند آماده است.",
+        result.status === "completed"
+          ? "پاسخ مستند آماده شد. ارجاع‌ها را پیش از اتکا بررسی کنید."
+          : result.status === "blocked"
+            ? "منابع رسمی پیدا شدند، اما Adapter مدل فعال نیست؛ هیچ پاسخ ساختگی نمایش داده نمی‌شود."
+            : "تولید پاسخ کامل نشد؛ منابع رسمی بازیابی‌شده همچنان در دسترس‌اند.",
       );
     } catch (error) {
       setCitationState("error");
@@ -237,6 +256,24 @@ export default function AIPage() {
             {citationState === "loading" && "در حال جست‌وجو در منابع رسمی و PDFهای قابل‌استناد…"}
             {citationState === "empty" && "برای این پرسش، منبع رسمیِ پردازش‌شده پیدا نشد؛ بنابراین پاسخ مستند تولید نمی‌شود."}
             {citationState === "error" && "بازیابی منبع انجام نشد؛ پاسخ AI بدون استناد نمایش داده نخواهد شد."}
+          </GlassPanel>
+        )}
+
+        {answer && (
+          <GlassPanel className="border-cyan-400/25 bg-cyan-400/5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <SectionTitle
+                title="توضیح CivilMind AI"
+                description="این متن تحلیل هوش مصنوعی است، نه متن یا پاسخ رسمی."
+              />
+              <StatusBadge tone="info">تحلیل AI با منبع</StatusBadge>
+            </div>
+            <p className="mt-4 whitespace-pre-wrap text-sm leading-8 text-slate-100">
+              {answer}
+            </p>
+            <p className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/5 p-3 text-xs leading-6 text-amber-100/80">
+              برای تصمیم حرفه‌ای یا حقوقی، متن رسمی و صفحه‌های استنادشده را مستقیماً بررسی کنید.
+            </p>
           </GlassPanel>
         )}
 
