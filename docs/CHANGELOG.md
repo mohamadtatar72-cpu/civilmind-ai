@@ -1,3 +1,9 @@
+## 2026-08-01 — Authentication rendering fix
+
+- Fixed the sign-in gate: the Clerk sign-in UI now correctly relies on the public Clerk publishable key instead of incorrectly requiring the server-only secret during page rendering.
+- Improved the missing-auth configuration message to state the exact required setting and preserve server-side admin authorization.
+- Verified locally with TypeScript, ESLint and the complete test suite (17 passing).
+
 ## 2026-08-01 — Mandatory 14-phase execution framework
 
 - Added `docs/MASTER_EXECUTION_PLAN.md` as the binding execution framework for all workers.
