@@ -147,7 +147,7 @@ const officialCatalog = [
     title: "مواد آزمون و نمونه‌سؤال‌های رسمی",
     description: "مسیر رسمی دسترسی به مواد آزمون و دفترچه‌های منتشرشده برای رشته‌ها و صلاحیت‌های مختلف.",
     category: "exam-materials" as const,
-    sourceUrl: "https://inbr.ir/سامانه-آزمون-های-ورود-به-حرفه-مهندسان/",
+    sourceUrl: "https://inbr.ir/مواد-آزمون-مهندسی-ساختمان/",
     order: 30,
   },
   {
@@ -155,7 +155,7 @@ const officialCatalog = [
     title: "آرشیو نمونه‌سؤال‌های آزمون مهندسی",
     description: "آرشیو رسمی دوره‌های آزمون؛ هر دوره پس از تأیید، به‌تفکیک دفترچه و صلاحیت در CivilMind ثبت می‌شود.",
     category: "past-exams" as const,
-    sourceUrl: "https://inbr.ir/category/سایرموارد/",
+    sourceUrl: "https://inbr.ir/سامانه-آزمون-های-ورود-به-حرفه-مهندسان/نمونه-سوالات/",
     order: 40,
   },
   {
@@ -163,7 +163,7 @@ const officialCatalog = [
     title: "پاسخنامه و راهنمای تشریحی رسمی",
     description: "دسترسی به پاسخنامه‌ها و راهنماهای تشریحی منتشرشده توسط دفتر مقررات ملی.",
     category: "answer-guides" as const,
-    sourceUrl: "https://inbr.ir/سامانه-آزمون-های-ورود-به-حرفه-مهندسان/",
+    sourceUrl: "https://inbr.ir/راهنمای-پاسخنامه-تشریحی/",
     order: 50,
   },
   {
@@ -179,7 +179,7 @@ const officialCatalog = [
     title: "اصلاحیه‌ها و الحاقیه‌های رسمی",
     description: "منبع رسمی اصلاحیه‌ها؛ CivilMind متن اصلی را جایگزین نمی‌کند و تغییرات تأییدشده را به‌صورت پیوست نمایش می‌دهد.",
     category: "corrections" as const,
-    sourceUrl: "https://inbr.ir/مباحث-مقررات-ملی/",
+    sourceUrl: "https://inbr.ir/category/اصلاحیه-مباحث/",
     order: 70,
   },
   {
@@ -207,7 +207,12 @@ export const seedVerifiedOfficialCatalog = mutation({
         .withIndex("by_key", (index) => index.eq("key", resource.key))
         .unique();
 
-      if (current) {
+      const sameUrl = await ctx.db
+        .query("officialResources")
+        .withIndex("by_sourceUrl", (index) => index.eq("sourceUrl", resource.sourceUrl))
+        .unique();
+
+      if (current || sameUrl) {
         existing += 1;
         continue;
       }
