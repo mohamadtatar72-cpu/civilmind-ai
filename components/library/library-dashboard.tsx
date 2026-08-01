@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import {
@@ -25,6 +25,16 @@ import {
   StatusBadge,
 } from "@/components/ui/civilmind";
 import { normalizePersianSearch } from "@/lib/persian-normalization";
+
+const LIBRARY_FILTER_KEY = "civilmind.guest-library-filter.v1";
+const qualificationLabels = {
+  supervision: "نظارت",
+  execution: "اجرا",
+  calculation: "محاسبات",
+  general: "عمومی",
+} as const;
+
+type QualificationFilter = "all" | keyof typeof qualificationLabels;
 
 function TopicSkeleton() {
   return (
@@ -59,19 +69,30 @@ function LoadingGrid() {
 
 function LibraryContent({ result }: { result: PublicTopicListResult }) {
   const [search, setSearch] = useState("");
+  const [qualification, setQualification] = useState<QualificationFilter>("all");
   const topics = useMemo(() => mapPublicTopics(result), [result]);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(LIBRARY_FILTER_KEY);
+    if (saved && (saved === "all" || Object.prototype.hasOwnProperty.call(qualificationLabels, saved))) {
+      queueMicrotask(() => setQualification(saved as QualificationFilter));
+    }
+  }, []);
   const visibleTopics = useMemo(() => {
     const normalized = normalizePersianSearch(search);
-    if (!normalized) {
-      return topics;
-    }
-
-    return topics.filter((topic) =>
-      normalizePersianSearch(
+    return topics.filter((topic) => {
+      const matchesQualification = qualification === "all" || topic.qualification === qualification;
+      const matchesSearch = !normalized || normalizePersianSearch(
         `${topic.code} ${topic.title} ${topic.shortTitle} ${topic.description}`,
-      ).includes(normalized),
-    );
-  }, [search, topics]);
+      ).includes(normalized);
+      return matchesQualification && matchesSearch;
+    });
+  }, [qualification, search, topics]);
+
+  function selectQualification(value: QualificationFilter) {
+    setQualification(value);
+    window.localStorage.setItem(LIBRARY_FILTER_KEY, value);
+  }
   const questionTotal = topics.reduce(
     (total, topic) => total + topic.questionCount,
     0,
@@ -131,6 +152,25 @@ function LibraryContent({ result }: { result: PublicTopicListResult }) {
             className="w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pr-11 pl-4 text-white outline-none placeholder:text-slate-600 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-400/10"
           />
         </div>
+        <div className="mt-4 flex flex-wrap gap-2" aria-label="فیلتر رایگان صلاحیت">
+          {(["all", ...Object.keys(qualificationLabels)] as QualificationFilter[]).map((item) => {
+            const active = qualification === item;
+            return (
+              <button
+                key={item}
+                type="button"
+                onClick={() => selectQualification(item)}
+                aria-pressed={active}
+                className={active
+                  ? "rounded-full bg-blue-600 px-3 py-2 text-xs font-bold text-white"
+                  : "rounded-full border border-white/15 px-3 py-2 text-xs font-bold text-slate-300 transition hover:border-blue-400/50 hover:text-white"}
+              >
+                {item === "all" ? "همه صلاحیت‌ها" : qualificationLabels[item]}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-3 text-xs text-emerald-300">فیلتر منابع رسمی رایگان است و روی همین مرورگر ذخیره می‌شود.</p>
       </GlassPanel>
 
       {visibleTopics.length === 0 ? (
@@ -173,6 +213,7 @@ function LibraryContent({ result }: { result: PublicTopicListResult }) {
                 <h3 className="mt-5 text-lg font-bold leading-8 text-white">
                   {topic.shortTitle}
                 </h3>
+                <p className="mt-1 text-xs font-bold text-cyan-300">صلاحیت: {qualificationLabels[topic.qualification]}</p>
                 <p className="mt-2 line-clamp-3 flex-1 text-sm leading-7 text-slate-400">
                   {topic.description}
                 </p>
