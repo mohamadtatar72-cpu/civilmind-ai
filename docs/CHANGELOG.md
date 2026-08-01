@@ -43,6 +43,16 @@
 
 **Verification pending:** Vercel publication and Cloud Browser screenshot verification remain queued as recorded above. **Next implementation sprint:** Phase 1.6 — separately model and present official exam booklets, initial/final answer keys, published descriptive guides and distinct CivilMind AI analysis.
 
+## 2026-08-01 — Phase 1.6: Separated official exam materials
+
+- Changed the exam archive presentation to group each session into official question booklets, official answer keys and officially published descriptive guides.
+- Added honest empty states for source categories that have not yet been verified; no answer key or guide is fabricated.
+- Added an explicit separation notice: CivilMind AI analysis is never an official answer or a substitute for official source material.
+
+### Next continuation point
+
+Phase 1.7 — verified knowledge ingestion, provenance, editions and page/clause extraction.
+
 ## 2026-08-01 — Phase 1: Free official archive access
 
 - Removed the Premium gate from the official archive UI and backend scoped archive query.
