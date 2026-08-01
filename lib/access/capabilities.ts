@@ -30,6 +30,14 @@ export function canAccessCapability(tier: AccessTier, capability: CapabilityKey)
   return tier === "free" && capability === "ai.chat";
 }
 
+export function accessTierForRole(
+  role: "free" | "premium" | "admin" | undefined,
+): AccessTier {
+  if (role === "admin") return "admin";
+  if (role === "premium") return "premium";
+  return role === "free" ? "free" : "guest";
+}
+
 export function isPremiumCapability(capability: CapabilityKey) {
   return premiumCapabilities.has(capability);
 }
