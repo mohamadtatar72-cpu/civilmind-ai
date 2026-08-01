@@ -1,0 +1,42 @@
+name: CivilMind Worker Heartbeat
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: civilmind-worker-heartbeat
+  cancel-in-progress: true
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post development heartbeat to Issue #21
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = 21;
+            const now = new Date().toISOString();
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: [
+                'توسعه',
+                '',
+                `Automated worker heartbeat: ${now}`,
+                '',
+                'Read the latest applicable AI Project Manager instruction in Issue #21 and continue the first incomplete highest-value safe task.',
+                'Do not reply with status only. Implement, test, commit, push, update CHANGELOG, and continue.',
+                'If one tool is blocked, queue only that dependent task and continue independent work with all remaining tools.'
+              ].join('\n')
+            });
