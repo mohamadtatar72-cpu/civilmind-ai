@@ -141,6 +141,11 @@ export default function OfficialSourcesDashboard() {
                 <p className="mt-1" dir="ltr">
                   {resource.sourceDomain}
                 </p>
+                <dl className="mt-3 grid gap-1 text-slate-400">
+                  <div className="flex justify-between gap-3"><dt>وضعیت منبع</dt><dd>{resource.status === "verified" ? "تأییدشده" : resource.status === "outdated" ? "نیازمند بررسی مجدد" : "در انتظار بررسی"}</dd></div>
+                  {resource.lastVerifiedAt && <div className="flex justify-between gap-3"><dt>آخرین تأیید</dt><dd>{new Date(resource.lastVerifiedAt).toLocaleDateString("fa-IR")}</dd></div>}
+                  {resource.lastSyncStatus && <div className="flex justify-between gap-3"><dt>ردیابی نسخه</dt><dd>{resource.lastSyncStatus === "unchanged" ? "بدون تغییر" : resource.lastSyncStatus === "pending-review" ? "تغییر در انتظار تأیید" : resource.lastSyncStatus}</dd></div>}
+                </dl>
               </div>
               <a
                 href={resource.sourceUrl}
