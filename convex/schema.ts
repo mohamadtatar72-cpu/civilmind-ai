@@ -151,6 +151,7 @@ export default defineSchema({
     lastHttpStatus: v.optional(v.number()),
   })
     .index("by_key", ["key"])
+    .index("by_sourceUrl", ["sourceUrl"])
     .index("by_category_and_isActive", ["category", "isActive"])
     .index("by_isActive_and_order", ["isActive", "order"])
     .index("by_status", ["status"]),
