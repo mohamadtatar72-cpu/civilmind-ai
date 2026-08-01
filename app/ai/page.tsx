@@ -79,23 +79,30 @@ export default function AIPage() {
       setMessage("لطفاً ابتدا سؤال خود را بنویسید.");
       return;
     }
-    const tier = entitlement?.tier ?? accessTierForRole(account.user?.role);
-    const canUseChat = entitlement
-      ? entitlement.capabilities.aiChat
-      : canAccessCapability(tier, "ai.chat");
-    if (!canUseChat) {
-      setMessage("این قابلیت به حساب کاربری فعال نیاز دارد.");
-      return;
-    }
-    if (!account.isAuthenticated) {
-      setMessage("برای استفاده از سهمیه شخصی ابتدا وارد حساب شوید.");
-      return;
-    }
-
     setSubmitting(true);
     setMessage(undefined);
     setCitations([]);
     try {
+      if (!account.isAuthenticated) {
+        const retrieval = await searchWithCitations({ query: normalized, limit: 5 });
+        setCitations(retrieval.citations as Citation[]);
+        setMessage(
+          retrieval.citations.length > 0
+            ? "منابع رسمی مرتبط پیدا شد. برای گفت‌وگوی AI و پاسخ شخصی وارد حساب شوید."
+            : "منبع رسمی مرتبطی در PDFهای پردازش‌شده پیدا نشد؛ بنابراین پاسخی تولید نمی‌شود.",
+        );
+        return;
+      }
+
+      const tier = entitlement?.tier ?? accessTierForRole(account.user?.role);
+      const canUseChat = entitlement
+        ? entitlement.capabilities.aiChat
+        : canAccessCapability(tier, "ai.chat");
+      if (!canUseChat) {
+        setMessage("این قابلیت به حساب کاربری فعال نیاز دارد.");
+        return;
+      }
+
       const [result, retrieval] = await Promise.all([
         createIntent({
         capability: "study-coach",
