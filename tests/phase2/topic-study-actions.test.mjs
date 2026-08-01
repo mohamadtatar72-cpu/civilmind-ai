@@ -28,3 +28,17 @@ test("recent official topic questions are public and open their exact source", a
   assert.match(detail, /sourcePageUrl\(question\.sourceUrl, question\.sourcePage\)/);
   assert.match(detail, /مشاهده سؤال رسمی/);
 });
+
+test("official-question AI analysis is gated by verified extraction readiness", async () => {
+  const schema = await readFile(new URL("convex/schema.ts", root), "utf8");
+  const access = await readFile(new URL("convex/examAccess.ts", root), "utf8");
+  const detail = await readFile(new URL("components/library/topic-detail.tsx", root), "utf8");
+
+  assert.match(schema, /officialCorrectIndex: v\.optional\(v\.number\(\)\)/);
+  assert.match(schema, /officialAnswerSourceUrl: v\.optional\(v\.string\(\)\)/);
+  assert.match(access, /analysisReady: Boolean/);
+  assert.match(detail, /capability: "exam-analysis"/);
+  assert.match(detail, /هیچ صفحه، بند، آمار یا منبعی اختراع نکن/);
+  assert.match(detail, /تحلیل AI پس از استخراج متن، گزینه‌ها و کلید رسمی فعال می‌شود/);
+  assert.match(detail, /مشاهده سؤال و کلید رسمی رایگان است/);
+});
