@@ -15,6 +15,7 @@ import type * as aiRuntime from "../aiRuntime.js";
 import type * as auditLogs from "../auditLogs.js";
 import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
+import type * as dataSync from "../dataSync.js";
 import type * as examEngine from "../examEngine.js";
 import type * as examArchives from "../examArchives.js";
 import type * as examAccess from "../examAccess.js";
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   auditLogs: typeof auditLogs;
   crons: typeof crons;
   dashboard: typeof dashboard;
+  dataSync: typeof dataSync;
   examEngine: typeof examEngine;
   examArchives: typeof examArchives;
   examAccess: typeof examAccess;
