@@ -150,6 +150,19 @@ Continue Phase 1 by adding guest-side temporary discipline/qualification selecti
 
 All notable product, access, AI and UX decisions must be recorded here. This file tracks specification changes, not every code commit.
 
+## 2026-08-01 — Phase 2.1: Executed source-grounded AI answers
+
+- Replaced the frontend-only AI request intent with the real `aiRuntime.submitAndExecute` action.
+- Enforced retrieval-first behavior in the user flow: AI execution is skipped when no verified citation is available.
+- Passed the retrieved document title, edition, page/citation label and excerpt into the server-side AI prompt envelope.
+- Added an explicit CivilMind AI analysis panel that remains visually separate from extracted official text and displays an uncertainty/safety notice.
+- Kept truthful blocked and failure states: when no model adapter is configured, verified sources remain visible and no generated answer is fabricated.
+- Added contract coverage for execution wiring, source gating, official-source tool policy and AI/official-content separation.
+
+### Next continuation point
+
+Deploy the current Convex functions and Vercel Preview, then verify a signed-in sourced question with an active provider adapter. Phase 2.2 begins with structured question analysis (official answer, option-by-option reasoning, source citations, traps and uncertainty) without presenting generated content as official.
+
 ## 2026-08-01
 
 ### Product model
