@@ -1,3 +1,11 @@
+## 2026-08-01 — Phase 0 / Dashboard Stage A
+
+- Added a centralized typed capability registry at `lib/access/capabilities.ts` to distinguish public official-content access from AI intelligence entitlements.
+- Added `docs/PHASE_0_AUDIT.md` documenting dashboard, sidebar, AI-entry and source-access gaps against the approved specifications.
+- Recorded the critical Phase 1 correction: official archive retrieval must not depend on Premium access.
+- No working routes or visible dashboard features were removed in Stage A.
+
+
 # CivilMind AI — Changelog
 
 All notable product, access, AI and UX decisions must be recorded here. This file tracks specification changes, not every code commit.
