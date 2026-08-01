@@ -44,8 +44,8 @@ export function AuthConfigurationMissing() {
     <div className="w-full max-w-md rounded-2xl border border-amber-400/20 bg-amber-400/10 p-6 text-center">
       <h2 className="font-bold text-amber-200">احراز هویت هنوز پیکربندی نشده است</h2>
       <p className="mt-3 text-sm leading-7 text-amber-100/70">
-        کلیدهای Clerk باید در محیط استقرار تنظیم شوند. هیچ حساب آزمایشی یا ورود
-        جعلی نمایش داده نمی‌شود.
+        کلید عمومی Clerk باید در محیط استقرار تنظیم شود. هیچ حساب آزمایشی یا ورود
+        جعلی نمایش داده نمی‌شود؛ دسترسی مدیر نیز فقط پس از ورود در Backend بررسی می‌شود.
       </p>
     </div>
   );
