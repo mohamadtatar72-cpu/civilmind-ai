@@ -30,7 +30,7 @@
 
 ### Next continuation point
 
-**Deployment pending:** Vercel publication/Cloud Browser verification for Phase 1.2 remains queued because of the recorded daily deployment limit. **Next implementation sprint:** Phase 1.5 — public official regulation library search and filtering, starting with the existing library data model and guest filter flow.
+**Verification pending:** Vercel publication for Phase 1.2 remains queued because of the recorded daily deployment limit. A Codespaces preview was launched for this Phase 1.4 flow; Cloud Browser navigation timed out during the verification attempt, so browser/screenshot verification remains queued rather than being claimed as complete. **Next implementation sprint:** Phase 1.5 — public official regulation library search and filtering, starting with the existing library data model and guest filter flow.
 
 ## 2026-08-01 — Phase 1: Free official archive access
 
