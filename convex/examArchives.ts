@@ -86,6 +86,25 @@ const KHORDAD_1404_DOCUMENTS = [
   ["دفترچه سؤال و کلید رسمی عمران (گود، پی و سازه نگهبان)","عمران","گود، پی و سازه نگهبان","https://inbr.ir/wp-content/uploads/2025/07/عمران-گود-خرداد1404.pdf"],
 ] as const;
 
+
+const ABAN_1403_DOCUMENTS = [
+  ["دفترچه سؤال و کلید رسمی تأسیسات برقی (طراحی)","تأسیسات برقی","طراحی","https://inbr.ir/wp-content/uploads/2024/11/برق-طراحی-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات برقی (نظارت)","تأسیسات برقی","نظارت","https://inbr.ir/wp-content/uploads/2024/11/برق-نظارت-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات برقی (اجرا)","تأسیسات برقی","اجرا","https://inbr.ir/wp-content/uploads/2024/11/برق-اجرا-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات مکانیکی (طراحی)","تأسیسات مکانیکی","طراحی","https://inbr.ir/wp-content/uploads/2024/11/مکانیک-طراحی-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات مکانیکی (نظارت)","تأسیسات مکانیکی","نظارت","https://inbr.ir/wp-content/uploads/2024/11/مکانیک-نظارت-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات مکانیکی (اجرا)","تأسیسات مکانیکی","اجرا","https://inbr.ir/wp-content/uploads/2024/11/مکانیک-اجرا-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (اجرا)","عمران","اجرا","https://inbr.ir/wp-content/uploads/2024/11/عمران-اجرا-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (نظارت)","عمران","نظارت","https://inbr.ir/wp-content/uploads/2024/11/عمران-نظارت-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (محاسبات)","عمران","محاسبات","https://inbr.ir/wp-content/uploads/2024/11/عمران-محاسبات-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی معماری (نظارت)","معماری","نظارت","https://inbr.ir/wp-content/uploads/2024/11/معماری-نظارت-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی معماری (اجرا)","معماری","اجرا","https://inbr.ir/wp-content/uploads/2024/11/معماری-اجرا-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی نقشه‌برداری","نقشه‌برداری",null,"https://inbr.ir/wp-content/uploads/2024/11/نقشه-برداری-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی ترافیک","ترافیک",null,"https://inbr.ir/wp-content/uploads/2024/11/ترافیک-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی شهرسازی","شهرسازی",null,"https://inbr.ir/wp-content/uploads/2024/11/شهرسازی-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (بهسازی)","عمران","بهسازی","https://inbr.ir/wp-content/uploads/2024/11/عمران-بهسازی-آبان-1403-v2.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (گود، پی و سازه نگهبان)","عمران","گود، پی و سازه نگهبان","https://inbr.ir/wp-content/uploads/2024/11/عمران-گودبرداری-آبان-1403-v2.pdf"],
+] as const;
 export const seedVerifiedHistoricalSessions = mutation({
   args: {},
   returns: v.object({ created: v.number(), existing: v.number() }),
@@ -117,24 +136,27 @@ export const seedVerifiedHistoricalSessions = mutation({
       created += 1;
     }
 
-    const khordadArchive = await ctx.db
-      .query("examArchives")
-      .withIndex("by_key", (index) => index.eq("key", "inbr-khordad-1404"))
-      .unique();
+    const seedDocuments = async (
+      archiveKey: string,
+      documents: readonly (readonly [string, string, string | null, string])[],
+    ) => {
+      const archive = await ctx.db
+        .query("examArchives")
+        .withIndex("by_key", (index) => index.eq("key", archiveKey))
+        .unique();
+      if (!archive) return;
 
-    if (khordadArchive) {
-      for (const [title, discipline, qualification, sourceUrl] of KHORDAD_1404_DOCUMENTS) {
+      for (const [title, discipline, qualification, sourceUrl] of documents) {
         const current = await ctx.db
           .query("examArchiveDocuments")
           .withIndex("by_archiveId_and_sourceUrl", (index) =>
-            index.eq("archiveId", khordadArchive._id).eq("sourceUrl", sourceUrl),
+            index.eq("archiveId", archive._id).eq("sourceUrl", sourceUrl),
           )
           .unique();
-
         if (current) continue;
 
         await ctx.db.insert("examArchiveDocuments", {
-          archiveId: khordadArchive._id,
+          archiveId: archive._id,
           kind: "question-booklet",
           title,
           discipline,
@@ -146,7 +168,10 @@ export const seedVerifiedHistoricalSessions = mutation({
           lastVerifiedAt: now,
         });
       }
-    }
+    };
+
+    await seedDocuments("inbr-khordad-1404", KHORDAD_1404_DOCUMENTS);
+    await seedDocuments("inbr-aban-1403", ABAN_1403_DOCUMENTS);
 
     return { created, existing };
   },
