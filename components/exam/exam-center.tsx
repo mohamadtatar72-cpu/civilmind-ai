@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -8,10 +8,45 @@ import type { Id } from "@/convex/_generated/dataModel";
 
 type ExamCenterProps = { mode: "exam" | "analytics" };
 
+type GuestExamPreference = {
+  discipline: string;
+  qualification: string;
+};
+
+const GUEST_EXAM_PREFERENCE_KEY = "civilmind.guest-exam-preference.v1";
+
+const DISCIPLINES = [
+  "عمران",
+  "معماری",
+  "تأسیسات مکانیکی",
+  "تأسیسات برقی",
+  "نقشه‌برداری",
+  "شهرسازی",
+  "ترافیک",
+];
+
+const QUALIFICATIONS = [
+  "نظارت",
+  "اجرا",
+  "محاسبات",
+  "طراحی",
+  "بهسازی",
+  "گود، پی و سازه نگهبان",
+  "عمومی",
+];
+
 export default function ExamCenter({ mode }: ExamCenterProps) {
   const { isAuthenticated, isLoading } = useConvexAuth();
+  const [guestPreference, setGuestPreference] = useState<GuestExamPreference | null>(null);
+  const [guestPreferenceReady, setGuestPreferenceReady] = useState(false);
   const analytics = useQuery(api.examEngine.getMyAnalytics, isAuthenticated ? {} : "skip");
   const officialArchiveAccess = useQuery(api.examAccess.listMyEligibleArchive, isAuthenticated ? {} : "skip");
+  const publicArchive = useQuery(
+    api.examAccess.listPublicArchive,
+    !isAuthenticated && guestPreference
+      ? guestPreference
+      : "skip",
+  );
   const seedArchive = useMutation(api.examArchives.seedDey1404OfficialBooklets);
   const seedHistoricalSessions = useMutation(api.examArchives.seedVerifiedHistoricalSessions);
   const startExam = useMutation(api.examEngine.startSampleExam);
@@ -21,6 +56,26 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(GUEST_EXAM_PREFERENCE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Partial<GuestExamPreference>;
+      if (typeof parsed.discipline === "string" && typeof parsed.qualification === "string") {
+        queueMicrotask(() => setGuestPreference({ discipline: parsed.discipline!, qualification: parsed.qualification! }));
+      }
+    } catch {
+      window.localStorage.removeItem(GUEST_EXAM_PREFERENCE_KEY);
+    } finally {
+      setGuestPreferenceReady(true);
+    }
+  }, []);
+
+  function saveGuestPreference(preference: GuestExamPreference) {
+    setGuestPreference(preference);
+    window.localStorage.setItem(GUEST_EXAM_PREFERENCE_KEY, JSON.stringify(preference));
+  }
 
   async function seedOfficialArchive() {
     setSaving(true);
@@ -84,11 +139,26 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
 
   if (!isAuthenticated) {
     return (
-      <div className="p-8" dir="rtl">
-        <div className="mx-auto max-w-xl rounded-2xl border border-slate-600 bg-slate-900 p-8 text-center">
-          <h1 className="text-2xl font-black text-white">{mode === "exam" ? "مرکز آزمون" : "تحلیل عملکرد"}</h1>
-          <p className="mt-3 text-slate-300">{mode === "exam" ? "برای شروع آزمون و ذخیره نتیجه وارد حساب شوید." : "برای مشاهده آمار و تحلیل شخصی وارد حساب شوید."}</p>
-          <Link href="/sign-in" className="mt-6 inline-flex rounded-xl bg-violet-400 px-5 py-3 font-black text-slate-950">ورود امن</Link>
+      <div className="space-y-6 p-5 md:p-8" dir="rtl">
+        <header className="mx-auto max-w-5xl">
+          <p className="text-sm font-bold text-cyan-300">آرشیو عمومی CivilMind</p>
+          <h1 className="mt-2 text-3xl font-black text-white">{mode === "exam" ? "آرشیو رسمی آزمون‌ها" : "منابع و آزمون‌های رسمی"}</h1>
+          <p className="mt-2 max-w-3xl text-slate-300">دفترچه‌های رسمی، کلیدها و پاسخ‌نامه‌های تشریحیِ تأییدشده بدون ورود و بدون اشتراک در دسترس هستند. انتخاب زیر فقط برای نمایش منابع مرتبط روی همین دستگاه ذخیره می‌شود.</p>
+        </header>
+        {!guestPreferenceReady ? (
+          <section className="mx-auto max-w-5xl rounded-2xl border border-slate-600 bg-slate-900 p-6 text-slate-300">در حال بازیابی انتخاب شما…</section>
+        ) : (
+          <GuestArchivePicker key={`${guestPreference?.discipline ?? "new"}-${guestPreference?.qualification ?? "new"}`} preference={guestPreference} onChange={saveGuestPreference} />
+        )}
+        {guestPreference && (
+          <div className="mx-auto max-w-5xl">
+            <OfficialExamArchive archives={publicArchive} onSeed={seedOfficialArchive} onSeedHistory={seedHistoricalArchive} disabled={true} publicMode />
+          </div>
+        )}
+        <div className="mx-auto max-w-5xl rounded-2xl border border-violet-300/30 bg-violet-400/10 p-5 text-slate-100">
+          <p className="font-black">ورود فقط برای امکانات شخصی لازم است</p>
+          <p className="mt-1 text-sm text-slate-300">ثبت نتیجهٔ آزمون، پیشرفت و تحلیل شخصی پس از ورود فعال می‌شود؛ خود منابع رسمی رایگان می‌مانند.</p>
+          <Link href="/sign-in" className="mt-4 inline-flex rounded-xl bg-violet-400 px-5 py-3 font-black text-slate-950">ورود امن</Link>
         </div>
       </div>
     );
@@ -235,14 +305,44 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
 }
 
 
-function OfficialExamArchive({ archives, onSeed, onSeedHistory, disabled }: {
+function GuestArchivePicker({ preference, onChange }: { preference: GuestExamPreference | null; onChange: (preference: GuestExamPreference) => void }) {
+  const [discipline, setDiscipline] = useState(preference?.discipline ?? "عمران");
+  const [qualification, setQualification] = useState(preference?.qualification ?? "نظارت");
+
+  return (
+    <section className="mx-auto max-w-5xl rounded-2xl border border-cyan-400/30 bg-slate-900 p-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-black text-white">رشته و صلاحیت خود را انتخاب کنید</h2>
+          <p className="mt-1 text-sm text-slate-300">این فیلتر رایگان است و برای حساب مهمان، فقط در مرورگر شما نگهداری می‌شود.</p>
+        </div>
+        <button onClick={() => onChange({ discipline, qualification })} className="rounded-xl bg-cyan-400 px-5 py-3 font-black text-slate-950">نمایش آرشیو رسمی</button>
+      </div>
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <label className="grid gap-2 text-sm font-bold text-slate-100">رشته
+          <select value={discipline} onChange={(event) => setDiscipline(event.target.value)} className="rounded-xl border border-slate-500 bg-slate-950 px-4 py-3 text-white">
+            {DISCIPLINES.map((item) => <option key={item} value={item}>{item}</option>)}
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-bold text-slate-100">صلاحیت
+          <select value={qualification} onChange={(event) => setQualification(event.target.value)} className="rounded-xl border border-slate-500 bg-slate-950 px-4 py-3 text-white">
+            {QUALIFICATIONS.map((item) => <option key={item} value={item}>{item}</option>)}
+          </select>
+        </label>
+      </div>
+    </section>
+  );
+}
+
+function OfficialExamArchive({ archives, onSeed, onSeedHistory, disabled, publicMode = false }: {
   archives: Array<{ id: string; title: string; yearLabel?: string; sessionLabel?: string; officialPageUrl: string; documents: Array<{ id: string; kind: "question-booklet" | "answer-key" | "descriptive-guide"; title: string; discipline: string; qualification?: string; sourceUrl: string }> }> | undefined;
   onSeed: () => Promise<void>;
   onSeedHistory: () => Promise<void>;
   disabled: boolean;
+  publicMode?: boolean;
 }) {
   if (archives === undefined) return <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6 text-slate-300">در حال دریافت آرشیو رسمی…</section>;
-  return <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-bold text-cyan-300">آرشیو رسمی آزمون‌ها</p><h2 className="mt-1 text-xl font-black text-white">دفترچه و پاسخنامه، تفکیک‌شده بر اساس دوره و گرایش</h2></div><div className="flex gap-2"><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200">فقط منبع رسمی INBR</span>{archives.length === 0 && <button disabled={disabled} onClick={() => void onSeed()} className="rounded-lg bg-cyan-400 px-3 py-1 text-xs font-black text-slate-950 disabled:opacity-50">دریافت آرشیو رسمی</button>}<button disabled={disabled} onClick={() => void onSeedHistory()} className="rounded-lg border border-violet-300/50 px-3 py-1 text-xs font-black text-violet-100 disabled:opacity-50">افزودن دوره‌های گذشته</button></div></div>{archives.length === 0 ? <p className="mt-4 text-slate-300">آرشیو رسمی در حال ورود است.</p> : archives.map((archive) => <article key={archive.id} className="mt-5 rounded-xl border border-slate-600 bg-slate-950 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-black text-white">{archive.title}</h3><p className="mt-1 text-sm text-slate-300">{archive.sessionLabel && archive.yearLabel ? `${archive.sessionLabel} ${archive.yearLabel} · ` : ""}{archive.documents.length.toLocaleString("fa-IR")} دفترچه ثبت‌شده</p></div><a href={archive.officialPageUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-cyan-300 px-3 py-2 text-sm font-bold text-cyan-200">صفحه رسمی دوره</a></div><div className="mt-4 grid gap-3 md:grid-cols-2">{archive.documents.map((document) => <a key={document.id} href={document.sourceUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-600 bg-slate-900 p-3 transition hover:border-cyan-300"><p className="font-bold text-white">{document.title}</p><p className="mt-1 text-xs text-slate-300">{document.discipline}{document.qualification ? ` · ${document.qualification}` : ""}</p><p className="mt-2 text-xs font-bold text-cyan-300">{document.kind === "question-booklet" ? "دفترچه سؤال رسمی ↗" : document.kind === "answer-key" ? "کلید پاسخ رسمی ↗" : "راهنمای تشریحی رسمی ↗"}</p></a>)}</div><p className="mt-4 text-xs text-amber-200">پاسخنامه یا راهنمای تشریحی فقط پس از یافتن و تأیید نسخهٔ رسمیِ همان دوره به این بخش افزوده می‌شود.</p></article>)}</section>;
+  return <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-bold text-cyan-300">آرشیو رسمی آزمون‌ها</p><h2 className="mt-1 text-xl font-black text-white">دفترچه و پاسخنامه، تفکیک‌شده بر اساس دوره و گرایش</h2></div><div className="flex gap-2"><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200">فقط منبع رسمی INBR</span>{!publicMode && archives.length === 0 && <button disabled={disabled} onClick={() => void onSeed()} className="rounded-lg bg-cyan-400 px-3 py-1 text-xs font-black text-slate-950 disabled:opacity-50">دریافت آرشیو رسمی</button>}{!publicMode && <button disabled={disabled} onClick={() => void onSeedHistory()} className="rounded-lg border border-violet-300/50 px-3 py-1 text-xs font-black text-violet-100 disabled:opacity-50">افزودن دوره‌های گذشته</button>}</div></div>{archives.length === 0 ? <p className="mt-4 text-slate-300">برای این انتخاب، هنوز نسخهٔ تأییدشده‌ای در آرشیو ثبت نشده است.</p> : archives.map((archive) => <article key={archive.id} className="mt-5 rounded-xl border border-slate-600 bg-slate-950 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-black text-white">{archive.title}</h3><p className="mt-1 text-sm text-slate-300">{archive.sessionLabel && archive.yearLabel ? `${archive.sessionLabel} ${archive.yearLabel} · ` : ""}{archive.documents.length.toLocaleString("fa-IR")} دفترچه ثبت‌شده</p></div><a href={archive.officialPageUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-cyan-300 px-3 py-2 text-sm font-bold text-cyan-200">صفحه رسمی دوره</a></div><div className="mt-4 grid gap-3 md:grid-cols-2">{archive.documents.map((document) => <a key={document.id} href={document.sourceUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-600 bg-slate-900 p-3 transition hover:border-cyan-300"><p className="font-bold text-white">{document.title}</p><p className="mt-1 text-xs text-slate-300">{document.discipline}{document.qualification ? ` · ${document.qualification}` : ""}</p><p className="mt-2 text-xs font-bold text-cyan-300">{document.kind === "question-booklet" ? "دفترچه سؤال رسمی ↗" : document.kind === "answer-key" ? "کلید پاسخ رسمی ↗" : "راهنمای تشریحی رسمی ↗"}</p></a>)}</div><p className="mt-4 text-xs text-amber-200">پاسخنامه یا راهنمای تشریحی فقط پس از یافتن و تأیید نسخهٔ رسمیِ همان دوره به این بخش افزوده می‌شود.</p></article>)}</section>;
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
