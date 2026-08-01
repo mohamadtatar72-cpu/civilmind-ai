@@ -323,7 +323,9 @@ export const searchWithCitations = mutation({
       throw new Error("INVALID_LIMIT");
     }
 
-    const user = await requireActiveUser(ctx);
+    // Public official PDFs are intentionally searchable for guests. Private and
+    // Premium documents stay excluded by the visibility branches below.
+    const user = await getCurrentUser(ctx);
     const perBucket = Math.min(limit, 10);
     const searches: Array<Promise<Doc<"pdfChunks">[]>> = [
       ctx.db
