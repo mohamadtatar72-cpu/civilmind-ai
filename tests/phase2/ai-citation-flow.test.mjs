@@ -41,3 +41,17 @@ test("signed-in AI flow executes only after verified citation retrieval", async 
   assert.match(page, /هیچ پاسخ ساختگی نمایش داده نمی‌شود/);
   assert.doesNotMatch(page, /createIntent\(/);
 });
+
+test("completed exam questions expose structured, truthfully labeled AI analysis", async () => {
+  const center = await readFile(new URL("components/exam/exam-center.tsx", root), "utf8");
+
+  assert.match(center, /useAction\(api\.aiRuntime\.submitAndExecute\)/);
+  assert.match(center, /capability: "exam-analysis"/);
+  assert.match(center, /requestedTools: \["exam-history-read", "topic-progress-read"\]/);
+  assert.match(center, /دلیل درستی گزینه صحیح/);
+  assert.match(center, /دلیل نادرستی هر گزینه دیگر/);
+  assert.match(center, /هیچ بند، صفحه یا منبع رسمی اختراع نکن/);
+  assert.match(center, /تحلیل غیررسمی/);
+  assert.match(center, /پاسخ بالا «کلید رسمی آزمون» محسوب نمی‌شود/);
+  assert.match(center, /پاسخ آموزشی و منابع رسمی همچنان رایگان می‌مانند/);
+});
