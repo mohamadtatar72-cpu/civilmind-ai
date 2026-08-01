@@ -175,3 +175,15 @@ All notable product, access, AI and UX decisions must be recorded here. This fil
 ### Next continuation point
 
 **Phase 2.1 remains in progress:** deploy the updated Convex citation response contract, then verify a real public PDF retrieval that displays edition, page/label, library route and official-source action in production. After that, begin Phase 2.2 — complete AI question analysis.
+## 2026-08-01 — Public-flow resilience and truthful readiness
+
+- Replaced the root redirect with a dedicated guest AI landing page while retaining the signed-in dashboard route.
+- Prevented the public exam archive from blocking on an unresolved authentication check; guests can now reach the free archive flow immediately.
+- Made the unauthenticated analytics state explicit and distinct from the exam center, with safe links to sign-in and the public archive.
+- Removed the unsupported fixed pass-probability display and replaced it with an honest insufficient-data readiness state.
+- Reordered the sidebar so the primary learning journey is prominent and source/archive utilities are grouped separately.
+- TypeScript, ESLint, all automated tests and the production build pass locally.
+
+### Next continuation point
+
+**Production configuration required:** replace the Clerk development publishable key in Vercel with the production key for the CivilMind Clerk instance. After Vercel creates a deployment from the latest `develop/civilmind-v2` commit, verify the guest landing, public exam archive, analytics sign-in state and production authentication in Cloud Browser.
