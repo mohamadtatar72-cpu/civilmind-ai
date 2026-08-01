@@ -16,6 +16,7 @@ import {
   mapPublicTopic,
 } from "@/features/library/convex-repository";
 import { api } from "@/convex/_generated/api";
+import { getOfficialTopicLink } from "@/lib/data/official-topic-links";
 import {
   EmptyState,
   GlassPanel,
@@ -85,6 +86,11 @@ export function TopicDetail({ routeId }: { routeId: string }) {
   }
 
   const topic = mapPublicTopic(result);
+  const officialTopicLink = getOfficialTopicLink(
+    topic.code,
+    topic.officialDocumentUrl,
+    topic.officialPageUrl,
+  );
 
   return (
     <div className="space-y-6">
@@ -96,8 +102,7 @@ export function TopicDetail({ routeId }: { routeId: string }) {
 
       {(topic.sourcePublisher ||
         topic.latestEdition ||
-        topic.officialDocumentUrl ||
-        topic.officialPageUrl) && (
+        officialTopicLink) && (
         <GlassPanel>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -118,9 +123,9 @@ export function TopicDetail({ routeId }: { routeId: string }) {
                 </p>
               )}
             </div>
-            {(topic.officialDocumentUrl || topic.officialPageUrl) && (
+            {officialTopicLink && (
               <a
-                href={topic.officialDocumentUrl ?? topic.officialPageUrl}
+                href={officialTopicLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-emerald-500"
