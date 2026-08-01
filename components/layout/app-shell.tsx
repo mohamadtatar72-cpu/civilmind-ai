@@ -34,13 +34,14 @@ const publicNavigation = [
   { label: "مربی هوشمند", description: "AI Coach", href: "/ai", icon: Bot },
   { label: "مرکز مطالعه", description: "Study Center", href: "/planner", icon: CalendarDays },
   { label: "مرکز آزمون", description: "Exam Center", href: "/exam", icon: FileQuestion },
-  { label: "مرکز پیش‌بینی", description: "Prediction Center", href: "/prediction", icon: Target },
-  { label: "مرکز دانش", description: "Knowledge Hub", href: "/library", icon: BookOpen },
-  { label: "جامعه مهندسان", description: "Community", href: "/community", icon: Users },
   { label: "تحلیل عملکرد", description: "Analytics", href: "/analytics", icon: BarChart3 },
 ] as const;
 
 const utilities = [
+  { label: "کتابخانه مقررات", href: "/library", icon: BookOpen },
+  { label: "آرشیو سؤال و پاسخ‌نامه", href: "/exam", icon: FileQuestion },
+  { label: "مرکز آمادگی", href: "/prediction", icon: Target },
+  { label: "جامعه مهندسان", href: "/community", icon: Users },
   { label: "نقشه دانش", href: "/graph", icon: Network },
   { label: "کتابخانه PDF", href: "/pdf", icon: GraduationCap },
   { label: "منابع رسمی", href: "/official-sources", icon: Landmark },
