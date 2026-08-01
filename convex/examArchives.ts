@@ -124,6 +124,25 @@ const MORDAD_1403_DOCUMENTS = [
   ["دفترچه سؤال و کلید رسمی عمران (بهسازی)","عمران","بهسازی","https://inbr.ir/wp-content/uploads/2024/08/عمران-بهسازی-مرداد-1403.pdf"],
   ["دفترچه سؤال و کلید رسمی عمران (گود، پی و سازه نگهبان)","عمران","گود، پی و سازه نگهبان","https://inbr.ir/wp-content/uploads/2024/08/عمران-گودبرداری-مرداد-1403.pdf"],
 ] as const;
+
+const MEHR_1402_DOCUMENTS = [
+  ["دفترچه سؤال و کلید رسمی تأسیسات برقی (طراحی)","تأسیسات برقی","طراحی","https://inbr.ir/wp-content/uploads/2023/10/برق-طراحی-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات برقی (نظارت)","تأسیسات برقی","نظارت","https://inbr.ir/wp-content/uploads/2023/10/برق-نظارت-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات برقی (اجرا)","تأسیسات برقی","اجرا","https://inbr.ir/wp-content/uploads/2023/10/برق-اجرا-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات مکانیکی (طراحی)","تأسیسات مکانیکی","طراحی","https://inbr.ir/wp-content/uploads/2023/10/مکانیک-طراحی-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات مکانیکی (نظارت)","تأسیسات مکانیکی","نظارت","https://inbr.ir/wp-content/uploads/2023/10/مکانیک-نظارت-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات مکانیکی (اجرا)","تأسیسات مکانیکی","اجرا","https://inbr.ir/wp-content/uploads/2023/10/مکانیک-اجرا-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (اجرا)","عمران","اجرا","https://inbr.ir/wp-content/uploads/2023/10/عمران-اجرا-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (نظارت)","عمران","نظارت","https://inbr.ir/wp-content/uploads/2023/10/عمران-نظارت-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (محاسبات)","عمران","محاسبات","https://inbr.ir/wp-content/uploads/2023/10/عمران-محاسبات-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی معماری (نظارت)","معماری","نظارت","https://inbr.ir/wp-content/uploads/2023/10/معماری-نظارت-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی معماری (اجرا)","معماری","اجرا","https://inbr.ir/wp-content/uploads/2023/10/معماری-اجرا-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی نقشه‌برداری","نقشه‌برداری",null,"https://inbr.ir/wp-content/uploads/2023/10/نقشه‌برداری-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی ترافیک","ترافیک",null,"https://inbr.ir/wp-content/uploads/2023/10/ترافیک-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی شهرسازی","شهرسازی",null,"https://inbr.ir/wp-content/uploads/2023/10/شهرسازی-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (بهسازی)","عمران","بهسازی","https://inbr.ir/wp-content/uploads/2023/10/عمران-بهسازی-مهر-1402.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (گود، پی و سازه نگهبان)","عمران","گود، پی و سازه نگهبان","https://inbr.ir/wp-content/uploads/2023/10/عمران-گود-مهر-1402.pdf"],
+] as const;
 export const seedVerifiedHistoricalSessions = mutation({
   args: {},
   returns: v.object({ created: v.number(), existing: v.number() }),
@@ -192,6 +211,7 @@ export const seedVerifiedHistoricalSessions = mutation({
     await seedDocuments("inbr-khordad-1404", KHORDAD_1404_DOCUMENTS);
     await seedDocuments("inbr-aban-1403", ABAN_1403_DOCUMENTS);
     await seedDocuments("inbr-mordad-1403", MORDAD_1403_DOCUMENTS);
+    await seedDocuments("inbr-mehr-1402", MEHR_1402_DOCUMENTS);
 
     return { created, existing };
   },
