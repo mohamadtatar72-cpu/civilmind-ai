@@ -33,3 +33,70 @@ export const seedDey1404OfficialBooklets = mutation({
     return { archiveId: archive._id, createdDocuments };
   },
 });
+
+
+const HISTORICAL_SESSIONS = [
+  {
+    key: "inbr-khordad-1404",
+    title: "نمونه سؤالات آزمون مهندسی خردادماه ۱۴۰۴",
+    yearLabel: "۱۴۰۴",
+    sessionLabel: "خردادماه",
+    officialPageUrl: "https://inbr.ir/نمونه-سوالات-آزمون-مهندسی-خرداد-1404/",
+  },
+  {
+    key: "inbr-aban-1403",
+    title: "نمونه سؤالات آزمون مهندسی آبان‌ماه ۱۴۰۳",
+    yearLabel: "۱۴۰۳",
+    sessionLabel: "آبان‌ماه",
+    officialPageUrl: "https://inbr.ir/نمونه-سوالات-آزمون-مهندسی-آبان-1403/",
+  },
+  {
+    key: "inbr-mordad-1403",
+    title: "نمونه سؤالات آزمون مهندسی مردادماه ۱۴۰۳",
+    yearLabel: "۱۴۰۳",
+    sessionLabel: "مردادماه",
+    officialPageUrl: "https://inbr.ir/نمونه-سوالات-آزمون-مهندسی-مرداد-1403/",
+  },
+  {
+    key: "inbr-mehr-1402",
+    title: "نمونه سؤالات آزمون مهندسی مهرماه ۱۴۰۲",
+    yearLabel: "۱۴۰۲",
+    sessionLabel: "مهرماه",
+    officialPageUrl: "https://inbr.ir/نمونه-سوالات-آزمون-مهندسی-مهر-۱۴۰۲/",
+  },
+] as const;
+
+export const seedVerifiedHistoricalSessions = mutation({
+  args: {},
+  returns: v.object({ created: v.number(), existing: v.number() }),
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const now = Date.now();
+    let created = 0;
+    let existing = 0;
+
+    for (const session of HISTORICAL_SESSIONS) {
+      const current = await ctx.db
+        .query("examArchives")
+        .withIndex("by_key", (index) => index.eq("key", session.key))
+        .unique();
+
+      if (current) {
+        existing += 1;
+        continue;
+      }
+
+      await ctx.db.insert("examArchives", {
+        ...session,
+        sourcePublisher: "دفتر مقررات ملی و کنترل ساختمان",
+        sourceDomain: "inbr.ir",
+        status: "verified",
+        discoveredAt: now,
+        lastVerifiedAt: now,
+      });
+      created += 1;
+    }
+
+    return { created, existing };
+  },
+});
