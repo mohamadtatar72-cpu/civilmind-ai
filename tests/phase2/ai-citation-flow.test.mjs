@@ -30,3 +30,14 @@ test("citation retrieval preserves guest access to public documents only", async
   assert.match(library, /officialSourceUrl:/);
   assert.match(library, /url\.hash = `page=\$\{pageNumber\}`/);
 });
+
+test("signed-in AI flow executes only after verified citation retrieval", async () => {
+  const page = await readFile(new URL("app/ai/page.tsx", root), "utf8");
+
+  assert.match(page, /useAction\(api\.aiRuntime\.submitAndExecute\)/);
+  assert.match(page, /retrieval\.citations\.length === 0/);
+  assert.match(page, /requestedTools: \["official-sources-search"\]/);
+  assert.match(page, /توضیح CivilMind AI/);
+  assert.match(page, /هیچ پاسخ ساختگی نمایش داده نمی‌شود/);
+  assert.doesNotMatch(page, /createIntent\(/);
+});
