@@ -1,3 +1,13 @@
+## 2026-08-01 — Mandatory 14-phase execution framework
+
+- Added `docs/MASTER_EXECUTION_PLAN.md` as the binding execution framework for all workers.
+- Consolidated the Guest, Free and Premium access model in one mandatory source.
+- Locked the permanent rule that official resources, official exams, official keys, official descriptive guides and discipline/qualification filtering remain free.
+- Registered the complete 14-phase roadmap and ordered sprint catalogue.
+- Preserved the approved AI-first homepage, personalized dashboard, visual design and truthful-conversion requirements.
+- Registered the sprint Definition of Done, continuous-delivery behavior and persistent Persian command `توسعه`.
+- Required every future worker to resume from the exact incomplete sprint by reading the master plan, Changelog and latest pushed commits.
+
 ## 2026-08-01 — Phase 1: Free official archive access
 
 - Removed the Premium gate from the official archive UI and backend scoped archive query.
