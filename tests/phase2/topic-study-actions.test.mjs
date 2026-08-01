@@ -23,6 +23,8 @@ test("recent official topic questions are public and open their exact source", a
   assert.match(access, /document\.status !== "verified"/);
   assert.doesNotMatch(access, /recentQuestionsForTopic[\s\S]*CAPABILITY_PREMIUM_REQUIRED/);
   assert.match(detail, /setShowQuestionAnalysis\(\(visible\) => !visible\)/);
+  assert.match(detail, /Array\.isArray\(recentQuestionSignals\)/);
+  assert.match(detail, /recentQuestionSignals\?\.questions \?\? \[\]/);
   assert.match(detail, /sourcePageUrl\(question\.sourceUrl, question\.sourcePage\)/);
   assert.match(detail, /مشاهده سؤال رسمی/);
 });

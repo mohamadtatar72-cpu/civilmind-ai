@@ -25,6 +25,18 @@ import {
   StatusBadge,
 } from "@/components/ui/civilmind";
 
+type RecentTopicQuestion = {
+  id: string;
+  questionNumber: number;
+  topicTitle: string;
+  discipline?: string;
+  qualification?: string;
+  sourcePage?: number;
+  sourceExcerpt?: string;
+  documentTitle?: string;
+  sourceUrl?: string;
+};
+
 function TopicLoading() {
   return (
     <div role="status" aria-live="polite" className="space-y-6">
@@ -84,7 +96,7 @@ export function TopicDetail({ routeId }: { routeId: string }) {
   const recentQuestionSignals = useQuery(
     api.examAccess.recentQuestionsForTopic,
     isValidCode ? { topicCode: code } : "skip",
-  );
+  ) as RecentTopicQuestion[] | { questions?: RecentTopicQuestion[] } | undefined;
 
   if (!isValidCode) {
     return <TopicNotFound invalidRoute />;
@@ -134,6 +146,9 @@ export function TopicDetail({ routeId }: { routeId: string }) {
       external: false,
     },
   ];
+  const recentQuestions = Array.isArray(recentQuestionSignals)
+    ? recentQuestionSignals
+    : recentQuestionSignals?.questions ?? [];
 
   return (
     <div className="space-y-6">
@@ -249,19 +264,21 @@ export function TopicDetail({ routeId }: { routeId: string }) {
           {showQuestionAnalysis ? (
             recentQuestionSignals === undefined ? (
               <p role="status" className="mt-3 text-sm text-slate-400">در حال بررسی آرشیو رسمی…</p>
-            ) : recentQuestionSignals.length === 0 ? (
+            ) : recentQuestions.length === 0 ? (
               <p className="mt-3 rounded-lg bg-slate-950/60 p-3 text-sm text-slate-300">برای این مبحث هنوز سؤال رسمیِ دسته‌بندی‌شده ثبت نشده است.</p>
             ) : (
               <ul className="mt-3 space-y-3 text-sm text-slate-200">
-                {recentQuestionSignals.map((question) => (
+                {recentQuestions.map((question) => (
                   <li key={question.id} className="rounded-lg border border-white/8 bg-black/20 p-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-bold">سؤال {question.questionNumber.toLocaleString("fa-IR")} · {question.documentTitle}</span>
-                      <a href={sourcePageUrl(question.sourceUrl, question.sourcePage)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-emerald-400/25 px-3 py-1.5 text-xs font-bold text-emerald-200 hover:bg-emerald-400/10">
-                        مشاهده سؤال رسمی{question.sourcePage ? ` در صفحه ${question.sourcePage.toLocaleString("fa-IR")}` : ""}
-                      </a>
+                      <span className="font-bold">سؤال {question.questionNumber.toLocaleString("fa-IR")}{question.documentTitle ? ` · ${question.documentTitle}` : ""}</span>
+                      {question.sourceUrl ? (
+                        <a href={sourcePageUrl(question.sourceUrl, question.sourcePage)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-emerald-400/25 px-3 py-1.5 text-xs font-bold text-emerald-200 hover:bg-emerald-400/10">
+                          مشاهده سؤال رسمی{question.sourcePage ? ` در صفحه ${question.sourcePage.toLocaleString("fa-IR")}` : ""}
+                        </a>
+                      ) : null}
                     </div>
-                    <p className="mt-2 text-xs text-slate-400">{question.discipline}{question.qualification ? ` · ${question.qualification}` : ""}</p>
+                    {question.discipline ? <p className="mt-2 text-xs text-slate-400">{question.discipline}{question.qualification ? ` · ${question.qualification}` : ""}</p> : null}
                     {question.sourceExcerpt ? <p className="mt-2 leading-7 text-slate-300">{question.sourceExcerpt}</p> : null}
                   </li>
                 ))}

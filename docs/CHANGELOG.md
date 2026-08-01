@@ -7,6 +7,7 @@
 - Replaced the four inert «در حال توسعه» topic cards with keyboard-accessible links to the real official PDF, CivilMind AI, topic exam and performance-analysis routes.
 - Made the «سؤال‌های آزمون‌های اخیر» control a real expandable interaction with close behavior, loading/empty states and direct exact-page links to verified official question booklets.
 - Removed the login and Premium restriction from viewing official recent questions; official-question retrieval is now explicitly enforced as a public capability in Convex.
+- Added backward-compatible rendering for the previous Convex response shape so the expandable control fails safely during the frontend/backend deployment transition.
 - Added contract coverage for every route, the public-access rule and exact-source navigation.
 - TypeScript, ESLint, all 24 automated tests and the production build pass locally.
 
