@@ -66,6 +66,26 @@ const HISTORICAL_SESSIONS = [
   },
 ] as const;
 
+
+const KHORDAD_1404_DOCUMENTS = [
+  ["دفترچه سؤال و کلید رسمی تأسیسات برقی (طراحی)","تأسیسات برقی","طراحی","https://inbr.ir/wp-content/uploads/2025/07/تاسیسات-برقی-طراحی-خرداد1404.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات برقی (نظارت)","تأسیسات برقی","نظارت","https://inbr.ir/wp-content/uploads/2025/07/تاسیسات-برقی-نظارت-خرداد1404.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات برقی (اجرا)","تأسیسات برقی","اجرا","https://inbr.ir/wp-content/uploads/2025/07/تاسیسات-برقی-اجرا-خرداد1404-1.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات مکانیکی (طراحی)","تأسیسات مکانیکی","طراحی","https://inbr.ir/wp-content/uploads/2025/07/تاسیسات-مکانیکی-طراحی-خرداد1404-1.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات مکانیکی (نظارت)","تأسیسات مکانیکی","نظارت","https://inbr.ir/wp-content/uploads/2025/07/تاسیسات-مکانیکی-نظارت-خرداد1404.pdf"],
+  ["دفترچه سؤال و کلید رسمی تأسیسات مکانیکی (اجرا)","تأسیسات مکانیکی","اجرا","https://inbr.ir/wp-content/uploads/2025/07/تاسیسات-مکانیکی-اجرا-خرداد1404.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (اجرا)","عمران","اجرا","https://inbr.ir/wp-content/uploads/2025/07/عمران-اجرا-خرداد-1404-3.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (نظارت)","عمران","نظارت","https://inbr.ir/wp-content/uploads/2025/07/عمران-نظارت-خرداد1404-3.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (محاسبات)","عمران","محاسبات","https://inbr.ir/wp-content/uploads/2025/07/عمران-محاسبات-خرداد1404-3.pdf"],
+  ["دفترچه سؤال و کلید رسمی معماری (نظارت)","معماری","نظارت","https://inbr.ir/wp-content/uploads/2025/07/معماری-نظارت-خرداد1404-3.pdf"],
+  ["دفترچه سؤال و کلید رسمی معماری (اجرا)","معماری","اجرا","https://inbr.ir/wp-content/uploads/2025/07/معماری-اجرا-خرداد-1404-3.pdf"],
+  ["دفترچه سؤال و کلید رسمی نقشه‌برداری","نقشه‌برداری",null,"https://inbr.ir/wp-content/uploads/2025/07/نقشه-برداری-خرداد1404-1.pdf"],
+  ["دفترچه سؤال و کلید رسمی ترافیک","ترافیک",null,"https://inbr.ir/wp-content/uploads/2025/07/ترافیک-خرداد1404-1.pdf"],
+  ["دفترچه سؤال و کلید رسمی شهرسازی","شهرسازی",null,"https://inbr.ir/wp-content/uploads/2025/07/شهرسازی-خرداد1404.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (بهسازی)","عمران","بهسازی","https://inbr.ir/wp-content/uploads/2025/07/عمران-بهسازی-خرداد1404-1.pdf"],
+  ["دفترچه سؤال و کلید رسمی عمران (گود، پی و سازه نگهبان)","عمران","گود، پی و سازه نگهبان","https://inbr.ir/wp-content/uploads/2025/07/عمران-گود-خرداد1404.pdf"],
+] as const;
+
 export const seedVerifiedHistoricalSessions = mutation({
   args: {},
   returns: v.object({ created: v.number(), existing: v.number() }),
@@ -95,6 +115,37 @@ export const seedVerifiedHistoricalSessions = mutation({
         lastVerifiedAt: now,
       });
       created += 1;
+    }
+
+    const khordadArchive = await ctx.db
+      .query("examArchives")
+      .withIndex("by_key", (index) => index.eq("key", "inbr-khordad-1404"))
+      .unique();
+
+    if (khordadArchive) {
+      for (const [title, discipline, qualification, sourceUrl] of KHORDAD_1404_DOCUMENTS) {
+        const current = await ctx.db
+          .query("examArchiveDocuments")
+          .withIndex("by_archiveId_and_sourceUrl", (index) =>
+            index.eq("archiveId", khordadArchive._id).eq("sourceUrl", sourceUrl),
+          )
+          .unique();
+
+        if (current) continue;
+
+        await ctx.db.insert("examArchiveDocuments", {
+          archiveId: khordadArchive._id,
+          kind: "question-booklet",
+          title,
+          discipline,
+          ...(qualification ? { qualification } : {}),
+          sourceUrl,
+          sourcePublisher: "دفتر مقررات ملی و کنترل ساختمان",
+          status: "verified",
+          discoveredAt: now,
+          lastVerifiedAt: now,
+        });
+      }
     }
 
     return { created, existing };
