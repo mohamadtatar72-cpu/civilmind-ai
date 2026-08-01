@@ -1,3 +1,9 @@
+## 2026-08-01 — Connected settings data status
+
+- Replaced the static local-demo synchronization message with live Convex account and entitlement status.
+- Signed-in users now see that their profile and authorization are connected to the backend; guests receive an accurate sign-in requirement.
+- TypeScript, ESLint and all 19 automated tests pass locally.
+
 ## 2026-08-01 — Guest source citation lookup
 
 - Enabled guest retrieval of citations from public, ready official PDFs in the CivilMind AI entry point.
