@@ -163,6 +163,14 @@ All notable product, access, AI and UX decisions must be recorded here. This fil
 
 Deploy the current Convex functions and Vercel Preview, then verify a signed-in sourced question with an active provider adapter. Phase 2.2 begins with structured question analysis (official answer, option-by-option reasoning, source citations, traps and uncertainty) without presenting generated content as official.
 
+### Release state
+
+- Branch: `develop/civilmind-v2`
+- Source commit: `a96ac19c16ac7914a0f751556aff06b028402c3e`
+- Checks: typecheck, ESLint, 25 tests and production build passed.
+- Vercel Preview: publication pending because all three connected Vercel projects returned `build-rate-limit`; the previous live URL remains `https://civilmind-ai-v2-preview.vercel.app` and does not yet contain this change.
+- Exact incomplete verification: deploy the source commit on Vercel, verify `/ai` against the real Convex deployment and capture desktop/mobile evidence of the sourced AI answer state.
+
 ## 2026-08-01
 
 ### Product model
