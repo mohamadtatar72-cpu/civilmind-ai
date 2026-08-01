@@ -25,6 +25,7 @@ export interface OfficialResource {
   isActive: boolean;
   order: number;
   lastVerifiedAt?: number;
+  lastSyncStatus?: "baseline" | "unchanged" | "pending-review" | "quarantined" | "failed";
 }
 
 export const officialResourceCategoryLabels: Record<
