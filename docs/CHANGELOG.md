@@ -1,3 +1,14 @@
+## 2026-08-01 — Phase 1: Free official archive access
+
+- Removed the Premium gate from the official archive UI and backend scoped archive query.
+- Official archive access now depends only on selecting a free discipline/qualification preference.
+- Added an explicit free-path message and direct profile link when no preference is selected.
+
+### Next continuation point
+
+Continue Phase 1 by adding guest-side temporary discipline/qualification selection and a public scoped archive query, then register verified descriptive guides as separate archive documents.
+
+
 ## 2026-08-01 — Phase 0 / Dashboard Stage A
 
 - Added a centralized typed capability registry at `lib/access/capabilities.ts` to distinguish public official-content access from AI intelligence entitlements.
