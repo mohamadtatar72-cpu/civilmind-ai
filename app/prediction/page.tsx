@@ -1,12 +1,10 @@
 import { Target, TrendingUp, TriangleAlert } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import { GlassPanel, MetricCard, PageHeader, SectionTitle, StatusBadge } from "@/components/ui/civilmind";
-import { dashboardData } from "@/lib/data/dashboard";
 
 export default function PredictionPage() {
-  const { readiness } = dashboardData;
-  return <AppShell><div className="space-y-6"><PageHeader eyebrow="مرکز پیش‌بینی" title="برآورد آمادگی و احتمال قبولی" description="این برآورد فعلاً بر داده‌های نمایشی مطالعه و آزمون متکی است و جایگزین نتیجه رسمی نیست." action={<StatusBadge tone="warning">مدل نمایشی</StatusBadge>} />
-    <div className="grid gap-4 md:grid-cols-3"><MetricCard label="احتمال قبولی" value={`${readiness.passProbability}٪`} detail="در صورت حفظ روند فعلی" icon={Target} tone="green" /><MetricCard label="آمادگی فعلی" value={`${readiness.percentage}٪`} detail="برآیند مطالعه و آزمون" icon={TrendingUp} /><MetricCard label="روز باقی‌مانده" value={`${readiness.daysLeft}`} detail="برای اجرای برنامه پیشنهادی" icon={TriangleAlert} tone="amber" /></div>
-    <GlassPanel><SectionTitle title="تفسیر نتیجه" /><p className="leading-8 text-slate-300">روند کلی مثبت است. بیشترین اثر کوتاه‌مدت از مرور مباحث ۷ و ۸، تحلیل اشتباهات و تکمیل آزمون‌های جامع حاصل می‌شود. با ورود داده واقعی، قرارداد همین صفحه به مخزن بک‌اند متصل خواهد شد.</p></GlassPanel>
+  return <AppShell><div className="space-y-6"><PageHeader eyebrow="مرکز آمادگی" title="آمادگی شما بر پایه داده واقعی" description="تا زمانی که سابقه مطالعه و آزمون کافی ثبت نشده باشد، CivilMind AI احتمال قبولی یا عدد پیش‌بینی‌شده نمایش نمی‌دهد." action={<StatusBadge tone="warning">داده کافی نیست</StatusBadge>} />
+    <div className="grid gap-4 md:grid-cols-3"><MetricCard label="سابقه آزمون ثبت‌شده" value="—" detail="برای محاسبه نیاز به آزمون تکمیل‌شده دارید" icon={Target} tone="green" /><MetricCard label="شاخص آمادگی" value="—" detail="پس از اتصال داده واقعی محاسبه می‌شود" icon={TrendingUp} /><MetricCard label="گام بعدی" value="آزمون" detail="یک آزمون رسمی یا تمرینی ثبت کنید" icon={TriangleAlert} tone="amber" /></div>
+    <GlassPanel><SectionTitle title="روش محاسبه" /><p className="leading-8 text-slate-300">وقتی داده کافی وجود داشته باشد، این بخش با پوشش مباحث، نسبت پاسخ صحیح، زمان پاسخ‌گویی، تداوم مطالعه و روند اخیر کار می‌کند. خروجی همیشه برآورد است، نه تضمین قبولی.</p></GlassPanel>
   </div></AppShell>;
 }
