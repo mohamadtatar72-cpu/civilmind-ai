@@ -150,6 +150,19 @@ Continue Phase 1 by adding guest-side temporary discipline/qualification selecti
 
 All notable product, access, AI and UX decisions must be recorded here. This file tracks specification changes, not every code commit.
 
+## 2026-08-01 — Phase 2.2: Structured question-analysis flow
+
+- Connected completed sample-exam questions to the real `aiRuntime.submitAndExecute` action with the `exam-analysis` capability.
+- Added per-question loading, ready, Premium/provider-blocked and retryable error states.
+- The analysis prompt requires a concise solution path, correct-option reasoning, wrong-option reasoning, common trap, difficulty/type classification and next review action.
+- Explicitly forbids invented official clauses, pages or citations and requires an uncertainty statement when no official reference exists.
+- Separately labels the stored educational answer, the non-official CivilMind AI analysis and the absence of an official exam key for generated sample questions.
+- Preserved free access to educational answers and all official sources; only advanced AI analysis uses the Premium entitlement.
+
+### Next continuation point
+
+Connect the same structured analysis contract to verified official-question records once stems/options/official keys are ingested, including exact booklet page and clause citations. Vercel verification remains queued until the account build-rate limit clears; provider execution requires one configured server-side API adapter.
+
 ## 2026-08-01 — Phase 2.1: Executed source-grounded AI answers
 
 - Replaced the frontend-only AI request intent with the real `aiRuntime.submitAndExecute` action.
