@@ -49,6 +49,15 @@ type GatewayStatus = {
   }>;
 };
 
+type Citation = {
+  chunkId: string;
+  documentId: string;
+  documentTitle: string;
+  pageNumber: number;
+  citationLabel: string;
+  excerpt: string;
+};
+
 export default function AIPage() {
   const account = useCurrentAccount();
   const entitlement = useQuery(api.access.current, {});
@@ -57,8 +66,10 @@ export default function AIPage() {
     account.isAuthenticated && !account.loading ? {} : "skip",
   ) as GatewayStatus | undefined;
   const createIntent = useMutation(api.aiGateway.createRequestIntent);
+  const searchWithCitations = useMutation(api.pdfLibrary.searchWithCitations);
   const [question, setQuestion] = useState("");
   const [message, setMessage] = useState<string>();
+  const [citations, setCitations] = useState<Citation[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   async function submit(event: FormEvent) {
@@ -83,16 +94,21 @@ export default function AIPage() {
 
     setSubmitting(true);
     setMessage(undefined);
+    setCitations([]);
     try {
-      const result = await createIntent({
+      const [result, retrieval] = await Promise.all([
+        createIntent({
         capability: "study-coach",
         idempotencyKey: crypto.randomUUID(),
         inputCharacters: normalized.length,
-      });
+        }),
+        searchWithCitations({ query: normalized, limit: 5 }),
+      ]);
+      setCitations(retrieval.citations as Citation[]);
       setMessage(
         result.request.status === "blocked"
-          ? "زیرساخت امن Gateway درخواست را بررسی کرد، اما Adapter هیچ ارائه‌دهنده‌ای هنوز فعال نیست. متن سؤال ارسال یا در Backend ذخیره نشد."
-          : "درخواست در Ledger امن ثبت شد و برای Adapter آماده است؛ متن سؤال همچنان فقط در مرورگر نگه‌داری می‌شود.",
+          ? "پرسش با منابع جست‌وجو شد، اما Adapter مدل هنوز فعال نیست؛ بنابراین پاسخ تولیدشده‌ای نمایش داده نمی‌شود."
+          : "منابع مرتبط بازیابی شد و درخواست برای پاسخِ مستند آماده است.",
       );
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
@@ -188,8 +204,8 @@ export default function AIPage() {
               </button>
             </div>
             <p className="mt-3 text-xs leading-6 text-slate-500">
-              در Sprint 1E فقط طول درخواست و شناسه idempotency بررسی می‌شود؛ متن سؤال
-              در Database ذخیره نمی‌شود و تا آماده‌شدن Adapter برای Provider ارسال نمی‌شود.
+              ابتدا فقط منابع قابل‌استناد بازیابی می‌شوند. بدون منبع، پاسخی به‌عنوان پاسخ
+              مستند نمایش داده نخواهد شد.
             </p>
             {message && (
               <p
@@ -201,6 +217,27 @@ export default function AIPage() {
             )}
           </form>
         </GlassPanel>
+
+        {citations.length > 0 && (
+          <GlassPanel>
+            <SectionTitle
+              title="منابع بازیابی‌شده"
+              description="این استنادها از متن PDF پردازش‌شده می‌آیند؛ صفحه و منبع را پیش از اتکا بررسی کنید."
+            />
+            <div className="mt-4 space-y-3">
+              {citations.map((citation) => (
+                <Link
+                  key={citation.chunkId}
+                  href={`/library/${citation.documentId}`}
+                  className="block rounded-xl border border-white/10 bg-white/4 p-4 hover:border-blue-400/35"
+                >
+                  <p className="font-bold text-blue-100">{citation.documentTitle} — {citation.citationLabel || `صفحه ${citation.pageNumber}`}</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-300">{citation.excerpt}</p>
+                </Link>
+              ))}
+            </div>
+          </GlassPanel>
+        )}
 
         <GlassPanel>
           <SectionTitle
