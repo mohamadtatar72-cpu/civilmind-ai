@@ -154,6 +154,13 @@ export const recentQuestionsForTopic = query({
       qualification: v.optional(v.string()),
       sourcePage: v.optional(v.number()),
       sourceExcerpt: v.optional(v.string()),
+      stem: v.optional(v.string()),
+      options: v.optional(v.array(v.string())),
+      officialCorrectIndex: v.optional(v.number()),
+      officialClause: v.optional(v.string()),
+      sourceEdition: v.optional(v.string()),
+      officialAnswerSourceUrl: v.optional(v.string()),
+      analysisReady: v.boolean(),
       documentTitle: v.string(),
       sourceUrl: v.string(),
     }),
@@ -181,6 +188,20 @@ export const recentQuestionsForTopic = query({
           qualification: row.qualification,
           sourcePage: row.sourcePage,
           sourceExcerpt: row.sourceExcerpt,
+          stem: row.stem,
+          options: row.options,
+          officialCorrectIndex: row.officialCorrectIndex,
+          officialClause: row.officialClause,
+          sourceEdition: row.sourceEdition,
+          officialAnswerSourceUrl: row.officialAnswerSourceUrl,
+          analysisReady: Boolean(
+            row.stem &&
+            row.options &&
+            row.options.length >= 2 &&
+            row.officialCorrectIndex !== undefined &&
+            row.officialCorrectIndex >= 0 &&
+            row.officialCorrectIndex < row.options.length,
+          ),
           documentTitle: document.title,
           sourceUrl: document.sourceUrl,
         };
