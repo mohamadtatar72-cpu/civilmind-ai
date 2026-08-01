@@ -608,6 +608,27 @@ export default defineSchema({
     .index("by_userId_and_dayKey", ["userId", "dayKey"])
     .index("by_userId_and_status_and_dayKey", ["userId", "status", "dayKey"]),
 
+  examArchives: defineTable({
+    key: v.string(),
+    title: v.string(),
+    yearLabel: v.string(),
+    sessionLabel: v.string(),
+    officialPageUrl: v.string(),
+    sourcePublisher: v.string(),
+    sourceDomain: v.string(),
+    status: v.union(v.literal("verified"), v.literal("pending-review")),
+    discoveredAt: v.number(),
+    lastVerifiedAt: v.number(),
+  }).index("by_key", ["key"]).index("by_yearLabel_and_sessionLabel", ["yearLabel", "sessionLabel"]).index("by_status_and_lastVerifiedAt", ["status", "lastVerifiedAt"]),
+
+  examArchiveDocuments: defineTable({
+    archiveId: v.id("examArchives"),
+    kind: v.union(v.literal("question-booklet"), v.literal("answer-key"), v.literal("descriptive-guide")),
+    title: v.string(), discipline: v.string(), qualification: v.optional(v.string()), sourceUrl: v.string(),
+    sourcePublisher: v.string(), status: v.union(v.literal("verified"), v.literal("pending-review")),
+    discoveredAt: v.number(), lastVerifiedAt: v.number(),
+  }).index("by_archiveId_and_kind", ["archiveId", "kind"]).index("by_archiveId_and_discipline", ["archiveId", "discipline"]).index("by_archiveId_and_sourceUrl", ["archiveId", "sourceUrl"]),
+
   examSessions: defineTable({
     userId: v.id("users"),
     title: v.string(),
