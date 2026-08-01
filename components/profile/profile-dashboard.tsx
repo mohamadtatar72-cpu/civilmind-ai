@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { SignOutButton } from "@clerk/nextjs";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import {
   BadgeCheck,
   CalendarClock,
@@ -30,7 +30,11 @@ export default function ProfileDashboard() {
   const account = useCurrentAccount();
   const completeOnboarding = useMutation(api.users.completeOnboarding);
   const claimInitialAdmin = useMutation(api.users.claimInitialAdmin);
+  const preference = useQuery(api.examAccess.getPreference, account.isAuthenticated ? {} : "skip");
+  const savePreference = useMutation(api.examAccess.savePreference);
   const [displayName, setDisplayName] = useState("");
+  const [discipline, setDiscipline] = useState("عمران");
+  const [qualification, setQualification] = useState("نظارت");
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -62,6 +66,12 @@ export default function ProfileDashboard() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function submitExamPreference(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setSubmitting(true); setMessage(null);
+    try { await savePreference({ discipline, qualification }); setMessage("رشته و صلاحیت آزمون ذخیره شد؛ محتوای آزمون مرتبط نمایش داده می‌شود."); }
+    catch { setMessage("ذخیره انتخاب آزمون ممکن نشد."); } finally { setSubmitting(false); }
   }
 
   if (account.loading) {
@@ -267,6 +277,16 @@ export default function ProfileDashboard() {
           {message && <p className="mt-4 text-sm leading-6 text-slate-300">{message}</p>}
         </GlassPanel>
       </div>
+      <GlassPanel>
+        <h2 className="text-lg font-bold text-white">رشته و صلاحیت آزمون</h2>
+        <p className="mt-1 text-sm text-slate-400">پس از اشتراک حرفه‌ای، فقط دفترچه، پاسخنامه و تحلیل مرتبط با انتخاب شما نمایش داده می‌شود.</p>
+        <form onSubmit={submitExamPreference} className="mt-5 grid gap-4 sm:grid-cols-3">
+          <select value={discipline} onChange={(e) => setDiscipline(e.target.value)} className="rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white"><option value="عمران">عمران</option><option value="معماری">معماری</option><option value="تأسیسات مکانیکی">تأسیسات مکانیکی</option><option value="تأسیسات برقی">تأسیسات برقی</option></select>
+          <select value={qualification} onChange={(e) => setQualification(e.target.value)} className="rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white"><option value="نظارت">نظارت</option><option value="اجرا">اجرا</option><option value="محاسبات">محاسبات</option><option value="طراحی">طراحی</option></select>
+          <button type="submit" disabled={submitting} className="rounded-xl bg-violet-500 px-4 py-3 text-sm font-bold text-white disabled:opacity-50">ذخیره انتخاب</button>
+        </form>
+        {preference && <p className="mt-3 text-sm text-emerald-200">انتخاب فعال: {preference.discipline} · {preference.qualification}</p>}
+      </GlassPanel>
     </div>
   );
 }
