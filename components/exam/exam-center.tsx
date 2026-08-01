@@ -154,7 +154,8 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
       </header>
 
       {mode === "exam" ? (
-        <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6">
+        <>
+          <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6">
           <h2 className="text-xl font-black text-white">آماده شروع هستید؟</h2>
           <p className="mt-2 text-slate-300">پس از پایان آزمون، نتیجه به‌صورت خودکار در بخش تحلیل عملکرد ثبت می‌شود.</p>
           <button disabled={saving} onClick={begin} className="mt-5 rounded-xl bg-violet-400 px-6 py-3 font-black text-slate-950 disabled:opacity-50">
@@ -162,6 +163,7 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
           </button>
         </section>
           <OfficialExamArchive archives={officialArchives} />
+        </>
       ) : (
         <>
           <section className="grid gap-4 sm:grid-cols-4">
