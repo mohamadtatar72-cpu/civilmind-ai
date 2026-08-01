@@ -53,9 +53,11 @@ type Citation = {
   chunkId: string;
   documentId: string;
   documentTitle: string;
+  documentVersion: number;
   pageNumber: number;
   citationLabel: string;
   excerpt: string;
+  officialSourceUrl?: string;
 };
 
 export default function AIPage() {
@@ -246,14 +248,38 @@ export default function AIPage() {
             />
             <div className="mt-4 space-y-3">
               {citations.map((citation) => (
-                <Link
+                <article
                   key={citation.chunkId}
-                  href={`/library/${citation.documentId}`}
-                  className="block rounded-xl border border-white/10 bg-white/4 p-4 hover:border-blue-400/35"
+                  className="rounded-xl border border-white/10 bg-white/4 p-4"
                 >
-                  <p className="font-bold text-blue-100">{citation.documentTitle} — {citation.citationLabel || `صفحه ${citation.pageNumber}`}</p>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="font-bold text-blue-100">{citation.documentTitle}</p>
+                      <p className="mt-1 text-xs text-slate-400">
+                        نسخه {citation.documentVersion} · {citation.citationLabel || `صفحه ${citation.pageNumber}`}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        href={`/library/${citation.documentId}`}
+                        className="rounded-lg border border-blue-400/25 px-3 py-1.5 text-xs font-bold text-blue-200 hover:border-blue-400/55 hover:bg-blue-400/10"
+                      >
+                        مشاهده در کتابخانه
+                      </Link>
+                      {citation.officialSourceUrl ? (
+                        <a
+                          href={citation.officialSourceUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-lg border border-emerald-400/25 px-3 py-1.5 text-xs font-bold text-emerald-200 hover:border-emerald-400/55 hover:bg-emerald-400/10"
+                        >
+                          منبع رسمی
+                        </a>
+                      ) : null}
+                    </div>
+                  </div>
                   <p className="mt-2 text-sm leading-7 text-slate-300">{citation.excerpt}</p>
-                </Link>
+                </article>
               ))}
             </div>
           </GlassPanel>
