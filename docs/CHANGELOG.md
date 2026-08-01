@@ -18,7 +18,7 @@
 
 ### Next continuation point
 
-Phase 1.3 is already substantially present in the repository; verify its real authenticated flow and rate-limit behavior, then continue with Phase 1.4 guest discipline/qualification selection persisted locally and connected to the public archive UI.
+**Sprint status: implementation complete, release verification pending.** Convex production deployment succeeded. Vercel production deployment is currently blocked by the account limit `api-deployments-free-per-day` (try again in 24 hours), so this sprint must not yet be marked fully released or browser-verified. Once the deployment limit resets, deploy the current `develop/civilmind-v2`, open `/ai` in Cloud Browser, verify the access query and Free chat flow, then continue to Phase 1.3 and Phase 1.4.
 
 ## 2026-08-01 — Phase 1: Free official archive access
 
