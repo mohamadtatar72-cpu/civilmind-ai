@@ -1,5 +1,16 @@
 ## 2026-08-01 — Citation state handling
 
+## 2026-08-01 — Exact-page official citation links
+
+- Updated public PDF citations so the official-source action opens the retrieved PDF at its exact page anchor instead of only opening the document root.
+- Added an explicit UI trust label separating extracted official text from any future CivilMind AI explanation.
+- Preserved guest access to public citations and kept private/Premium document URLs hidden from guests.
+- TypeScript, ESLint, all 22 automated tests and the production build pass locally (the build used a non-secret validation Convex URL because deployment credentials are not present in this runner).
+
+### Next continuation point
+
+**Phase 2.1 code complete / deployment pending:** deploy the updated `pdfLibrary.searchWithCitations` contract to the existing Convex deployment and verify an exact-page public citation in the browser. The Vercel Git integration was reconnected, but the provider has not created a deployment from the latest branch commit. Continue Phase 2.2 implementation independently while those provider-dependent verifications remain queued.
+
 - Added explicit loading, empty-source and retrieval-error states to the source-grounded AI entry point.
 - The UI now states that no sourced answer is produced when official citations are unavailable.
 - TypeScript, ESLint and all 19 automated tests pass locally.

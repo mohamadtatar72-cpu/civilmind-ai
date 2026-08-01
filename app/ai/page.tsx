@@ -273,12 +273,15 @@ export default function AIPage() {
                           rel="noreferrer"
                           className="rounded-lg border border-emerald-400/25 px-3 py-1.5 text-xs font-bold text-emerald-200 hover:border-emerald-400/55 hover:bg-emerald-400/10"
                         >
-                          منبع رسمی
+                          منبع رسمی در صفحه {citation.pageNumber.toLocaleString("fa-IR")}
                         </a>
                       ) : null}
                     </div>
                   </div>
                   <p className="mt-2 text-sm leading-7 text-slate-300">{citation.excerpt}</p>
+                  <p className="mt-3 text-xs leading-6 text-amber-100/75">
+                    متن بالا «استخراج از منبع رسمی» است؛ هر توضیح CivilMind AI باید جداگانه و با برچسب تحلیل هوش مصنوعی نمایش داده شود.
+                  </p>
                 </article>
               ))}
             </div>

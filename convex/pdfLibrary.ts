@@ -118,6 +118,13 @@ function assertHttpsUrl(value: string | undefined) {
   return url.toString();
 }
 
+function officialPageUrl(sourceUrl: string | undefined, pageNumber: number) {
+  if (!sourceUrl) return undefined;
+  const url = new URL(sourceUrl);
+  url.hash = `page=${pageNumber}`;
+  return url.toString();
+}
+
 function hashForAudit(value: string) {
   let hash = 2166136261;
   for (let index = 0; index < value.length; index += 1) {
@@ -396,7 +403,9 @@ export const searchWithCitations = mutation({
         citationLabel: chunk.citationLabel,
         excerpt: chunk.text.slice(0, 700),
         officialSourceUrl:
-          document.visibility === "public" ? document.sourceUrl : undefined,
+          document.visibility === "public"
+            ? officialPageUrl(document.sourceUrl, chunk.pageNumber)
+            : undefined,
       });
       if (citations.length >= limit) break;
     }
