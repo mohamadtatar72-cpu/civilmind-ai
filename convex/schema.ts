@@ -578,6 +578,17 @@ export default defineSchema({
     .index("by_userId_and_topicKey", ["userId", "topicKey"])
     .index("by_userId_and_updatedAt", ["userId", "updatedAt"]),
 
+  userDataSyncStates: defineTable({
+    userId: v.id("users"),
+    status: v.union(v.literal("idle"), v.literal("completed"), v.literal("failed")),
+    studySessions: v.number(),
+    practiceAttempts: v.number(),
+    topicProgress: v.number(),
+    plannerTasks: v.number(),
+    lastSyncedAt: v.number(),
+    lastError: v.optional(v.string()),
+  }).index("by_userId", ["userId"]),
+
   plannerTasks: defineTable({
     userId: v.id("users"),
     dayKey: v.string(),
