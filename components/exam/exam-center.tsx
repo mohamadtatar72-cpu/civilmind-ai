@@ -11,7 +11,7 @@ type ExamCenterProps = { mode: "exam" | "analytics" };
 export default function ExamCenter({ mode }: ExamCenterProps) {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const analytics = useQuery(api.examEngine.getMyAnalytics, isAuthenticated ? {} : "skip");
-  const officialArchives = useQuery(api.examArchives.listVerified, {});
+  const officialArchiveAccess = useQuery(api.examAccess.listMyEligibleArchive, isAuthenticated ? {} : "skip");
   const seedArchive = useMutation(api.examArchives.seedDey1404OfficialBooklets);
   const startExam = useMutation(api.examEngine.startSampleExam);
   const submitExam = useMutation(api.examEngine.submitExam);
@@ -176,7 +176,13 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
             شروع آزمون نمونه
           </button>
         </section>
-          <OfficialExamArchive archives={officialArchives} onSeed={seedOfficialArchive} disabled={saving} />
+          {!officialArchiveAccess?.hasPremiumAccess ? (
+            <section className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-5 text-amber-100">برای مشاهده آرشیو تفکیک‌شدهٔ دفترچه و پاسخنامه، اشتراک حرفه‌ای فعال کنید.</section>
+          ) : !officialArchiveAccess.preference ? (
+            <section className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-5 text-cyan-100">ابتدا در پروفایل، رشته و صلاحیت آزمون خود را انتخاب کنید.</section>
+          ) : (
+            <OfficialExamArchive archives={officialArchiveAccess.archives} onSeed={seedOfficialArchive} disabled={saving} />
+          )}
         </>
       ) : (
         <>
