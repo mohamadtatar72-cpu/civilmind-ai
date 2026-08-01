@@ -96,11 +96,10 @@ export default function SourceApprovalsDashboard() {
     proposal: Proposal,
     decision: "approved" | "rejected",
   ) {
-    const note = notes[proposal.id]?.trim() ?? "";
-    if (note.length < 3) {
-      setMessage("برای ثبت تصمیم، توضیح کوتاه مدیر لازم است.");
-      return;
-    }
+    const enteredNote = notes[proposal.id]?.replace(/\s+/g, " ").trim() ?? "";
+    const note = enteredNote.length >= 3
+      ? enteredNote
+      : "تأیید مدیر از پنل همگام‌سازی منابع رسمی";
     if (proposal.status === "quarantined" && decision === "approved") {
       setMessage("Snapshot قرنطینه‌شده قابل تأیید نیست و باید رد شود.");
       return;
@@ -119,8 +118,9 @@ export default function SourceApprovalsDashboard() {
           ? "Snapshot سالم به Last-Known-Good ارتقا یافت."
           : "تغییر رد شد و نسخه قبلی فعال باقی ماند.",
       );
-    } catch {
-      setMessage("ثبت تصمیم انجام نشد؛ وضعیت پیشنهاد یا سطح دسترسی بررسی شود.");
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "UNKNOWN_ERROR";
+      setMessage(`ثبت تصمیم انجام نشد: ${code}`);
     } finally {
       setWorkingId(null);
     }
