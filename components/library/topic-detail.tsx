@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery } from "convex/react";
+import { useState } from "react";
+import { useConvexAuth, useQuery } from "convex/react";
 import {
   ArrowRight,
   BookOpen,
@@ -63,6 +64,8 @@ function TopicNotFound({ invalidRoute = false }: { invalidRoute?: boolean }) {
 }
 
 export function TopicDetail({ routeId }: { routeId: string }) {
+  const { isAuthenticated } = useConvexAuth();
+  const [showQuestionAnalysis, setShowQuestionAnalysis] = useState(false);
   const code = Number(routeId);
   const isValidCode =
     /^[1-9]\d*$/.test(routeId) &&
@@ -71,6 +74,11 @@ export function TopicDetail({ routeId }: { routeId: string }) {
   const result = useQuery(
     asLibraryApi(api).topics.getByCode,
     isValidCode ? { code } : "skip",
+  );
+
+  const recentQuestionSignals = useQuery(
+    api.examAccess.recentQuestionsForTopic,
+    isValidCode && isAuthenticated ? { topicCode: code } : "skip",
   );
 
   if (!isValidCode) {
@@ -187,6 +195,11 @@ export function TopicDetail({ routeId }: { routeId: string }) {
               </div>
             );
           })}
+        </div>
+        <div className="mt-5 rounded-xl border border-cyan-400/25 bg-cyan-400/5 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-bold text-white">سؤال‌های آزمون‌های اخیر از این مبحث</h3><p className="mt-1 text-sm text-slate-400">فقط سؤال‌های استخراج و تأییدشده از PDFهای رسمی، همراه با ارجاع.</p></div><button type="button" onClick={() => setShowQuestionAnalysis(true)} className="rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400">از این مبحث چه سؤال‌هایی آمده؟</button></div>
+          {!isAuthenticated ? <p className="mt-3 text-sm text-amber-200">برای دیدن تحلیل وارد حساب شوید.</p> : recentQuestionSignals === undefined ? <p className="mt-3 text-sm text-slate-400">در حال بررسی آرشیو رسمی…</p> : !recentQuestionSignals.hasPremiumAccess ? <p className="mt-3 text-sm text-amber-200">این ابزار پس از اشتراک حرفه‌ای فعال می‌شود.</p> : !recentQuestionSignals.preference ? <p className="mt-3 text-sm text-amber-200">ابتدا رشته و صلاحیت آزمون را در پروفایل انتخاب کنید.</p> : recentQuestionSignals.questions.length === 0 ? <p className="mt-3 text-sm text-slate-400">برای این مبحث هنوز سؤال رسمیِ دسته‌بندی‌شده ثبت نشده است.</p> : <ul className="mt-3 space-y-2 text-sm text-slate-200">{recentQuestionSignals.questions.map((q) => <li key={q.id} className="rounded-lg bg-black/20 p-3">سؤال {q.questionNumber.toLocaleString("fa-IR")}{q.sourcePage ? ` · صفحه ${q.sourcePage.toLocaleString("fa-IR")}` : ""}{q.sourceExcerpt ? ` · ${q.sourceExcerpt}` : ""}</li>)}</ul>}
+          {showQuestionAnalysis && recentQuestionSignals?.hasPremiumAccess && recentQuestionSignals.preference && recentQuestionSignals.questions.length === 0 && <p className="mt-3 rounded-lg bg-slate-950/60 p-3 text-sm text-slate-300">هنوز دادهٔ قابل‌استناد برای تحلیل ثبت نشده است. پس از استخراج PDF رسمی، تحلیل فقط با استناد به همان منبع نمایش داده می‌شود.</p>}
         </div>
       </GlassPanel>
 
