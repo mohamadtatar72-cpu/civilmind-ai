@@ -8,6 +8,18 @@
 - Registered the sprint Definition of Done, continuous-delivery behavior and persistent Persian command `توسعه`.
 - Required every future worker to resume from the exact incomplete sprint by reading the master plan, Changelog and latest pushed commits.
 
+## 2026-08-01 — Phase 1.2: Centralized entitlement enforcement
+
+- Added one canonical capability vocabulary for Guest, Free, Premium and Admin tiers on both the client and Convex server.
+- Added the public `access.current` contract so UI capability states are derived from the server-authoritative entitlement tier rather than scattered role checks.
+- Enforced AI gateway capabilities on the server: basic `study-coach` maps to the Free AI chat allowance, while exam analysis, study planning and PDF intelligence map to their Premium capabilities.
+- Explicitly asserted that official archive reading and discipline/qualification filtering are public capabilities; no official archive path was moved behind Premium.
+- Added entitlement contract tests and verified typecheck, tests, lint and a production build using the production Convex URL.
+
+### Next continuation point
+
+Phase 1.3 is already substantially present in the repository; verify its real authenticated flow and rate-limit behavior, then continue with Phase 1.4 guest discipline/qualification selection persisted locally and connected to the public archive UI.
+
 ## 2026-08-01 — Phase 1: Free official archive access
 
 - Removed the Premium gate from the official archive UI and backend scoped archive query.
