@@ -1,3 +1,9 @@
+## 2026-08-01 — Citation state handling
+
+- Added explicit loading, empty-source and retrieval-error states to the source-grounded AI entry point.
+- The UI now states that no sourced answer is produced when official citations are unavailable.
+- TypeScript, ESLint and all 19 automated tests pass locally.
+
 ## 2026-08-01 — Real personal data synchronization
 
 - Added a server-side data synchronization flow that reads the signed-in user's study sessions, attempts, topic progress and planner tasks from Convex.
