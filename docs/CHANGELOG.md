@@ -15,6 +15,8 @@
 
 **Code complete / deployment pending:** the updated `examAccess.recentQuestionsForTopic` function must be deployed to Convex before the new expandable question list can work in production. Vercel is still not creating a deployment from the connected Git branch, so browser verification of this pushed build remains queued.
 
+Cloud Browser verified that all four replacement links render and navigate in Preview. Clicking the recent-question control against the legacy Convex response exposed a runtime shape mismatch; the backward-compatible adapter is now included in the latest pushed source and awaits the next Vercel build.
+
 - Updated public PDF citations so the official-source action opens the retrieved PDF at its exact page anchor instead of only opening the document root.
 - Added an explicit UI trust label separating extracted official text from any future CivilMind AI explanation.
 - Preserved guest access to public citations and kept private/Premium document URLs hidden from guests.
