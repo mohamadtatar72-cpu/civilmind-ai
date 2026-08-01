@@ -14,6 +14,10 @@ import {
 } from "@/components/ui/civilmind";
 import { api } from "@/convex/_generated/api";
 import { useCurrentAccount } from "@/features/auth/convex-repository";
+import {
+  canAccessCapability,
+  accessTierForRole,
+} from "@/lib/access/capabilities";
 
 const suggestions = [
   "خلاصه مبحث ۹ بتن",
@@ -47,6 +51,7 @@ type GatewayStatus = {
 
 export default function AIPage() {
   const account = useCurrentAccount();
+  const entitlement = useQuery(api.access.current, {});
   const gateway = useQuery(
     api.aiGateway.currentStatus,
     account.isAuthenticated && !account.loading ? {} : "skip",
@@ -61,6 +66,14 @@ export default function AIPage() {
     const normalized = question.trim();
     if (!normalized) {
       setMessage("لطفاً ابتدا سؤال خود را بنویسید.");
+      return;
+    }
+    const tier = entitlement?.tier ?? accessTierForRole(account.user?.role);
+    const canUseChat = entitlement
+      ? entitlement.capabilities.aiChat
+      : canAccessCapability(tier, "ai.chat");
+    if (!canUseChat) {
+      setMessage("این قابلیت به حساب کاربری فعال نیاز دارد.");
       return;
     }
     if (!account.isAuthenticated) {
@@ -86,6 +99,8 @@ export default function AIPage() {
       setMessage(
         code.includes("AI_DAILY_QUOTA_EXCEEDED")
           ? "سهمیه امروز این حساب به پایان رسیده است."
+          : code.includes("CAPABILITY_PREMIUM_REQUIRED")
+            ? "این نوع تحلیل در اشتراک Premium فعال است؛ گفت‌وگوی پایه همچنان در سهمیه رایگان شما در دسترس است."
           : code.includes("AI_INPUT_SIZE_INVALID")
             ? "طول سؤال بیشتر از سقف مجاز Gateway است."
             : "بررسی درخواست انجام نشد؛ وضعیت حساب و اتصال Convex بررسی شود.",
