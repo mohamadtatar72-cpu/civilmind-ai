@@ -62,6 +62,19 @@ const snapshotValidator = v.object({
   promotedBy: v.optional(v.id("users")),
 });
 
+const appendixValidator = v.object({
+  id: v.id("sourceAppendices"),
+  sourceKey: v.string(),
+  sourceUrl: v.string(),
+  title: v.string(),
+  snapshotId: v.id("sourceSnapshots"),
+  proposalId: v.id("sourceChangeProposals"),
+  contentHash: v.string(),
+  content: v.string(),
+  summary: v.string(),
+  appendedAt: v.number(),
+});
+
 function toPublicProposal(proposal: Doc<"sourceChangeProposals">) {
   return {
     id: proposal._id,
@@ -112,6 +125,21 @@ function normalizeNote(value: string) {
     throw new Error("INVALID_REVIEW_NOTE");
   }
   return note;
+}
+
+function toPublicAppendix(appendix: Doc<"sourceAppendices">) {
+  return {
+    id: appendix._id,
+    sourceKey: appendix.sourceKey,
+    sourceUrl: appendix.sourceUrl,
+    title: appendix.title,
+    snapshotId: appendix.snapshotId,
+    proposalId: appendix.proposalId,
+    contentHash: appendix.contentHash,
+    content: appendix.content,
+    summary: appendix.summary,
+    appendedAt: appendix.appendedAt,
+  };
 }
 
 export const adminListReviewQueue = query({
@@ -214,6 +242,25 @@ export const adminReview = mutation({
         lastHttpStatus: snapshot.httpStatus,
         status: "verified",
       });
+
+      const existingAppendix = await ctx.db
+        .query("sourceAppendices")
+        .withIndex("by_snapshotId", (index) => index.eq("snapshotId", snapshot._id))
+        .unique();
+      if (!existingAppendix) {
+        await ctx.db.insert("sourceAppendices", {
+          sourceKey: proposal.sourceKey,
+          sourceUrl: proposal.sourceUrl,
+          title: proposal.title,
+          snapshotId: snapshot._id,
+          proposalId: proposal._id,
+          contentHash: snapshot.contentHash,
+          content: snapshot.normalizedText,
+          summary: proposal.diffSummary ?? proposal.summary,
+          appendedAt: now,
+          appendedBy: admin._id,
+        });
+      }
     } else {
       await ctx.db.patch(resource._id, {
         status: resource.lastContentHash ? "verified" : "outdated",
@@ -265,6 +312,29 @@ export const adminListSnapshots = query({
       .order("desc")
       .take(args.limit);
     return snapshots.map(toPublicSnapshot);
+  },
+});
+
+export const listApprovedAppendices = query({
+  args: { sourceKey: v.string(), limit: v.optional(v.number()) },
+  returns: v.array(appendixValidator),
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 20;
+    if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
+      throw new Error("INVALID_LIMIT");
+    }
+    const sourceKey = args.sourceKey.replace(/\s+/g, " ").trim();
+    if (sourceKey.length < 2 || sourceKey.length > 120) {
+      throw new Error("INVALID_SOURCE_KEY");
+    }
+    const appendices = await ctx.db
+      .query("sourceAppendices")
+      .withIndex("by_sourceKey_and_appendedAt", (index) =>
+        index.eq("sourceKey", sourceKey),
+      )
+      .order("desc")
+      .take(limit);
+    return appendices.map(toPublicAppendix);
   },
 });
 
