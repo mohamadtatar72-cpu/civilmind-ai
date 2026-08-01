@@ -165,3 +165,13 @@ All notable product, access, AI and UX decisions must be recorded here. This fil
 - Defined phased delivery beginning with official data integrity, source navigation and access-control correctness.
 - Prioritized grounded AI and citations before advanced predictions.
 - Required each phase to include acceptance criteria, tests, mobile review and changelog updates.
+## 2026-08-01 — Citation provenance actions
+
+- Added the source document edition to every retrieved citation shown in CivilMind AI.
+- Added a direct `منبع رسمی` action only when a public document has a verified official URL; private and Premium documents do not expose a source URL to guests.
+- Preserved the internal library route and the existing rule that missing citations never become an AI-sourced answer.
+- TypeScript, ESLint, all 19 automated tests and the production build pass locally.
+
+### Next continuation point
+
+**Phase 2.1 remains in progress:** deploy the updated Convex citation response contract, then verify a real public PDF retrieval that displays edition, page/label, library route and official-source action in production. After that, begin Phase 2.2 — complete AI question analysis.
