@@ -394,6 +394,22 @@ export default defineSchema({
     .index("by_sourceKey_and_detectedAt", ["sourceKey", "detectedAt"])
     .index("by_sourceKey_and_contentHash", ["sourceKey", "contentHash"]),
 
+  sourceAppendices: defineTable({
+    sourceKey: v.string(),
+    sourceUrl: v.string(),
+    title: v.string(),
+    snapshotId: v.id("sourceSnapshots"),
+    proposalId: v.id("sourceChangeProposals"),
+    contentHash: v.string(),
+    content: v.string(),
+    summary: v.string(),
+    appendedAt: v.number(),
+    appendedBy: v.id("users"),
+  })
+    .index("by_sourceKey_and_appendedAt", ["sourceKey", "appendedAt"])
+    .index("by_snapshotId", ["snapshotId"])
+    .index("by_proposalId", ["proposalId"]),
+
   pdfDocuments: defineTable({
     ownerUserId: v.optional(v.id("users")),
     title: v.string(),
