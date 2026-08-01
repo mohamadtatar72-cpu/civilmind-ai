@@ -17,6 +17,7 @@ import {
   type PublicTopicListResult,
 } from "@/features/library/convex-repository";
 import { api } from "@/convex/_generated/api";
+import { getOfficialTopicLink } from "@/lib/data/official-topic-links";
 import {
   EmptyState,
   GlassPanel,
@@ -201,9 +202,9 @@ function LibraryContent({ result }: { result: PublicTopicListResult }) {
                   مشاهده مبحث
                   <ArrowLeft className="size-4" />
                 </Link>
-                {(topic.officialDocumentUrl || topic.officialPageUrl) && (
+                {getOfficialTopicLink(topic.code, topic.officialDocumentUrl, topic.officialPageUrl) && (
                   <a
-                    href={topic.officialDocumentUrl ?? topic.officialPageUrl}
+                    href={getOfficialTopicLink(topic.code, topic.officialDocumentUrl, topic.officialPageUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-2 flex items-center justify-center gap-2 rounded-xl border border-emerald-400/20 px-4 py-2.5 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10"
