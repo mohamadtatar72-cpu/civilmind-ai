@@ -70,6 +70,7 @@ export default function AIPage() {
   const [question, setQuestion] = useState("");
   const [message, setMessage] = useState<string>();
   const [citations, setCitations] = useState<Citation[]>([]);
+  const [citationState, setCitationState] = useState<"idle" | "loading" | "empty" | "ready" | "error">("idle");
   const [submitting, setSubmitting] = useState(false);
 
   async function submit(event: FormEvent) {
@@ -82,10 +83,12 @@ export default function AIPage() {
     setSubmitting(true);
     setMessage(undefined);
     setCitations([]);
+    setCitationState("loading");
     try {
       if (!account.isAuthenticated) {
         const retrieval = await searchWithCitations({ query: normalized, limit: 5 });
         setCitations(retrieval.citations as Citation[]);
+        setCitationState(retrieval.citations.length ? "ready" : "empty");
         setMessage(
           retrieval.citations.length > 0
             ? "منابع رسمی مرتبط پیدا شد. برای گفت‌وگوی AI و پاسخ شخصی وارد حساب شوید."
@@ -112,12 +115,14 @@ export default function AIPage() {
         searchWithCitations({ query: normalized, limit: 5 }),
       ]);
       setCitations(retrieval.citations as Citation[]);
+      setCitationState(retrieval.citations.length ? "ready" : "empty");
       setMessage(
         result.request.status === "blocked"
           ? "پرسش با منابع جست‌وجو شد، اما Adapter مدل هنوز فعال نیست؛ بنابراین پاسخ تولیدشده‌ای نمایش داده نمی‌شود."
           : "منابع مرتبط بازیابی شد و درخواست برای پاسخِ مستند آماده است.",
       );
     } catch (error) {
+      setCitationState("error");
       const code = error instanceof Error ? error.message : "";
       setMessage(
         code.includes("AI_DAILY_QUOTA_EXCEEDED")
@@ -224,6 +229,14 @@ export default function AIPage() {
             )}
           </form>
         </GlassPanel>
+
+        {citationState !== "idle" && citationState !== "ready" && (
+          <GlassPanel className="border-blue-400/15 bg-blue-400/5 text-sm leading-7 text-blue-100">
+            {citationState === "loading" && "در حال جست‌وجو در منابع رسمی و PDFهای قابل‌استناد…"}
+            {citationState === "empty" && "برای این پرسش، منبع رسمیِ پردازش‌شده پیدا نشد؛ بنابراین پاسخ مستند تولید نمی‌شود."}
+            {citationState === "error" && "بازیابی منبع انجام نشد؛ پاسخ AI بدون استناد نمایش داده نخواهد شد."}
+          </GlassPanel>
+        )}
 
         {citations.length > 0 && (
           <GlassPanel>
