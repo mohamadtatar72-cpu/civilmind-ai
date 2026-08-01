@@ -11,6 +11,7 @@ type ExamCenterProps = { mode: "exam" | "analytics" };
 export default function ExamCenter({ mode }: ExamCenterProps) {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const analytics = useQuery(api.examEngine.getMyAnalytics, isAuthenticated ? {} : "skip");
+  const officialArchives = useQuery(api.examArchives.listVerified, {});
   const startExam = useMutation(api.examEngine.startSampleExam);
   const submitExam = useMutation(api.examEngine.submitExam);
   const [sessionId, setSessionId] = useState<Id<"examSessions"> | null>(null);
@@ -160,6 +161,7 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
             شروع آزمون نمونه
           </button>
         </section>
+          <OfficialExamArchive archives={officialArchives} />
       ) : (
         <>
           <section className="grid gap-4 sm:grid-cols-4">
@@ -193,6 +195,14 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
       {message && <p className="rounded-xl bg-rose-400/10 px-4 py-3 text-rose-100">{message}</p>}
     </div>
   );
+}
+
+
+function OfficialExamArchive({ archives }: {
+  archives: Array<{ id: string; title: string; yearLabel: string; sessionLabel: string; officialPageUrl: string; documents: Array<{ id: string; title: string; discipline: string; qualification?: string; sourceUrl: string }> }> | undefined;
+}) {
+  if (archives === undefined) return <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6 text-slate-300">در حال دریافت آرشیو رسمی…</section>;
+  return <section className="rounded-2xl border border-slate-600 bg-slate-900 p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-bold text-cyan-300">آرشیو رسمی آزمون‌ها</p><h2 className="mt-1 text-xl font-black text-white">دفترچه و پاسخنامه، تفکیک‌شده بر اساس دوره و گرایش</h2></div><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200">فقط منبع رسمی INBR</span></div>{archives.length === 0 ? <p className="mt-4 text-slate-300">آرشیو رسمی در حال ورود است.</p> : archives.map((archive) => <article key={archive.id} className="mt-5 rounded-xl border border-slate-600 bg-slate-950 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-black text-white">{archive.title}</h3><p className="mt-1 text-sm text-slate-300">{archive.sessionLabel} {archive.yearLabel} · {archive.documents.length.toLocaleString("fa-IR")} دفترچه ثبت‌شده</p></div><a href={archive.officialPageUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-cyan-300 px-3 py-2 text-sm font-bold text-cyan-200">صفحه رسمی دوره</a></div><div className="mt-4 grid gap-3 md:grid-cols-2">{archive.documents.map((document) => <a key={document.id} href={document.sourceUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-600 bg-slate-900 p-3 transition hover:border-cyan-300"><p className="font-bold text-white">{document.title}</p><p className="mt-1 text-xs text-slate-300">{document.discipline}{document.qualification ? ` · ${document.qualification}` : ""}</p><p className="mt-2 text-xs font-bold text-cyan-300">دفترچه رسمی ↗</p></a>)}</div><p className="mt-4 text-xs text-amber-200">پاسخنامه یا راهنمای تشریحی فقط پس از یافتن و تأیید نسخهٔ رسمیِ همان دوره به این بخش افزوده می‌شود.</p></article>)}</section>;
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
