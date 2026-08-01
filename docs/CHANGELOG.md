@@ -1,3 +1,9 @@
+## 2026-08-01 — Real personal data synchronization
+
+- Added a server-side data synchronization flow that reads the signed-in user's study sessions, attempts, topic progress and planner tasks from Convex.
+- Persists a per-user synchronization result and timestamp; the Settings action now performs this backend flow instead of changing a display label.
+- TypeScript, ESLint and all 19 automated tests pass locally.
+
 ## 2026-08-01 — Connected settings data status
 
 - Replaced the static local-demo synchronization message with live Convex account and entitlement status.
