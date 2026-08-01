@@ -1,3 +1,10 @@
+## 2026-08-01 — AI citation retrieval flow
+
+- Connected the CivilMind AI question flow to the existing secure PDF retrieval endpoint.
+- The interface now shows document, page/citation label and excerpt for retrieved sources, each linked to the corresponding library document.
+- The UI explicitly avoids presenting generated AI output as sourced when no verified citation was returned.
+- TypeScript, ESLint and all 17 automated tests pass locally.
+
 ## 2026-08-01 — Authentication rendering fix
 
 - Fixed the sign-in gate: the Clerk sign-in UI now correctly relies on the public Clerk publishable key instead of incorrectly requiring the server-only secret during page rendering.
