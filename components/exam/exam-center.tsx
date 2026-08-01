@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { useAction, useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -11,6 +11,11 @@ type ExamCenterProps = { mode: "exam" | "analytics" };
 type GuestExamPreference = {
   discipline: string;
   qualification: string;
+};
+
+type QuestionAnalysisState = {
+  status: "loading" | "ready" | "blocked" | "error";
+  text?: string;
 };
 
 const GUEST_EXAM_PREFERENCE_KEY = "civilmind.guest-exam-preference.v1";
@@ -51,11 +56,13 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
   const seedHistoricalSessions = useMutation(api.examArchives.seedVerifiedHistoricalSessions);
   const startExam = useMutation(api.examEngine.startSampleExam);
   const submitExam = useMutation(api.examEngine.submitExam);
+  const submitAIAnalysis = useAction(api.aiRuntime.submitAndExecute);
   const [sessionId, setSessionId] = useState<Id<"examSessions"> | null>(null);
   const session = useQuery(api.examEngine.getSession, sessionId ? { sessionId } : "skip");
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [questionAnalyses, setQuestionAnalyses] = useState<Record<string, QuestionAnalysisState>>({});
 
   useEffect(() => {
     try {
@@ -135,6 +142,53 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
     }
   }
 
+  async function analyzeQuestion(item: {
+    id: string;
+    stem: string;
+    options: string[];
+    selectedIndex?: number;
+    correctIndex?: number;
+    explanation?: string;
+    topicTitle: string;
+  }) {
+    if (item.correctIndex === undefined) return;
+    setQuestionAnalyses((current) => ({ ...current, [item.id]: { status: "loading" } }));
+    try {
+      const options = item.options
+        .map((option, index) => `${index + 1}. ${option}${index === item.correctIndex ? " [پاسخ صحیح آموزشی]" : ""}`)
+        .join("\n");
+      const result = await submitAIAnalysis({
+        capability: "exam-analysis",
+        idempotencyKey: crypto.randomUUID(),
+        userText: [
+          "این سؤال، نمونه آموزشی تولیدشده در CivilMind است و سؤال رسمی آزمون نیست.",
+          "تحلیل را با این بخش‌ها ارائه کن: مسیر حل کوتاه، دلیل درستی گزینه صحیح، دلیل نادرستی هر گزینه دیگر، تله رایج، نوع و سطح دشواری، و پیشنهاد مرور بعدی.",
+          "هیچ بند، صفحه یا منبع رسمی اختراع نکن. اگر ارجاع رسمی در ورودی نیست، صریحاً بگو ارجاع رسمی موجود نیست.",
+          `موضوع: ${item.topicTitle}`,
+          `سؤال: ${item.stem}`,
+          `گزینه‌ها:\n${options}`,
+          `توضیح آموزشی ثبت‌شده: ${item.explanation ?? "موجود نیست"}`,
+          `گزینه انتخابی کاربر: ${item.selectedIndex === undefined ? "بدون پاسخ" : item.selectedIndex + 1}`,
+        ].join("\n\n"),
+        requestedTools: ["exam-history-read", "topic-progress-read"],
+      });
+      setQuestionAnalyses((current) => ({
+        ...current,
+        [item.id]: result.status === "completed" && result.responseText
+          ? { status: "ready", text: result.responseText }
+          : { status: "blocked" },
+      }));
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "";
+      setQuestionAnalyses((current) => ({
+        ...current,
+        [item.id]: {
+          status: code.includes("CAPABILITY_PREMIUM_REQUIRED") ? "blocked" : "error",
+        },
+      }));
+    }
+  }
+
   if (!isAuthenticated) {
     if (mode === "analytics") {
       return (
@@ -198,7 +252,9 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
         )}
 
         <section className="space-y-4">
-          {session.items.map((item, index) => (
+          {session.items.map((item, index) => {
+            const analysis = questionAnalyses[item.id];
+            return (
             <article key={item.id} className="rounded-2xl border border-slate-600 bg-slate-900 p-5">
               <p className="text-xs font-bold text-cyan-300">{item.topicTitle}</p>
               <h2 className="mt-2 font-bold text-white">
@@ -226,13 +282,44 @@ export default function ExamCenter({ mode }: ExamCenterProps) {
                 })}
               </div>
               {completed && (
-                <p className="mt-4 rounded-xl bg-slate-800 px-4 py-3 text-sm text-slate-100">
-                  {item.isCorrect ? "پاسخ صحیح بود. " : "نیاز به مرور: "}
-                  {item.explanation}
-                </p>
+                <>
+                  <div className="mt-4 rounded-xl border border-emerald-300/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-50">
+                    <p className="font-black">پاسخ آموزشی ثبت‌شده</p>
+                    <p className="mt-2 leading-7">{item.isCorrect ? "پاسخ شما صحیح بود. " : "نیاز به مرور: "}{item.explanation}</p>
+                    <p className="mt-2 text-xs text-amber-100">این سؤال نمونه آموزشی است؛ پاسخ بالا «کلید رسمی آزمون» محسوب نمی‌شود.</p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={analysis?.status === "loading"}
+                    onClick={() => void analyzeQuestion(item)}
+                    className="mt-3 rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2.5 text-sm font-black text-cyan-100 transition hover:bg-cyan-400/20 disabled:opacity-50"
+                  >
+                    {analysis?.status === "loading" ? "در حال تحلیل سؤال…" : analysis?.status === "ready" ? "تحلیل دوباره با AI" : "تحلیل کامل با CivilMind AI"}
+                  </button>
+                  {analysis?.status === "ready" && analysis.text && (
+                    <div className="mt-3 rounded-xl border border-violet-300/30 bg-violet-400/10 p-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-black text-violet-100">تحلیل CivilMind AI</p>
+                        <span className="rounded-full border border-violet-300/30 px-2 py-1 text-[11px] font-bold text-violet-200">تحلیل غیررسمی</span>
+                      </div>
+                      <p className="mt-3 whitespace-pre-wrap text-sm leading-8 text-slate-100">{analysis.text}</p>
+                    </div>
+                  )}
+                  {analysis?.status === "blocked" && (
+                    <p role="status" className="mt-3 rounded-xl border border-amber-300/25 bg-amber-300/10 p-3 text-sm leading-7 text-amber-100">
+                      تحلیل پیشرفته سؤال یک قابلیت Premium است و پس از فعال‌شدن Provider AI اجرا می‌شود. پاسخ آموزشی و منابع رسمی همچنان رایگان می‌مانند.
+                    </p>
+                  )}
+                  {analysis?.status === "error" && (
+                    <p role="alert" className="mt-3 rounded-xl border border-rose-300/25 bg-rose-300/10 p-3 text-sm leading-7 text-rose-100">
+                      تحلیل AI انجام نشد. پاسخ آموزشی ثبت‌شده بدون تغییر باقی مانده است؛ دوباره تلاش کنید.
+                    </p>
+                  )}
+                </>
               )}
             </article>
-          ))}
+            );
+          })}
         </section>
 
         {message && <p className="rounded-xl bg-cyan-400/10 px-4 py-3 text-cyan-100">{message}</p>}
