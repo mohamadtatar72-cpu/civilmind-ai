@@ -32,6 +32,17 @@
 
 **Verification pending:** Vercel publication for Phase 1.2 remains queued because of the recorded daily deployment limit. A Codespaces preview was launched for this Phase 1.4 flow; Cloud Browser navigation timed out during the verification attempt, so browser/screenshot verification remains queued rather than being claimed as complete. **Next implementation sprint:** Phase 1.5 — public official regulation library search and filtering, starting with the existing library data model and guest filter flow.
 
+## 2026-08-01 — Phase 1.5: Public regulation library filtering
+
+- Added a free, accessible qualification filter to the public regulation library alongside Persian search.
+- Kept the live public topic query and direct official-source navigation intact; filtering is presentation-side prioritization and never a Premium gate.
+- Persisted the selected public-library qualification locally for guest continuity without creating an account.
+- Added contract coverage for free filtering and direct official-source navigation.
+
+### Next continuation point
+
+**Verification pending:** Vercel publication and Cloud Browser screenshot verification remain queued as recorded above. **Next implementation sprint:** Phase 1.6 — separately model and present official exam booklets, initial/final answer keys, published descriptive guides and distinct CivilMind AI analysis.
+
 ## 2026-08-01 — Phase 1: Free official archive access
 
 - Removed the Premium gate from the official archive UI and backend scoped archive query.
