@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useAction, useQuery } from "convex/react";
 import {
   ArrowRight,
   BookOpen,
@@ -33,6 +33,13 @@ type RecentTopicQuestion = {
   qualification?: string;
   sourcePage?: number;
   sourceExcerpt?: string;
+  stem?: string;
+  options?: string[];
+  officialCorrectIndex?: number;
+  officialClause?: string;
+  sourceEdition?: string;
+  officialAnswerSourceUrl?: string;
+  analysisReady?: boolean;
   documentTitle?: string;
   sourceUrl?: string;
 };
@@ -83,6 +90,8 @@ function sourcePageUrl(sourceUrl: string, page?: number) {
 
 export function TopicDetail({ routeId }: { routeId: string }) {
   const [showQuestionAnalysis, setShowQuestionAnalysis] = useState(false);
+  const [analysisByQuestion, setAnalysisByQuestion] = useState<Record<string, { status: "loading" | "ready" | "blocked" | "error"; text?: string }>>({});
+  const submitAIAnalysis = useAction(api.aiRuntime.submitAndExecute);
   const code = Number(routeId);
   const isValidCode =
     /^[1-9]\d*$/.test(routeId) &&
@@ -149,6 +158,42 @@ export function TopicDetail({ routeId }: { routeId: string }) {
   const recentQuestions = Array.isArray(recentQuestionSignals)
     ? recentQuestionSignals
     : recentQuestionSignals?.questions ?? [];
+
+  async function analyzeOfficialQuestion(question: RecentTopicQuestion) {
+    if (!question.analysisReady || !question.stem || !question.options || question.officialCorrectIndex === undefined) return;
+    setAnalysisByQuestion((current) => ({ ...current, [question.id]: { status: "loading" } }));
+    try {
+      const result = await submitAIAnalysis({
+        capability: "exam-analysis",
+        idempotencyKey: crypto.randomUUID(),
+        userText: [
+          "این رکورد از دفترچه و کلید رسمی تأییدشده استخراج شده است. متن رسمی، کلید رسمی و تحلیل CivilMind AI را کاملاً جدا نگه دار.",
+          "تحلیل را شامل مسیر حل، علت درستی گزینه رسمی، علت نادرستی سایر گزینه‌ها، تله رایج، حساسیت به ویرایش و عدم قطعیت ارائه کن.",
+          "فقط به اطلاعات رسمی داخل این ورودی استناد کن و هیچ صفحه، بند، آمار یا منبعی اختراع نکن.",
+          `سؤال رسمی شماره ${question.questionNumber}: ${question.stem}`,
+          `گزینه‌ها:\n${question.options.map((option, index) => `${index + 1}. ${option}`).join("\n")}`,
+          `گزینه صحیح طبق کلید رسمی: ${question.officialCorrectIndex + 1}`,
+          `سند: ${question.documentTitle ?? "نامشخص"}`,
+          `ویرایش/دوره: ${question.sourceEdition ?? "ثبت نشده"}`,
+          `صفحه: ${question.sourcePage ?? "ثبت نشده"}`,
+          `بند مرتبط: ${question.officialClause ?? "ثبت نشده"}`,
+        ].join("\n\n"),
+        requestedTools: ["exam-history-read", "topic-progress-read"],
+      });
+      setAnalysisByQuestion((current) => ({
+        ...current,
+        [question.id]: result.status === "completed" && result.responseText
+          ? { status: "ready", text: result.responseText }
+          : { status: "blocked" },
+      }));
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "";
+      setAnalysisByQuestion((current) => ({
+        ...current,
+        [question.id]: { status: code.includes("CAPABILITY_PREMIUM_REQUIRED") || code.includes("UNAUTHENTICATED") ? "blocked" : "error" },
+      }));
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -268,7 +313,9 @@ export function TopicDetail({ routeId }: { routeId: string }) {
               <p className="mt-3 rounded-lg bg-slate-950/60 p-3 text-sm text-slate-300">برای این مبحث هنوز سؤال رسمیِ دسته‌بندی‌شده ثبت نشده است.</p>
             ) : (
               <ul className="mt-3 space-y-3 text-sm text-slate-200">
-                {recentQuestions.map((question) => (
+                {recentQuestions.map((question) => {
+                  const analysis = analysisByQuestion[question.id];
+                  return (
                   <li key={question.id} className="rounded-lg border border-white/8 bg-black/20 p-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="font-bold">سؤال {question.questionNumber.toLocaleString("fa-IR")}{question.documentTitle ? ` · ${question.documentTitle}` : ""}</span>
@@ -280,8 +327,27 @@ export function TopicDetail({ routeId }: { routeId: string }) {
                     </div>
                     {question.discipline ? <p className="mt-2 text-xs text-slate-400">{question.discipline}{question.qualification ? ` · ${question.qualification}` : ""}</p> : null}
                     {question.sourceExcerpt ? <p className="mt-2 leading-7 text-slate-300">{question.sourceExcerpt}</p> : null}
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      {question.analysisReady ? (
+                        <button type="button" disabled={analysis?.status === "loading"} onClick={() => void analyzeOfficialQuestion(question)} className="rounded-lg border border-violet-300/35 bg-violet-400/10 px-3 py-2 text-xs font-black text-violet-100 hover:bg-violet-400/20 disabled:opacity-50">
+                          {analysis?.status === "loading" ? "در حال تحلیل مستند…" : analysis?.status === "ready" ? "تحلیل دوباره" : "تحلیل کامل با CivilMind AI"}
+                        </button>
+                      ) : (
+                        <span className="rounded-lg border border-amber-300/25 bg-amber-300/10 px-3 py-2 text-xs font-bold text-amber-100">تحلیل AI پس از استخراج متن، گزینه‌ها و کلید رسمی فعال می‌شود</span>
+                      )}
+                      <span className="rounded-full border border-emerald-300/25 px-2 py-1 text-[11px] font-bold text-emerald-200">سؤال رسمی</span>
+                    </div>
+                    {analysis?.status === "ready" && analysis.text ? (
+                      <div className="mt-3 rounded-lg border border-violet-300/30 bg-violet-400/10 p-3">
+                        <p className="font-black text-violet-100">تحلیل CivilMind AI <span className="mr-2 text-[11px] font-bold text-violet-200">غیررسمی</span></p>
+                        <p className="mt-2 whitespace-pre-wrap leading-7 text-slate-200">{analysis.text}</p>
+                      </div>
+                    ) : null}
+                    {analysis?.status === "blocked" ? <p role="status" className="mt-3 rounded-lg bg-amber-300/10 p-3 text-xs leading-6 text-amber-100">برای تحلیل پیشرفته وارد حساب Premium شوید و Provider AI را فعال کنید. مشاهده سؤال و کلید رسمی رایگان است.</p> : null}
+                    {analysis?.status === "error" ? <p role="alert" className="mt-3 rounded-lg bg-rose-300/10 p-3 text-xs leading-6 text-rose-100">تحلیل AI انجام نشد؛ سؤال و ارجاع رسمی بدون تغییر در دسترس‌اند.</p> : null}
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             )
           ) : (
