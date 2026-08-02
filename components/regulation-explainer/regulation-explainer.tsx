@@ -99,9 +99,13 @@ export function RegulationExplainer() {
 
   const topic = topicResult ? mapPublicTopic(topicResult) : null;
 
-  const recentQuestions = Array.isArray(questionSignals)
-    ? questionSignals
-    : questionSignals?.questions ?? [];
+  const recentQuestions = useMemo(
+    () =>
+      Array.isArray(questionSignals)
+        ? questionSignals
+        : questionSignals?.questions ?? [],
+    [questionSignals],
+  );
 
   const source = useMemo<RegulationSource | null>(() => {
     if (!topic) return null;
