@@ -8,17 +8,18 @@
  * @module
  */
 
+import type * as access from "../access.js";
 import type * as aiAdmin from "../aiAdmin.js";
 import type * as aiGateway from "../aiGateway.js";
-import type * as access from "../access.js";
 import type * as aiRuntime from "../aiRuntime.js";
 import type * as auditLogs from "../auditLogs.js";
 import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
+import type * as data_verifiedOfficialQuestions from "../data/verifiedOfficialQuestions.js";
 import type * as dataSync from "../dataSync.js";
-import type * as examEngine from "../examEngine.js";
-import type * as examArchives from "../examArchives.js";
 import type * as examAccess from "../examAccess.js";
+import type * as examArchives from "../examArchives.js";
+import type * as examEngine from "../examEngine.js";
 import type * as lib_aiAdapterContract from "../lib/aiAdapterContract.js";
 import type * as lib_aiPolicy from "../lib/aiPolicy.js";
 import type * as lib_aiToolPolicy from "../lib/aiToolPolicy.js";
@@ -51,10 +52,11 @@ declare const fullApi: ApiFromModules<{
   auditLogs: typeof auditLogs;
   crons: typeof crons;
   dashboard: typeof dashboard;
+  "data/verifiedOfficialQuestions": typeof data_verifiedOfficialQuestions;
   dataSync: typeof dataSync;
-  examEngine: typeof examEngine;
-  examArchives: typeof examArchives;
   examAccess: typeof examAccess;
+  examArchives: typeof examArchives;
+  examEngine: typeof examEngine;
   "lib/aiAdapterContract": typeof lib_aiAdapterContract;
   "lib/aiPolicy": typeof lib_aiPolicy;
   "lib/aiToolPolicy": typeof lib_aiToolPolicy;
