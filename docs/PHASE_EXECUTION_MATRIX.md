@@ -7,7 +7,7 @@
 ## Current execution focus
 
 - **Active phase:** Phase 2 — Core AI
-- **Active sprint:** **2.2 Complete AI question analysis**
+- **Active sprint:** **2.3 Regulation Explainer — implementation complete, release verification in progress**
 - **Verified runtime baseline:** Topic 19, the reviewed Khordad 1404 official question, its options, official key and exact-source actions render in the Development-backed library flow.
 - **Exact incomplete item:** close the Phase 2.2 release evidence package: second authenticated idempotency execution with the same `questionId`, desktop/mobile evidence, console/network check and exact AI-provider state.
 - **Safe next implementation if provider/runtime evidence is blocked:** ingest and connect the next fully verified official question, or begin the bounded Phase 2.3 regulation-explainer contract without claiming release completion.
@@ -18,7 +18,7 @@
 | Phase | Status | Progress | Evidence / completed scope | First incomplete deliverable |
 |---|---:|---:|---|---|
 | **1 — Foundation, Security & Trusted Knowledge** | In verification | 88% | Centralized capability model; auth/RBAC foundations; guest discipline and qualification selection; public official regulation library; separated official exam materials; provenance visibility. | Finish release/browser evidence for all Phase 1 flows and reconcile any remaining deployment-only gaps. |
-| **2 — Core AI** | In development | 42% | 2.1 source-grounded AI flow implemented; 2.2 reviewed official-question ingestion, readiness validation and Topic 19 presentation implemented. | Close 2.2 evidence and provider state, then implement 2.3 regulation explainer. |
+| **2 — Core AI** | In development | 58% | 2.1 source-grounded AI flow implemented; 2.2 reviewed official-question ingestion, readiness validation and Topic 19 presentation implemented. | Verify the 2.3 Preview and provider-backed runtime, then continue the next bounded Core AI deliverable. |
 | **3 — Learning Engine** | Not started | 0% | Roadmap locked. | 3.1 user learning profile. |
 | **4 — Analytics & Prediction** | Not started | 0% | Roadmap locked; fabricated statistics prohibited. | 4.1 performance event and study data model. |
 | **5 — Exam System** | Foundation present | 18% | Public archive, topic questions and sample exam foundations exist. | 5.1 end-to-end official exam center. |
@@ -81,3 +81,17 @@ Required contents:
 - exact AI-provider state;
 - precise remaining blocker, if any;
 - next continuation point.
+
+## Phase 2.3 completion evidence
+
+- [x] Three explanation levels implemented: simple, exam-oriented and professional/execution-oriented.
+- [x] Retrieval occurs before model generation.
+- [x] Missing verified source fails closed.
+- [x] Official document title, edition, page, clause and exact link are preserved.
+- [x] Official text and CivilMind AI explanation are visually separated.
+- [x] Provider-missing, entitlement, retryable-error, loading and success states are implemented.
+- [x] Frontend is connected to Convex topic/question retrieval and server-side AI runtime.
+- [x] Automated tests cover all required Phase 2.3 contracts.
+- [ ] Approved Provider-backed model response requires external Provider configuration.
+- [ ] Final browser evidence is recorded after Preview creation.
+

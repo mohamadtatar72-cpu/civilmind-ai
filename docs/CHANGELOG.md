@@ -1,3 +1,24 @@
+## 2026-08-02 — Phase 2.3 Regulation Explainer
+
+- Added the production-facing `/regulation-explainer` route.
+- Added simple, exam-oriented and professional/execution-oriented explanation levels.
+- Connected the explainer to Convex public topic retrieval, verified official-question excerpts and the existing server-side AI runtime.
+- Enforced retrieval-before-generation and fail-closed behavior when verified source evidence is unavailable.
+- Preserved official document title, edition, page, clause and exact-source URL.
+- Kept official regulation text visually and semantically separate from CivilMind AI explanation.
+- Added truthful loading, no-source, provider-missing, entitlement-required, retryable-error and success states.
+- Added automated Phase 2.3 tests.
+- Added a real entry point from the topic library.
+- No Production deployment or destructive operation was performed.
+
+### Phase result
+
+Phase 2.3 provider-independent implementation is complete. Live model output remains dependent on an approved server-side AI Provider.
+
+### Next continuation point
+
+Continue Phase 2 with the next bounded AI deliverable or begin Phase 3 Learning Engine after reconciling the master plan.
+
 ## 2026-08-01 — Citation state handling
 
 ## 2026-08-01 — Exact-page official citation links

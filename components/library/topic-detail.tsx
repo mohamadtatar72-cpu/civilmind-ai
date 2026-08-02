@@ -143,6 +143,13 @@ export function TopicDetail({ routeId }: { routeId: string }) {
       external: false,
     },
     {
+      label: "توضیح مقررات در سه سطح",
+      detail: "ساده، آزمونی و حرفه‌ای با منبع رسمی",
+      icon: BookOpen,
+      href: `/regulation-explainer?topic=${topic.code}`,
+      external: false,
+    },
+    {
       label: "آزمون مبحثی",
       detail: "رفتن به مرکز آزمون",
       icon: FileQuestion,
