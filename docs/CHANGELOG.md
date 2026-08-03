@@ -1,3 +1,33 @@
+## 2026-08-03 — Project audit blocker recovery
+
+- Restored truthful Citation-first interface copy required by the retrieval contract.
+- Secured local Environment backup files outside the repository.
+- Confirmed active `.env.local` remains local and outside Git tracking.
+- Applied provenance publication gating to the Super Library.
+- Hidden all internal documents without verified source URLs from the public catalog.
+- Public catalog now contains 16 resources.
+- Published internal documents with verified sources: 0.
+- Published external reference websites: 16.
+- Resources awaiting metadata or provenance review: 127.
+- Added automated tests preventing publication of internal documents without source URLs.
+- No PDF, extracted text or quarantined document was deleted.
+- Production was not modified.
+
+## 2026-08-03 — Super Library content and UX recovery
+
+- Blocked publication of internal documents with unresolved or low-confidence titles.
+- Recovered document titles from extracted text where confidence was sufficient.
+- Added metadata-confidence and publication-status controls.
+- Classified published documents into meaningful engineering categories.
+- Separated internal documents from external reference websites.
+- Changed external website cards to direct original-source actions.
+- Removed repeated unknown-edition copy from resource cards.
+- Replaced misleading AI-answer language with truthful citation-retrieval language.
+- Added pagination, resource-kind filtering, category filtering and empty states.
+- Added content-quality tests for invalid titles, actions, publication controls and copy.
+- No PDF, extracted text or quarantined document was deleted.
+- Production was not modified.
+
 ## 2026-08-03 — Super Library quality repair and live verification
 
 - Reprocessed all document-quality warning records with controlled digital extraction and limited Persian/English OCR.

@@ -44,3 +44,9 @@ imports/super-library/extracted/
 imports/super-library/state/
 public/super-library/text/
 imports/super-library/quarantine/
+.env
+.env.*
+!.env.example
+*.env.local
+.env.local.backup
+.env.vercel.local
