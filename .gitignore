@@ -43,3 +43,4 @@ imports/super-library/files/*.pdf
 imports/super-library/extracted/
 imports/super-library/state/
 public/super-library/text/
+imports/super-library/quarantine/
