@@ -1,3 +1,17 @@
+## 2026-08-03 — Engineering super library
+
+- Added the public `/resources` CivilMind AI engineering super library.
+- Cataloged 16 resources.
+- Added 6 official resources.
+- Added 16 original-source external resources.
+- Added 0 authorized local downloadable files.
+- Added Persian search, category filtering and source-type filtering.
+- Added official, educational and downloadable resource views.
+- Added the super library to the primary application navigation.
+- Preserved copyright separation by keeping third-party content link-only.
+- Added automated tests for catalog, navigation, search, filtering and copyright behavior.
+- No Production deployment or destructive operation was performed.
+
 ## 2026-08-02 — Phase 2.3 final verification closure
 
 - Removed the Regulation Explainer React Hook dependency warning.

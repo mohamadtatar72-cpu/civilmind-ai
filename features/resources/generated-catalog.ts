@@ -1,0 +1,417 @@
+// This file is generated automatically.
+// Do not edit manually.
+
+export type CivilMindResourceKind =
+  | "pdf"
+  | "document"
+  | "spreadsheet"
+  | "presentation"
+  | "archive"
+  | "image"
+  | "text"
+  | "external";
+
+export type CivilMindResource = {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  kind: CivilMindResourceKind;
+  format: string;
+  description: string;
+  sourceName: string;
+  sourceUrl: string | null;
+  fileUrl: string | null;
+  edition: string | null;
+  tags: string[];
+  sizeBytes: number | null;
+  sha256: string | null;
+  downloadable: boolean;
+  external: boolean;
+  official: boolean;
+};
+
+export const civilMindResources: CivilMindResource[] = [
+  {
+    "id": "external-58d8b6377efd8bb6",
+    "slug": "آی-سیویل",
+    "title": "آی‌سیویل",
+    "category": "آزمون و آموزش",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "مرجع تخصصی عمران و معماری شامل مطالب و منابع آمادگی آزمون نظام مهندسی",
+    "sourceName": "آی‌سیویل",
+    "sourceUrl": "https://icivil.ir/omran/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "عمران",
+      "معماری",
+      "آزمون نظام مهندسی",
+      "کلیدواژه"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": false
+  },
+  {
+    "id": "external-0df5b9d72e618240",
+    "slug": "خانه-عمران-شریف",
+    "title": "خانه عمران شریف",
+    "category": "آموزش حرفه‌ای",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "دوره‌های تخصصی و حرفه‌ای مهندسی عمران اجرا نرم‌افزار و مدیریت پروژه",
+    "sourceName": "خانه عمران شریف",
+    "sourceUrl": "https://www.khanehomran.com/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "آموزش",
+      "اجرا",
+      "نرم‌افزار",
+      "مدیریت پروژه"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": false
+  },
+  {
+    "id": "external-0c314cbabc462487",
+    "slug": "دوره-های-خانه-عمران",
+    "title": "دوره‌های خانه عمران",
+    "category": "آموزش حرفه‌ای",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "دوره‌های تخصصی عمران معماری اجرا متره نرم‌افزار و کنترل پروژه",
+    "sourceName": "خانه عمران شریف",
+    "sourceUrl": "https://www.khanehomran.com/course",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "دوره",
+      "متره",
+      "اجرا",
+      "MSP",
+      "ETABS"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": false
+  },
+  {
+    "id": "external-842705dfe23cf1c0",
+    "slug": "عمران-سرا",
+    "title": "عمران‌سرا",
+    "category": "آموزش حرفه‌ای",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "دوره‌ها و منابع تخصصی صنعت ساختمان آزمون نظام مهندسی و کارشناسی رسمی",
+    "sourceName": "عمران‌سرا",
+    "sourceUrl": "https://omransara.ir/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "عمران",
+      "محاسبات",
+      "کارشناسی رسمی",
+      "آموزش"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": false
+  },
+  {
+    "id": "external-2d7baac48aace185",
+    "slug": "civil-808",
+    "title": "Civil 808",
+    "category": "آموزش و رسانه",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "محتوای آموزشی اخبار مهندسی و دوره‌های حوزه عمران و سازه",
+    "sourceName": "Civil 808",
+    "sourceUrl": "https://civil808.com/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "عمران",
+      "سازه",
+      "آموزش",
+      "رسانه"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": false
+  },
+  {
+    "id": "external-b0dbd16f4a58d2ef",
+    "slug": "وزارت-راه-و-شهرسازی",
+    "title": "وزارت راه و شهرسازی",
+    "category": "اخبار و مقررات رسمی",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "اطلاعیه‌ها سیاست‌ها و اسناد رسمی حوزه راه مسکن شهرسازی و ساختمان",
+    "sourceName": "وزارت راه و شهرسازی",
+    "sourceUrl": "https://www.mrud.ir/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "وزارت راه",
+      "شهرسازی",
+      "مسکن",
+      "رسمی"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": true
+  },
+  {
+    "id": "external-78c04634dd3b260a",
+    "slug": "سازمان-نظام-مهندسی-ساختمان",
+    "title": "سازمان نظام مهندسی ساختمان",
+    "category": "سازمان‌های حرفه‌ای",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "اطلاعیه‌ها خدمات و منابع حرفه‌ای جامعه مهندسی ساختمان",
+    "sourceName": "شورای مرکزی نظام مهندسی ساختمان",
+    "sourceUrl": "https://irceo.ir/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "نظام مهندسی",
+      "پروانه اشتغال",
+      "اطلاعیه"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": true
+  },
+  {
+    "id": "external-2dfbefce03519ddc",
+    "slug": "سامانه-قوانین-و-مقررات",
+    "title": "سامانه قوانین و مقررات",
+    "category": "قوانین و ضوابط",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "دسترسی به قوانین و مقررات مرتبط با ساخت‌وساز قراردادها و مسئولیت حرفه‌ای",
+    "sourceName": "مرکز پژوهش‌ها و سامانه‌های قانونی",
+    "sourceUrl": "https://qavanin.ir/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "قانون",
+      "قرارداد",
+      "مسئولیت حرفه‌ای"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": true
+  },
+  {
+    "id": "external-61ecd9cb3ae31655",
+    "slug": "سیویلیکا",
+    "title": "سیویلیکا",
+    "category": "مقالات علمی",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "پایگاه مقالات کنفرانس‌ها و پژوهش‌های علمی فارسی",
+    "sourceName": "سیویلیکا",
+    "sourceUrl": "https://civilica.com/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "مقاله",
+      "پژوهش",
+      "دانشگاه",
+      "کنفرانس"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": false
+  },
+  {
+    "id": "external-9194777bb598c538",
+    "slug": "سیویل-اجرا",
+    "title": "سیویل اجرا",
+    "category": "منابع آموزشی فارسی",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "مجموعه مطالب اجرایی ابزارهای مهندسی آموزش نرم‌افزار و منابع عمران",
+    "sourceName": "سیویل اجرا",
+    "sourceUrl": "https://civilejra.ir/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "عمران",
+      "اجرا",
+      "ابزار",
+      "آموزش",
+      "نرم‌افزار"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": false
+  },
+  {
+    "id": "external-5b40627fd2ca9bd4",
+    "slug": "دفتر-مقررات-ملی-و-کنترل-ساختمان",
+    "title": "دفتر مقررات ملی و کنترل ساختمان",
+    "category": "منابع رسمی",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "مرجع اطلاعیه‌ها منابع آزمون و مقررات ملی ساختمان",
+    "sourceName": "دفتر مقررات ملی و کنترل ساختمان",
+    "sourceUrl": "https://inbr.ir/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "رسمی",
+      "مقررات ملی",
+      "آزمون نظام مهندسی"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": true
+  },
+  {
+    "id": "external-6e6d49877d27a3d9",
+    "slug": "مرکز-تحقیقات-راه-مسکن-و-شهرسازی",
+    "title": "مرکز تحقیقات راه مسکن و شهرسازی",
+    "category": "منابع رسمی",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "مرجع پژوهش‌ها آیین‌نامه‌ها دستورالعمل‌ها و نشریات حوزه ساختمان و راه",
+    "sourceName": "مرکز تحقیقات راه مسکن و شهرسازی",
+    "sourceUrl": "https://www.bhrc.ac.ir/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "رسمی",
+      "آیین‌نامه",
+      "نشریه",
+      "پژوهش"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": true
+  },
+  {
+    "id": "external-01895015a87f9fac",
+    "slug": "سازمان-برنامه-و-بودجه",
+    "title": "سازمان برنامه و بودجه",
+    "category": "نشریات فنی",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "مرجع بخشنامه‌ها فهارس بها و نظام فنی و اجرایی کشور",
+    "sourceName": "سازمان برنامه و بودجه کشور",
+    "sourceUrl": "https://www.mporg.ir/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "فهرست بها",
+      "بخشنامه",
+      "نظام فنی اجرایی"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": true
+  },
+  {
+    "id": "external-069f4b7d3638ab61",
+    "slug": "بنیاد-مهندسی-ساختمان",
+    "title": "بنیاد مهندسی ساختمان",
+    "category": "کتاب و آزمون",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "منابع مقررات ملی کتاب‌های آزمون کلیدواژه و مطالب آموزشی صنعت ساختمان",
+    "sourceName": "بنیاد مهندسی ساختمان",
+    "sourceUrl": "https://bonyadsite.com/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "مقررات ملی",
+      "کتاب",
+      "آزمون",
+      "آموزش"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": false
+  },
+  {
+    "id": "external-3122294c69ff903d",
+    "slug": "فروشگاه-کتاب-عمران-سرا",
+    "title": "فروشگاه کتاب عمران‌سرا",
+    "category": "کتاب و آزمون",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "کتاب‌ها و منابع تخصصی آزمون‌های حرفه‌ای مهندسی عمران",
+    "sourceName": "عمران‌سرا",
+    "sourceUrl": "https://omransara.ir/shop/books",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "کتاب",
+      "آزمون",
+      "محاسبات",
+      "کارشناسی رسمی"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": false
+  },
+  {
+    "id": "external-5338942931859e20",
+    "slug": "کتاب-ها-و-منابع-آی-سیویل",
+    "title": "کتاب‌ها و منابع آی‌سیویل",
+    "category": "کتاب و آزمون",
+    "kind": "external",
+    "format": "وب‌سایت",
+    "description": "کتاب‌ها کلیدواژه‌ها و منابع آمادگی آزمون‌های مهندسی",
+    "sourceName": "آی‌سیویل",
+    "sourceUrl": "https://icivil.ir/book/",
+    "fileUrl": null,
+    "edition": "آنلاین",
+    "tags": [
+      "کتاب",
+      "کلیدواژه",
+      "آزمون",
+      "عمران"
+    ],
+    "sizeBytes": null,
+    "sha256": null,
+    "downloadable": false,
+    "external": true,
+    "official": false
+  }
+];

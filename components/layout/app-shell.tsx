@@ -38,6 +38,7 @@ const publicNavigation = [
 ] as const;
 
 const utilities = [
+  { label: "ابرکتابخانه مهندسی", href: "/resources", icon: BookOpen },
   { label: "کتابخانه مقررات", href: "/library", icon: BookOpen },
   { label: "آرشیو سؤال و پاسخ‌نامه", href: "/exam", icon: FileQuestion },
   { label: "مرکز آمادگی", href: "/prediction", icon: Target },
