@@ -17,6 +17,7 @@ from urllib.request import Request, urlopen
 
 import csv
 import hashlib
+import http.client
 import json
 import os
 import re
@@ -563,13 +564,29 @@ for domain, config in OFFICIAL_SOURCES.items():
             status, content_type, body, final_url = (
                 request_url(url)
             )
-        except (HTTPError, URLError, TimeoutError, OSError, ValueError, UnicodeError) as exc:
+        except (
+            HTTPError,
+            URLError,
+            TimeoutError,
+            OSError,
+            ValueError,
+            UnicodeError,
+            http.client.BadStatusLine,
+            http.client.RemoteDisconnected,
+            http.client.IncompleteRead,
+            ConnectionResetError,
+            ConnectionAbortedError,
+            BrokenPipeError,
+            ssl.SSLError,
+        ) as exc:
             discovered[url] = {
                 "url": url,
                 "domain": domain,
                 "source_name": config["name"],
                 "content_type": "",
-                "status": f"error:{type(exc).__name__}",
+                "status": (
+                    f"error:{type(exc).__name__}"
+                ),
                 "final_url": "",
                 "sha_prefix": sha_prefix(url),
                 "matched_prefix": (
