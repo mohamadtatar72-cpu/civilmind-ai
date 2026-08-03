@@ -1,3 +1,13 @@
+## 2026-08-03 — Super Library protected-preview verification
+
+- Confirmed `/resources` returns HTTP 200.
+- Confirmed `/api/resources/search` returns HTTP 200.
+- Confirmed the Preview deployment is protected by Vercel Authentication.
+- Recorded anonymous `/api/resources/ask` verification as blocked by Deployment Protection rather than an application failure.
+- Stored release evidence in `artifacts/super-library/RELEASE_EVIDENCE.md`.
+- Reconfirmed 48 automated tests, lint, typecheck and production build.
+- Production was not modified.
+
 ## 2026-08-03 — Super Library four-phase implementation
 
 - Preserved the existing Persian civil-engineering source catalog.
