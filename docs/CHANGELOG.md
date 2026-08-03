@@ -1,3 +1,31 @@
+## 2026-08-03 — Super Library four-phase implementation
+
+- Preserved the existing Persian civil-engineering source catalog.
+- Added controlled official-file ingestion through `manifest.csv`.
+- Added license-aware local-file and link-only enforcement.
+- Added PDF text extraction and Persian/English OCR fallback.
+- Added page-aware text chunking and SHA-256 document fingerprints.
+- Added internal indexed search across extracted document text.
+- Added document detail routes with edition, page and source metadata.
+- Added Citation-first retrieval with fail-closed no-source behavior.
+- Added truthful Provider-missing state for AI generation.
+- Added automated tests for metadata, OCR, search, citation and copyright controls.
+- Production was not modified.
+
+## 2026-08-03 — Super Library four-phase foundation
+
+- Added official-resource manifest and controlled ingestion folders.
+- Added license-aware local-file and link-only policies.
+- Added PDF text extraction and Persian/English OCR fallback.
+- Added page-aware chunking and SHA-256 document fingerprints.
+- Added internal inverted-index search API.
+- Added resource detail pages with edition, page and source metadata.
+- Added retrieval-first Citation API that fails closed without verified evidence.
+- Added truthful Provider-missing behavior.
+- Added automated four-phase super-library tests.
+- Existing external Persian civil-engineering sources remain link-only.
+- Production was not modified.
+
 ## 2026-08-03 — Engineering super library
 
 - Added the public `/resources` CivilMind AI engineering super library.

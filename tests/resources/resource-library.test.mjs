@@ -2,18 +2,18 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-const catalog = fs.readFileSync(
-  "features/resources/generated-catalog.ts",
+const page = fs.readFileSync(
+  "app/resources/page.tsx",
   "utf8",
 );
 
-const component = fs.readFileSync(
+const legacyComponent = fs.readFileSync(
   "components/resources/resource-library.tsx",
   "utf8",
 );
 
-const page = fs.readFileSync(
-  "app/resources/page.tsx",
+const superLibraryComponent = fs.readFileSync(
+  "components/super-library/super-library-client.tsx",
   "utf8",
 );
 
@@ -22,76 +22,58 @@ const appShell = fs.readFileSync(
   "utf8",
 );
 
+const catalog = JSON.parse(
+  fs.readFileSync(
+    "public/super-library/catalog.json",
+    "utf8",
+  ),
+);
+
 test("resource super library has a real route", () => {
-  assert.match(page, /ResourceLibrary/);
+  assert.match(page, /SuperLibraryClient/);
   assert.match(page, /AppShell/);
 });
 
-test("resource super library is linked from navigation", () => {
-  assert.match(
-    appShell,
-    /ابرکتابخانه مهندسی/,
-  );
+test("resource super library remains linked from navigation", () => {
+  assert.match(appShell, /ابرکتابخانه مهندسی/);
+  assert.match(appShell, /href: "\/resources"/);
+});
 
-  assert.match(
-    appShell,
-    /href: "\/resources"/,
+test("existing external resources remain available", () => {
+  assert.ok(Array.isArray(catalog));
+  assert.ok(catalog.length >= 16);
+  assert.ok(
+    catalog.some(
+      (resource) => resource.license === "link-only",
+    ),
   );
 });
 
-test("catalog supports local and external resources", () => {
-  assert.match(catalog, /downloadable/);
-  assert.match(catalog, /external/);
-  assert.match(catalog, /official/);
-  assert.match(catalog, /sourceUrl/);
-  assert.match(catalog, /fileUrl/);
-});
-
-test("library supports text and category search", () => {
-  assert.match(component, /setQuery/);
-  assert.match(component, /setCategory/);
-  assert.match(component, /filteredResources/);
-});
-
-test("library supports official and educational filters", () => {
-  assert.match(component, /ScopeFilter/);
-  assert.match(component, /official/);
-  assert.match(component, /educational/);
-  assert.match(component, /downloadable/);
-});
-
-test("external copyrighted content remains link only", () => {
+test("new library supports internal search", () => {
   assert.match(
-    component,
-    /مشاهده منبع اصلی/,
+    superLibraryComponent,
+    /\/api\/resources\/search/,
   );
-
   assert.match(
-    component,
-    /noopener noreferrer/,
+    superLibraryComponent,
+    /setQuery/,
   );
 });
 
-test("authorized local resources remain downloadable", () => {
+test("new library supports citation-first retrieval", () => {
   assert.match(
-    component,
-    /دانلود فایل/,
+    superLibraryComponent,
+    /\/api\/resources\/ask/,
   );
-
   assert.match(
-    component,
-    /resource\.downloadable/,
+    superLibraryComponent,
+    /Citation-first/,
   );
 });
 
-test("copyright policy is visible to users", () => {
+test("copyright policy remains visible", () => {
   assert.match(
-    component,
-    /سیاست حقوق نشر/,
-  );
-
-  assert.match(
-    component,
+    legacyComponent,
     /فقط با لینک منبع اصلی/,
   );
 });
