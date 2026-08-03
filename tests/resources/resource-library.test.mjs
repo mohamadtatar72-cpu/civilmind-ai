@@ -35,7 +35,7 @@ test("resource super library has a real route", () => {
 });
 
 test("resource super library remains linked from navigation", () => {
-  assert.match(appShell, /ابرکتابخانه مهندسی/);
+  assert.match(appShell, /label: "کتابخانه"/);
   assert.match(appShell, /href: "\/resources"/);
 });
 

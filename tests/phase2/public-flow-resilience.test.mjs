@@ -11,8 +11,9 @@ test("guest landing is distinct from the signed-in dashboard", async () => {
   assert.match(page, /GuestLanding/);
   assert.match(page, /router\.replace\("\/dashboard"\)/);
   assert.doesNotMatch(page, /redirect\("\/dashboard"\)/);
-  assert.match(landing, /هوش مصنوعی تخصصی آزمون نظام مهندسی/);
-  assert.match(landing, /از CivilMind AI بپرس/);
+  assert.match(landing, /مسیر ساده و قابل اعتماد برای آمادگی آزمون نظام مهندسی/);
+  assert.match(landing, /شروع تمرین سؤال/);
+  assert.match(landing, /مشاهده منابع رسمی/);
 });
 
 test("public archive never waits indefinitely for auth and analytics stays distinct", async () => {

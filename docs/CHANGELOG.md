@@ -1,3 +1,15 @@
+## 2026-08-03 — Cleanup Sprint 1A: product simplification
+
+- Reduced public navigation to six core product journeys.
+- Removed future-phase and duplicate routes from public navigation.
+- Preserved profile and admin navigation behind authentication and authorization.
+- Rebuilt the guest homepage around exams, verified resources and regulation explanation.
+- Removed non-functional voice, file-upload and read-only demo controls.
+- Added truthful provider-status copy to the homepage.
+- Added automated product-simplification tests.
+- Existing hidden routes and implementation files were not deleted.
+- Production was not modified.
+
 ## 2026-08-03 — Project audit blocker recovery
 
 - Restored truthful Citation-first interface copy required by the retrieval contract.
