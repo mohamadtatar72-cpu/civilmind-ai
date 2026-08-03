@@ -1,3 +1,15 @@
+## 2026-08-03 — Super Library quality repair and live verification
+
+- Reprocessed all document-quality warning records with controlled digital extraction and limited Persian/English OCR.
+- Rebuilt the 127-document internal official catalog.
+- Preserved 16 external link-only resources.
+- Rebuilt the page-aware Citation chunks and search index.
+- Verified unique catalog IDs and slugs.
+- Reconfirmed typecheck, lint, automated tests and production build.
+- Raw PDFs remain outside Git tracking.
+- No document was permanently deleted.
+- Production was not modified.
+
 ## 2026-08-03 — Final audit of 129 official PDFs
 
 - Verified processing coverage for all 129 downloaded PDF files.

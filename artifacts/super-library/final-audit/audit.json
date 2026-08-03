@@ -14,7 +14,7 @@
     "finalExternalResources": 16,
     "finalCatalogResources": 143,
     "citationChunks": 1946,
-    "indexTokens": 21369
+    "indexTokens": 21370
   },
   "missingProcessing": [],
   "inventory": [
@@ -1489,8 +1489,8 @@
       "textPath": "/workspaces/civilmind-ai/imports/super-library/extracted/b09978f6ef730cfc3778bb65a077887fb3dced88827c2e5d2517a8d2364804b5.txt",
       "stateExists": true,
       "textExists": true,
-      "textLength": 187,
-      "normalizedTextHash": "42206a610426b634a142e944fae8427306676191203915dbbd842e1bbda9f03f",
+      "textLength": 198,
+      "normalizedTextHash": "432476438ebed2fbaa86b00f47ac9ae3cb98a6f350b3d4842591df07d9df5a2a",
       "pageCount": 1,
       "ocrUsed": true,
       "searchable": false,
@@ -2017,7 +2017,7 @@
       "stateExists": true,
       "textExists": true,
       "textLength": 85,
-      "normalizedTextHash": "bfd8622da546ad841ef2b0f3d481b8e2b311a3a5f82addebad934617e738da97",
+      "normalizedTextHash": "a74759eb44f8bb032a640543b86c5ebdd7ab76f9c1d2709463a828636d030c67",
       "pageCount": 1,
       "ocrUsed": true,
       "searchable": false,

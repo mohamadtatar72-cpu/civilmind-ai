@@ -1,0 +1,35 @@
+[
+  {
+    "filename": "official-408b109dd4c6247f83-95-04-19.pdf",
+    "sha256": "e00090b071bc739e5d0f5873df45b589105cc802e66e26799a0db420d65675b3",
+    "status": "repaired",
+    "selectedSource": "previous",
+    "previousLength": 0,
+    "digitalLength": 0,
+    "ocrLength": 0,
+    "finalLength": 0,
+    "searchable": false
+  },
+  {
+    "filename": "official-b3d99c6ebf027315c4-t-10.pdf",
+    "sha256": "b09978f6ef730cfc3778bb65a077887fb3dced88827c2e5d2517a8d2364804b5",
+    "status": "repaired",
+    "selectedSource": "digital",
+    "previousLength": 187,
+    "digitalLength": 198,
+    "ocrLength": 183,
+    "finalLength": 198,
+    "searchable": false
+  },
+  {
+    "filename": "official-e381ab86d756861a8e-t-7.pdf",
+    "sha256": "74493ab4f17c32c66ee6cd86c709ae62e6945846846bfd912fecfad9159f78e5",
+    "status": "repaired",
+    "selectedSource": "digital",
+    "previousLength": 85,
+    "digitalLength": 85,
+    "ocrLength": 85,
+    "finalLength": 85,
+    "searchable": false
+  }
+]

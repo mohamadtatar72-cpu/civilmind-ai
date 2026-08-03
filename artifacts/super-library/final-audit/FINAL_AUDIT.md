@@ -25,7 +25,7 @@
 - External link-only resources: 16
 - Catalog resources: 143
 - Citation chunks: 1946
-- Index tokens: 21369
+- Index tokens: 21370
 
 ## Safety
 
