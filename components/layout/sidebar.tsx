@@ -29,11 +29,11 @@ const items = [
     children: [
       {
         title: "مباحث مقررات ملی ساختمان",
-        href: "/library",
+        href: "/resources",
       },
       {
         title: "منابع رسمی",
-        href: "/official-sources",
+        href: "/resources?type=official",
       },
       {
         title: "PDF ها",

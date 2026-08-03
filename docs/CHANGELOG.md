@@ -1,3 +1,15 @@
+## 2026-08-03 — Cleanup Sprint 1B: library route consolidation
+
+- Consolidated the legacy `/library` route into `/resources`.
+- Consolidated `/official-sources` into the official filter of `/resources`.
+- Consolidated the standalone `/search` route into `/resources`.
+- Updated internal links pointing to legacy public library routes.
+- Preserved the Convex-backed `/pdf` citation and document-processing capability.
+- Kept `/pdf` outside primary navigation until its useful functionality is integrated into the unified library.
+- Added automated route-consolidation tests.
+- No document, catalog record or PDF functionality was deleted.
+- Production was not modified.
+
 ## 2026-08-03 — Cleanup Sprint 1A: product simplification
 
 - Reduced public navigation to six core product journeys.

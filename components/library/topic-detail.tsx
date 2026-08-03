@@ -378,7 +378,7 @@ export function TopicDetail({ routeId }: { routeId: string }) {
       </GlassPanel>
 
       <Link
-        href="/library"
+        href="/resources"
         className="inline-flex items-center gap-2 rounded-xl px-1 py-2 text-sm font-semibold text-blue-300 hover:text-blue-200"
       >
         <ArrowRight className="size-4" />

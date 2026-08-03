@@ -1,10 +1,5 @@
-import AppShell from "@/components/layout/app-shell";
-import OfficialSourcesDashboard from "@/components/official-sources/official-sources-dashboard";
+import { redirect } from "next/navigation";
 
 export default function OfficialSourcesPage() {
-  return (
-    <AppShell>
-      <OfficialSourcesDashboard />
-    </AppShell>
-  );
+  redirect("/resources?type=official");
 }
