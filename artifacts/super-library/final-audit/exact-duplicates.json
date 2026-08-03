@@ -1,0 +1,35 @@
+{
+  "binaryDuplicateGroups": [
+    {
+      "sha256": "37a7bdadfe9245984c770268230933b45a5963fa158e82cb4894e113d4dc7d28",
+      "kept": "official-5c71d2040ef201ee33-1.pdf",
+      "duplicates": [
+        "official-9d9b9ab8246cafad13-11.pdf"
+      ],
+      "count": 2
+    },
+    {
+      "sha256": "97942f7a49e8ad63c74be42ef7c635edc6af0c92d0a69e9c3973b2c10d605de7",
+      "kept": "official-b3a936504ebd169ab2-Binder2.pdf",
+      "duplicates": [
+        "official-f0912a33c288fa2993-6635.pdf"
+      ],
+      "count": 2
+    }
+  ],
+  "identicalTextDifferentBinary": [],
+  "quarantinedFiles": [
+    {
+      "kept": "official-5c71d2040ef201ee33-1.pdf",
+      "quarantined": "official-9d9b9ab8246cafad13-11.pdf",
+      "sha256": "37a7bdadfe9245984c770268230933b45a5963fa158e82cb4894e113d4dc7d28",
+      "destination": "imports/super-library/quarantine/files/official-9d9b9ab8246cafad13-11.pdf"
+    },
+    {
+      "kept": "official-b3a936504ebd169ab2-Binder2.pdf",
+      "quarantined": "official-f0912a33c288fa2993-6635.pdf",
+      "sha256": "97942f7a49e8ad63c74be42ef7c635edc6af0c92d0a69e9c3973b2c10d605de7",
+      "destination": "imports/super-library/quarantine/files/official-f0912a33c288fa2993-6635.pdf"
+    }
+  ]
+}

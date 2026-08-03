@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+imports/super-library/files/*.pdf
+imports/super-library/extracted/
+imports/super-library/state/
+public/super-library/text/

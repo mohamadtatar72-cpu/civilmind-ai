@@ -1,3 +1,15 @@
+## 2026-08-03 — Final audit of 129 official PDFs
+
+- Verified processing coverage for all 129 downloaded PDF files.
+- Identified 127 unique binary documents.
+- Moved 2 byte-for-byte duplicate PDF files to reversible quarantine.
+- Retained 0 similar-document pairs for edition and scan review.
+- Recorded 3 document-quality warnings.
+- Rebuilt a catalog containing 143 internal and external resources.
+- Rebuilt 1946 Citation chunks and 21369 index tokens.
+- No PDF was permanently deleted.
+- Production was not modified.
+
 ## 2026-08-03 — Super Library protected-preview verification
 
 - Confirmed `/resources` returns HTTP 200.
