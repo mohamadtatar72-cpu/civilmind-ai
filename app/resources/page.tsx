@@ -7,10 +7,17 @@ import type { SuperLibraryResource } from "@/features/super-library/contracts";
 
 const catalog = catalogJson as SuperLibraryResource[];
 
+const publicCatalog = catalog.filter(
+  (resource) =>
+    resource.publicationStatus !== "needs-review",
+);
+
 export default function ResourcesPage() {
   return (
     <AppShell>
-      <SuperLibraryClient initialResources={catalog} />
+      <SuperLibraryClient
+        initialResources={publicCatalog}
+      />
     </AppShell>
   );
 }

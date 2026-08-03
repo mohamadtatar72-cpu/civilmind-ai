@@ -14,8 +14,16 @@ const catalog = catalogJson as SuperLibraryResource[];
 const chunks = chunksJson as SuperLibraryChunk[];
 const index = indexJson as Record<string, string[]>;
 
+const publicCatalog = catalog.filter(
+  (resource) =>
+    resource.publicationStatus !== "needs-review",
+);
+
 const resourceBySlug = new Map(
-  catalog.map((resource) => [resource.slug, resource]),
+  publicCatalog.map((resource) => [
+    resource.slug,
+    resource,
+  ]),
 );
 
 const chunkById = new Map(
@@ -39,26 +47,48 @@ export async function GET(request: NextRequest) {
     request.nextUrl.searchParams.get("q")?.trim() ?? "";
 
   const category =
-    request.nextUrl.searchParams.get("category")?.trim() ?? "";
+    request.nextUrl.searchParams
+      .get("category")
+      ?.trim() ?? "";
+
+  const kind =
+    request.nextUrl.searchParams.get("kind")?.trim() ?? "";
 
   const limit = Math.min(
     Math.max(
-      Number(request.nextUrl.searchParams.get("limit") ?? 30),
+      Number(
+        request.nextUrl.searchParams.get("limit") ?? 24,
+      ),
       1,
     ),
-    100,
+    60,
+  );
+
+  const offset = Math.max(
+    Number(
+      request.nextUrl.searchParams.get("offset") ?? 0,
+    ),
+    0,
+  );
+
+  const filteredCatalog = publicCatalog.filter(
+    (resource) =>
+      (!category ||
+        resource.category === category) &&
+      (!kind || resource.resourceKind === kind),
   );
 
   if (!query) {
-    const resources = catalog
-      .filter(
-        (resource) =>
-          !category || resource.category === category,
-      )
-      .slice(0, limit);
+    const resources = filteredCatalog.slice(
+      offset,
+      offset + limit,
+    );
 
     return NextResponse.json({
       query,
+      total: filteredCatalog.length,
+      offset,
+      limit,
       results: resources.map((resource) => ({
         resource,
         chunks: [],
@@ -71,16 +101,16 @@ export async function GET(request: NextRequest) {
   const chunkScores = new Map<string, number>();
 
   for (const token of tokens) {
-    const exact = index[token] ?? [];
-
-    for (const chunkId of exact) {
+    for (const chunkId of index[token] ?? []) {
       chunkScores.set(
         chunkId,
-        (chunkScores.get(chunkId) ?? 0) + 5,
+        (chunkScores.get(chunkId) ?? 0) + 6,
       );
     }
 
-    for (const [indexedToken, chunkIds] of Object.entries(index)) {
+    for (const [indexedToken, chunkIds] of Object.entries(
+      index,
+    )) {
       if (
         indexedToken !== token &&
         indexedToken.includes(token)
@@ -95,25 +125,30 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const grouped = new Map<
-    string,
-    {
-      resource: SuperLibraryResource;
-      chunks: SuperLibraryChunk[];
-      score: number;
-    }
-  >();
+  const grouped = new Map<string, SearchResult>();
 
   for (const [chunkId, score] of chunkScores) {
     const chunk = chunkById.get(chunkId);
 
     if (!chunk) continue;
 
-    const resource = resourceBySlug.get(chunk.resourceSlug);
+    const resource = resourceBySlug.get(
+      chunk.resourceSlug,
+    );
 
     if (!resource) continue;
 
-    if (category && resource.category !== category) {
+    if (
+      category &&
+      resource.category !== category
+    ) {
+      continue;
+    }
+
+    if (
+      kind &&
+      resource.resourceKind !== kind
+    ) {
       continue;
     }
 
@@ -125,21 +160,25 @@ export async function GET(request: NextRequest) {
 
     current.score += score;
 
-    if (current.chunks.length < 4) {
+    if (current.chunks.length < 3) {
       current.chunks.push(chunk);
     }
 
     grouped.set(resource.slug, current);
   }
 
-  const results: SearchResult[] = Array.from(
+  const allResults = Array.from(
     grouped.values(),
-  )
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit);
+  ).sort((a, b) => b.score - a.score);
 
   return NextResponse.json({
     query,
-    results,
+    total: allResults.length,
+    offset,
+    limit,
+    results: allResults.slice(
+      offset,
+      offset + limit,
+    ),
   });
 }
