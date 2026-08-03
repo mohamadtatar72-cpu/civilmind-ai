@@ -50,3 +50,8 @@ imports/super-library/quarantine/
 *.env.local
 .env.local.backup
 .env.vercel.local
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
