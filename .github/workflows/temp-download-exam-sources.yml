@@ -1,0 +1,34 @@
+name: Temporary exam source download
+
+on:
+  pull_request:
+    branches:
+      - develop/civilmind-v2
+    paths:
+      - .github/workflows/temp-download-exam-sources.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download official source PDFs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p exam-sources
+          curl -fL --retry 5 --retry-delay 2 -A 'Mozilla/5.0' 'https://inbr.ir/upload/azmoon-1401/omran-nezarat-1401.pdf' -o exam-sources/shahrivar-1401.pdf
+          curl -fL --retry 5 --retry-delay 2 -A 'Mozilla/5.0' 'https://inbr.ir/wp-content/uploads/2024/11/%D8%B9%D9%85%D8%B1%D8%A7%D9%86-%D9%86%D8%B8%D8%A7%D8%B1%D8%AA-%D8%A2%D8%A8%D8%A7%D9%86-1403-v2.pdf' -o exam-sources/aban-1403.pdf
+          curl -fL --retry 5 --retry-delay 2 -A 'Mozilla/5.0' 'https://inbr.ir/wp-content/uploads/2020/10/omran-nezarat99.pdf' -o exam-sources/mehr-1399.pdf
+          curl -fL --retry 5 --retry-delay 2 -A 'Mozilla/5.0' 'https://inbr.ir/wp-content/uploads/2019/12/omran-nezarat98-3.pdf' -o exam-sources/mehr-1398.pdf
+          ls -lh exam-sources
+      - name: Upload source PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-exam-sources
+          path: exam-sources/*.pdf
+          if-no-files-found: error
+          retention-days: 1
