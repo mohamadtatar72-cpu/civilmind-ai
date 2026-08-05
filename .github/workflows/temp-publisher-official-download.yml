@@ -1,0 +1,23 @@
+name: Temporary publisher official source download
+on:
+  pull_request:
+    branches:
+      - develop/civilmind-v2
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download official INBR PDFs
+        run: |
+          mkdir -p publisher-official
+          curl -L --fail --retry 3 'https://inbr.ir/wp-content/uploads/2016/08/omran-nezarat-94.pdf' -o publisher-official/bahman-1394.pdf
+          curl -L --fail --retry 3 'https://inbr.ir/wp-content/uploads/2019/02/omran-nezarat-bahman-97.pdf' -o publisher-official/bahman-1397.pdf
+          curl -L --fail --retry 3 'https://inbr.ir/wp-content/uploads/2024/03/%D8%B9%D9%85%D8%B1%D8%A7%D9%86-%D9%86%D8%B8%D8%A7%D8%B1%D8%AA.pdf' -o publisher-official/esfand-1402.pdf
+          curl -L --fail --retry 3 'https://inbr.ir/wp-content/uploads/2024/08/%D8%B9%D9%85%D8%B1%D8%A7%D9%86-%D9%86%D8%B8%D8%A7%D8%B1%D8%AA-%D9%85%D8%B1%D8%AF%D8%A7%D8%AF-1403.pdf' -o publisher-official/mordad-1403.pdf
+          file publisher-official/*.pdf
+      - name: Upload official PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: publisher-official-sources
+          path: publisher-official/*.pdf
+          retention-days: 1
