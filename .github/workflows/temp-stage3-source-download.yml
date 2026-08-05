@@ -1,0 +1,23 @@
+name: Temporary Stage 3 source download
+on:
+  pull_request:
+    branches:
+      - develop/civilmind-v2
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download official INBR PDFs
+        run: |
+          mkdir -p stage3-official
+          curl -L --fail --retry 3 'https://inbr.ir/wp-content/uploads/2017/04/omran-nezarat-esfand95.pdf' -o stage3-official/esfand-1395.pdf
+          curl -L --fail --retry 3 'https://inbr.ir/wp-content/uploads/2017/11/omran-nezarat-mehr96-2.pdf' -o stage3-official/mehr-1396.pdf
+          curl -L --fail --retry 3 'https://inbr.ir/wp-content/uploads/2018/05/omran-nezarat.pdf' -o stage3-official/ordibehesht-1397.pdf
+          curl -L --fail --retry 3 'https://inbr.ir/wp-content/uploads/2023/10/%D8%B9%D9%85%D8%B1%D8%A7%D9%86-%D9%86%D8%B8%D8%A7%D8%B1%D8%AA-%D9%85%D9%87%D8%B1-1402.pdf' -o stage3-official/mehr-1402.pdf
+          file stage3-official/*.pdf
+      - name: Upload official PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-stage3-sources
+          path: stage3-official/*.pdf
+          retention-days: 1
